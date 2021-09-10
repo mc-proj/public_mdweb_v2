@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - Marché du Web{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/accueil/index.style.css') }}">
+{% endblock %}
+
+
+{% block body %}
+{{ parent() }}
+    <div id="texte-accueil">
+    <div id="accueil-ligne-1">Livraison gratuite.</div>
+    <div id="accueil-ligne-2">Arrivées régulières de nouveaux produits.</div>
+</div>
+
+<div class="container-fluid">
+    <div class="row" id="ligne-nouveaux">
+        <div class="col-12"><h1>Nouveautés</h1></div>
+        {% for produit in produits_recents %}
+            <div class="col-md-2 col-6">
+                <a href="{{ path('vue_produit', {'nom_produit': produit.nom()}) }}" class="lien-article">
+                    <div class="card shadow">
+                        {% set article = produit.getImages().getValues()|first %}
+                        <img src="{{ asset('images/produits/') ~ article.getImage() }}" class="card-img-top" alt="image " ~ produit.nom>
+
+                        <div class="card-body">
+                            <p class="nom-produit">{{ produit.nom }}</p>
+                            
+                            {% if produit.getTvaActive() %}
+                                {% set tva = produit.getTauxTva().getTaux() %}
+                            {% else %}
+                                {% set tva = 0 %}
+                            {% endif %}
+
+                            {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
+                                <p class="prix-produit" id="ligne-promo">
+                                    <del>
+                                        {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
+                                    </del>
+                                    <ins>
+                                        {{ (produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000))|format_currency('EUR') }}
+                                    </ins><br>
+                                </p>
+                                <div class="prix-produit text-center">promotion valable jusqu'au {{ produit.getDateFinPromo()|date('d/m/Y') }}</div>
+                            {% else %}
+                                <p class="prix-produit">
+                                    {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="row ligne-articles" id="ligne-meilleurs">
+        <div class="col-12"><h1>Meilleurs produits</h1></div>
+        {% for produit in meilleurs_produits %}
+            <div class="col-md-2 col-6">
+                <a href="{{ path('vue_produit', {'nom_produit': produit.nom()}) }}" class="lien-article">
+                    <div class="card shadow">
+                        {% set article = produit.getImages().getValues()|first %}
+                        <img src="{{ asset('images/produits/') ~ article.getImage() }}" class="card-img-top" alt="image " ~ produit.nom>
+
+                        <div class="card-body">
+                            <p class="nom-produit">{{ produit.nom }}</p>
+                            {% if produit.getTvaActive() %}
+                                {% set tva = produit.getTauxTva().getTaux() %}
+                            {% else %}
+                                {% set tva = 0 %}
+                            {% endif %}
+
+                            {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
+                                <p class="prix-produit" id="ligne-promo">
+                                    <del>
+                                        {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
+                                    </del>
+                                    <ins>
+                                        {{ (produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000))|format_currency('EUR') }}
+                                    </ins><br>
+                                </p>
+                                <div class="prix-produit text-center">promotion valable jusqu'au {{ produit.getDateFinPromo()|date('d/m/Y') }}</div>
+
+                            {% else %}
+                                <p class="prix-produit">
+                                    {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/accueil/index.script.js') }}"></script>
+{% endblock %}
+

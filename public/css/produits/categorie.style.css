@@ -1,0 +1,116 @@
+#loader {
+    position: fixed;
+    z-index: 9999;
+    background: url("../../images/loader.svg") 50% 50% no-repeat;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+}
+
+#chemin {
+
+    font-family: "aclonica", arial;
+    font-size: 13.6px;
+    color: #767676;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    letter-spacing: 3px;
+    text-align: left;
+}
+
+#chemin a{
+
+    color: #767676;
+}
+
+#texte-resultats {
+
+    font-family: "aclonica", arial;
+    font-size: 13.6px;
+    color: #404248;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    letter-spacing: 3px;
+    text-align: right;
+}
+
+#filtre {
+
+    width: 300px;
+}
+
+.case-produit {
+
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.card {
+
+    height: 100%;
+    overflow: hidden;
+}
+
+.card-img-top {
+
+    transform: scale(1.0);
+    transition: all 700ms;
+}
+
+.card-img-top:hover {
+
+    transform: scale(1.1);
+}
+
+.nom-produit {
+
+    font-size: 16px;
+    color: #404248;
+    text-align: left;
+}
+
+.prix-produit {
+
+    font-family: "aclonica", arial;
+    font-size: 13.712px;
+    font-style: italic;
+    color: #404248;
+    text-align: left;
+}
+
+#rang-produit .lien-article:hover {
+
+    text-decoration: none !important;
+} 
+
+#message_null {
+
+    font-family: "aclonica", arial;
+    font-size: 16px;
+    color: #404248;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.pagination a {
+
+    border: none;
+}
+
+.pagination a:hover {
+
+    cursor: pointer;
+}
+
+@media (max-width: 767px) {
+
+    #texte-resultats, #chemin {
+
+        font-size: 12.75px;
+    }
+}

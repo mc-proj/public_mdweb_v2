@@ -1,0 +1,51 @@
+#chemin {
+
+    font-family: "aclonica", arial;
+    font-size: 13.6px;
+    color: #767676;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    letter-spacing: 3px;
+}
+
+#chemin a{
+
+    text-decoration: none;
+    color: #767676;
+}
+
+.case-categorie {
+
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.card {
+
+    height: 100%;
+    overflow: hidden;
+}
+
+.card-img-top {
+
+    transform: scale(1.0);
+    transition: all 700ms;
+}
+
+.card-img-top:hover {
+
+    transform: scale(1.1);
+}
+
+.lien-categorie {
+
+    font-family: "roboto_condensed", arial;
+    font-size: 16px;
+    color: #0366D6;
+    letter-spacing: 1px;
+}
+
+.lien-categorie:hover {
+
+    text-decoration: none;
+}

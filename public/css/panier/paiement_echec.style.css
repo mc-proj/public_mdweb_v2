@@ -1,0 +1,49 @@
+body {
+
+    font-family: "aclonica", arial;
+    font-size: 13.6px;
+    color: #393939;
+    letter-spacing: 3px;
+}
+
+#container-principal {
+
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+h1 {
+
+    font-family: "roboto_condensed", "arial";
+    font-size: 48px;
+}
+
+.texte {
+
+    margin: 30px 30px 10px 30px;
+}
+
+#div-bouton {
+
+    margin: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+#bouton-retour-paiement {
+
+    background-color: #C86262;
+    border-color: #C86262;
+    font-size: 14px;
+    letter-spacing: 3px;
+    font-weight: 700;
+    color: black;
+    margin-bottom: 60px;
+}
+
+#bouton-retour-paiement:hover {
+
+    background-color: rgb(0, 123, 255);
+    border-color: rgb(0, 123, 255);
+    color: white;
+}

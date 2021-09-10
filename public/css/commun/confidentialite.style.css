@@ -1,0 +1,37 @@
+body {
+
+    font-family: "roboto_condensed";
+    font-size: 16px;
+    color: #404248;
+    letter-spacing: 1px;
+}
+
+h1 {
+
+    margin-left: 25px;
+    font-size: 24px;
+    margin-top: 24px;
+}
+
+#bloc-confidentialite {
+
+    padding: 0px 50px 50px 50px;
+}
+
+.titre {
+
+    font-size: 20.8px;
+    margin-bottom: 10px;
+}
+
+.sous-titre {
+
+    font-size: 17.6px;
+    margin-bottom: 10px;
+}
+
+.paragraphe {
+
+    font-family: "aclonica";
+    margin-bottom: 10px;
+}

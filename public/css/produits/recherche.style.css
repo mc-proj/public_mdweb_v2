@@ -1,0 +1,25 @@
+#container-principal {
+
+    margin-top: 30px;
+}
+
+#case-recherche {
+
+    padding: 0;
+}
+
+#bouton-recherche {
+
+    background-color: lightgrey !important;
+    position: relative;
+    width: 20%;
+    height: 38px;
+    left: 80%;
+    top: -55px;
+    padding: 0;
+}
+
+.icone-loupe {
+
+    font-size: 18px;
+}

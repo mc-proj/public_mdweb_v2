@@ -1,0 +1,31 @@
+body {
+
+    font-family: "aclonica", arial;
+    font-size: 16px;
+    color: #404248;
+    letter-spacing: 3px;
+}
+
+#bloc-cgv {
+
+    padding: 50px;
+}
+
+h1 {
+
+    font-family: "roboto_condensed", arial;
+    font-size: 24px;
+    margin: 0px 0px 12.8px;
+}
+
+h2 {
+
+    font-family: "roboto_condensed", arial;
+    font-size: 20.8px;
+    margin: 12.8px 0px 12.8px;
+}
+
+.gras {
+
+    font-weight: 800;
+}

@@ -1,0 +1,111 @@
+@font-face {
+
+    font-family: "roboto_condensed";
+    src: url('../../polices/Roboto_condensed/RobotoCondensed-Regular.ttf');
+}
+
+body {
+
+    font-family: "roboto_condensed", arial;
+    font-size: 30px;
+    font-weight: 800;
+    text-align: center;
+}
+
+#texte-accueil {
+
+    margin: 40px;
+    text-decoration: underline;
+    font-style: italic;
+    letter-spacing: 3px;
+    opacity: 0;
+}
+
+#accueil-ligne-1 {
+
+    color: #003300;
+}
+
+#accueil-ligne-2 {
+
+    color: #404248;
+}
+
+h1 {
+
+    font-size: 48px;
+    font-style: italic;
+    color: #8B4513;
+}
+
+#ligne-nouveaux {
+
+    margin-top: 50px;
+    margin-bottom: 70px;
+}
+
+#ligne-meilleurs {
+
+    margin-top: 50px;
+    margin-bottom: 150px;
+}
+
+.card {
+
+    height: 100%;
+    overflow: hidden;
+}
+
+.card-img-top {
+
+    transform: scale(1.0);
+    transition: all 700ms;
+}
+
+.card-img-top:hover {
+
+    transform: scale(1.1);
+}
+
+.nom-produit {
+
+    font-size: 16px;
+    color: #404248;
+    text-align: left;
+}
+
+.prix-produit {
+
+    font-family: "aclonica", arial;
+    font-size: 13.712px;
+    font-style: italic;
+    color: #404248;
+    text-align: left;
+}
+
+#ligne-promo {
+    display: flex;
+    justify-content: space-around;
+}
+
+.lien-article {
+    text-decoration: none;
+}
+
+.lien-article:hover {
+
+    text-decoration: none !important;
+}
+
+@media (max-width: 991px) {
+
+    #texte-accueil {
+
+        font-size: 20.8px;
+    }
+
+    h1 {
+
+        font-size: 24px;
+    }
+}

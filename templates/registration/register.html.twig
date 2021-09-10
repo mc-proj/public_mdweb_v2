@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - Marché du Web{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/register/inscription.style.css') }}">
+{% endblock %}
+
+{% block body %}
+    {% for flashError in app.flashes('verify_email_error') %}
+        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
+    {% endfor %}
+
+    {% for erreurs in app.flashes('erreur_inscription') %}
+        <ul class="alert alert-danger flash-custom">
+            {% for erreur in erreurs %}
+                <li>{{ erreur }}</li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+
+    <div class="container-fluid">
+        <h1>Inscription</h1><hr>
+        <h3>Nouvel utilisateur ?</h3>
+
+        <div class="row" id="rang-formulaire">
+            <div class="col-10 offset-1">
+                {{ form_start(registrationForm) }}
+                    {{ form_widget(registrationForm) }}
+                    <div>* Champs obligatoires</div>
+                    <button type="submit" class="btn" id="bouton_envoi">Envoyer</button>
+                {{ form_end(registrationForm) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

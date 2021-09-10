@@ -1,0 +1,55 @@
+body {
+
+    font-family: arial, sans-serif;
+    font-size: 16px;
+    color: #2B2B2B;
+}
+
+h1 {
+
+    font-family: "roboto_condensed", arial;
+    font-size: 48px;
+    color: #404248;
+    margin-top: 20px;
+}
+
+h3 {
+
+    font-size: 24px;
+}
+
+#rang-formulaire {
+
+    background-color: rgb(248, 249, 250);
+    margin: 30px 60px 30px 60px;
+    padding-top: 15px;
+    border-radius: 6px;
+}
+
+.champ {
+
+    margin-bottom: 30px;
+}
+
+#bouton_envoi {
+
+    background-color: #C86262 !important;
+    color: black !important;
+    
+    margin-left: 40%;
+    margin-bottom: 20px;
+}
+
+#bouton_envoi:hover {
+
+    background-color: rgb(0, 123, 255) !important;
+    color: white !important;
+}
+
+@media (max-width: 991px) {
+
+    h1 {
+
+        font-size: 24px;
+    }
+}

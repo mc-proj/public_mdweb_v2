@@ -2,18 +2,296 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {# Run `composer require symfony/webpack-encore-bundle`
-           and uncomment the following Encore helpers to start using Symfony UX #}
-        {% block stylesheets %}
-            {#{{ encore_entry_link_tags('app') }}#}
-        {% endblock %}
+        <meta name="description" content="Divers produits pour la maison : accessoires , décorations et pleins d'autres choses.">
+	    <meta name="keywords" content="marcheduweb, Marcheduweb, MarcheDuweb, MarcheDuWeb">
+	    <meta name="author" content="Dev &#038; Kod">
+	    <meta name="og:title" property="og:title" content="Marché du web, divers produits pour la maison">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <meta name="robots" content= "index,follow">
 
-        {% block javascripts %}
-            {#{{ encore_entry_script_tags('app') }}#}
+        <title>{% block title %}Marché du Web{% endblock %}</title>
+        {% block stylesheets %}
+        {# Lien CDN Bootstrap #}
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+        {# Lien Font Awesome #}
+            {# <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/> #}
+            <link rel="stylesheet" href="{{ asset('fontawesome-5.15.4/css/all.css') }}">
+        {# image favicon #}
+            <link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon/logo_32x32.png') }}">
+        {# Style toastr #}
+            <link href="{{ asset('toastr/toastr.css') }}" rel="stylesheet"/>
+        {# Lien vers notre feuille de style globale #}
+            <link rel="stylesheet" href="{{ asset('css/base.style.css') }}">
         {% endblock %}
     </head>
+
     <body>
-        {% block body %}{% endblock %}
+        <div id="cache"></div>
+        <div id="menu-lateral">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12" id="col-fermeture-lateral">
+                        <button type="button" class="btn btn-outline-dark" id="bouton-fermeture-lateral">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row" id="row-menu-lateral">
+                    <div class="col-12">
+                        {{ render(path('menu_lateral')) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# test
+        <i class="fa fa-camera-retro"></i>
+        <i class="fas fa-camera-retro"></i>
+        test #}
+
+        {% block header %}
+            <div id="div-header">
+                <div class="container-fluid" id="container-header">
+                    <div class="row ligne-recherche">
+                        <div class="col-12">
+                            <form class="form-inline">
+                                <input class="form-control mr-3" id="texte-recherche" type="search" placeholder="Rechercher..." aria-label="Search">
+                                <div class="form-control" id="resultats-recherche"></div>
+
+                                <button id="croix-recherche" type="button" class="close ml-auto" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </form>  
+                        </div>
+                    </div>
+
+                    <div class="row" id="header-main-row">
+                        <div class="col-1" id='icone-recherche'>
+                            <i class="fas fa-search icone"></i>
+                        </div>
+                        <div class="col-3" id='menu-header-gauche'>
+                            {% set current_path = app.request.get('_route') %}
+                            {% if current_path is not same as ("accueil") %}
+                                <span class="element-menu">
+                                    <a href="{{ path('accueil') }}">Accueil</a>
+                                </span>
+                            {% endif %}
+                            <span class="element-menu">
+                                @TODO mon compte / connexion (base.html)
+                                {# {% if app.user %}
+                                    <a href="{{ path('page_compte') }}">Mon compte</a>
+                                {% else %}
+                                    <a href="{{ path('app_login') }}">Connexion</a>
+                                {% endif %} #}
+                            </span>
+                        </div>
+
+                        <div class="col-6" id='icone-site'>
+                            <div id="bloc-logo">
+                                <a href="{{ path('accueil') }}">
+                                    <img id="image-logo" src="{{ asset('images/icone/icone.png') }}" alt="logo marché du web">
+                                </a>
+                                <a href="{{ path('accueil') }}" id="texte-logo">Marché du Web</a>
+                            </div>
+                        </div>
+
+                        <div class="col-3" id='menu-header-droite'>
+
+                            {% set current_path = app.request.get('_route') %}
+                            {% if current_path is not same as ("accueil") %}
+                                <span class="element-menu">
+                                    <a href="{{ path('accueil') }}">Accueil</a>
+                                </span>
+                            {% endif %}
+                            <span class="element-menu">
+                                {# @TODO mon compte / connexion (base.html) #}
+                                {% if app.user %}
+                                    {# <a href="{{ path('page_compte') }}">Mon compte</a> #}
+                                    <a href="#">Mon compte @TODO base.html</a>  {# 2 menus gd/pt #}
+                                {% else %}
+                                    <a href="{{ path('app_login') }}">Connexion</a>
+                                    {# sur page connexion, changer pour inscription ? #}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="col-2" id='icone-panier'>
+                            @TODO panier (base.html)
+                            {# <a href="{{ path('panier') }}">                                      
+                                <i class="fas fa-shopping-cart icone" id="logo-panier" data-container="body" data-toggle="popover" data-content="<div class='container' id='apercu-popover'><img id='loader-apercu' src='{{ asset("images/loader.svg") }}'></div>"></i>
+                                <span class="badge badge-light" id="compteur-panier">
+                                    {% if app.session.get("nombre_articles") is not same as (null) %}
+                                        {{ app.session.get("nombre_articles") }}
+                                    {% else %}
+                                        0  
+                                    {% endif %}
+                                </span>
+                            </a>    #}
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar-header">
+                    <button class="navbar-toggler" id="burger-button" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="container-fluid" id="menu-navbar">
+                        <div class="row" id="row-menu-navbar">
+                            <div class="col-12" id="col-menu-navbar">
+                                {{ render(path('menu_navbar')) }}
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        {% endblock %} {#fin block header #}
+
+        {# {% block body %}
+            <div id="content"></div>
+        {% endblock %} #}
+        <div id="content">
+            {% block body %}
+
+            {% endblock %}
+        </div>
+
+        {% block footer %}
+            <div class="modal fade" id="modale-propos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">A propos</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Marché du Web</p>
+                            <p>Site de Madame Sandrine HERICOTTE</p>
+                            <p>Siren: 888 033 990</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid" id="container-footer">
+                <div class="row">
+                    <div class="col-md-2 col-sm-3">
+                        <div class="case-footer" id="case-gauche-1">
+                            <a href="{{ path('confidentialite') }}">Politique de confidentialité</a>
+                        </div>
+                        <div class="case-footer" id="case-gauche-2">
+                            <a href="{{ path('cgv') }}">CGV</a>
+                        </div>
+                        <div class="case-footer" id="case-gauche-3">
+                            <a data-bs-toggle="modal" data-bs-target="#modale-propos">
+                                A propos
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-8 col-sm-6">
+                        <div class="case-footer">Marché du Web</div>
+                        <div class="case-footer">Entreprise située dans le Nord de la France</div>
+                        <div class="case-footer">Email: contact@marcheduweb.fr</div>
+                    </div>
+
+                    <div class="col-md-2 col-sm-3">
+                        <div class="case-footer" id="case-droite">
+                            <a href="{{ path('contact') }}">Contact</a>
+                        </div>
+                        <div class="case-footer">Suivez nous</div>
+                        <div class="case-footer">
+                            <a href="https://www.instagram.com/marcheduweb/" target="_blank"><i class="fab fa-instagram logo-footer"></i></a>
+                            <a href="https://www.facebook.com/sandy.h59" target="_blank"><i class="fab fa-facebook logo-footer"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-7 col-12" id="col-image-paiement">
+                        <img id="image-paiement" src="{{ asset('images/moyen_paiement.png') }}" alt="moyens de paiement: paypal, carte bleue, visa, mastercard">
+                    </div>
+
+                    <div class="col-md-5 col-12" id="col-lien-facebook">
+                        <div class="row" id="row-lien-facebook">
+                            <div class="col-3" id="col-logo-miniature">
+                                <img id="image-logo-miniature" src="{{ asset('images/icone/icone-mini.png') }}" alt="logo miniature Marché du Web">
+                            </div>
+
+                            <div class="col-9">
+                                <div class="row">
+                                    <div class="col-12">
+                                        Marché du Web
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <a href="https://www.facebook.com/sandy.h59" target="_blank">
+                                            <i class="fab fa-facebook logo-facebook-mini">&nbsp;J'aime cette page</i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="row-date">
+                    <div class="col-12">
+                        <span id="symbole_copy">&copy;</span>{{ "now"|date("Y") }} Marché du Web Powered by Dev &#038; Kod'
+                    </div>
+                </div>
+            </div>
+
+            {% if app.session.get("cookies_acceptes") is not same as(true) %}
+                <div class="container-fluid" id="container-cookies">
+                    <div class="row">
+                        <div class="col-md-9 col-sm-12" id="texte-cookies">
+                            Confidentialité et cookies : ce site utilise des cookies. En continuant à naviguer sur ce site, vous acceptez que nous en utilisions.
+                            Pour en savoir plus, y compris sur la façon de contrôler les cookies, reportez-vous à ce qui suit : <a href="{{ path('confidentialite') }}">Politique relative aux cookies</a>
+                        </div>
+
+                        <div class="col-md-3 col-sm-12" id="col-btn-cookies">
+                            <button class="btn btn-dark" id="bouton-cookies">Fermer et accepter</button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endblock %}
+
+
+        {% block javascripts %}
+        {# Lien CDN JQuery #}
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        {# Liens CDN Bootstrap #}
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
+        {# Lien toastr #}
+            <script src="{{ asset('toastr/toastr.js') }}"></script>
+        {# Lien vers script de la page #}
+            <script src="{{ asset('js/base.script.js') }}"></script>
+
+        {# liens pour ReCaptcha #}
+            <script>
+                {# let test_key = {{ gg_recaptcha_site_key }}; #}
+                let cle_site = {{ gg_recaptcha_site_key|json_encode|raw }};
+                //console.log(test_key);
+            </script>
+            <script type="text/javascript" src="{{ asset('js/captcha.js') }}"></script>
+            <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?onload=onGoogleReCaptchaApiLoad&render=explicit&hl={{app.request.locale}}" async defer></script>
+
+            <script>
+                let current_route = '{{ app.request.get("_route") }}';
+                let racine = '{{ asset("") }}';
+                {# let route_retrait = '{{ path("panier_retrait") }}';
+                let route_panier = '{{ path("panier") }}'; #}
+            </script>
+        {% endblock %}
     </body>
 </html>

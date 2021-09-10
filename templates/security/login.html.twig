@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - Marché du Web{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/login/login.style.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <h1>Connexion</h1><hr>
+        <h3>Connexion pour les utilisateurs enregistrés</h3>
+
+        {% for messageOk in app.flashes('register_success') %}
+            <div class="alert alert-success" role="alert">{{ messageOk }}</div>
+        {% endfor %}
+
+        {% if app.user %}
+            <div class="mt-3 mb-3 text-center">
+                Vous êtes connecté(e) en tant que {{ app.user.username }}, <a href="{{ path('app_logout') }}">Déconnection</a>
+            </div>
+        {% else %}
+            <div class="row" id="rang-formulaire">
+                <div class="col-10 offset-1">
+                    <form method="post">
+                        {% if error %}
+                            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                        {% endif %}
+
+                        <label for="inputEmail">E-mail :</label>
+                        <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control mb-4" autocomplete="email" required autofocus>
+                        <label for="inputPassword">Mot de passe :</label>
+                        <input type="password" name="password" id="inputPassword" class="form-control mb-4" autocomplete="current-password" required>
+
+                        <input type="hidden" name="_csrf_token"
+                            value="{{ csrf_token('authenticate') }}"
+                        >
+
+                        <div class="checkbox mb-3 custom-text-right">
+                            <label>
+                                <input type="checkbox" name="_remember_me">&nbsp;Se souvenir de moi
+                            </label>
+
+                            <button class="btn btn-primary" id="bouton_envoi" type="submit">
+                                Connexion
+                            </button>
+                        </div>
+
+                        <div class="mt-3 mb-3" style="text-align: right">
+                            Mot de passe oublié ? <a href="{{ path('app_forgot_password_request') }}">Cliquez ici pour réinitialiser</a>
+                        </div>
+
+                        <div class="mt-3 mb-3" style="text-align: right">
+                            Nouvel utilisateur ? <a href="{{ path('app_register') }}">Cliquez ici pour vous inscrire</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

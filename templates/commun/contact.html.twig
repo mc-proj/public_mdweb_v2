@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact - Marché du Web{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/commun/contact.style.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="jumbotron" id="bandeau">
+        <div id="fond_noir">
+            <div id="ligne1-bandeau">CONTACT</div>
+            <div id="ligne2-bandeau">N'hésitez pas à nous contacter à votre convenance et nous serons heureux de vous répondre.</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% for message in app.flashes('confirmation_contact') %}
+                <div class="alert alert-success" id="contact-bag">
+                    {{ message}}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="container-fluid" id="container-contenu">
+        <div class="row">
+            <div class="col-md-6 col-12" id="bloc-formulaire">
+                {{ form_start(form) }}
+                    {{ form_widget(form) }}
+                    <button class="btn" id="bouton_envoi">ENVOYER</button>
+                {{ form_end(form) }}
+            </div>
+
+            <div class="col-md-6 col-12">
+                <div id="message-clients"</div>
+                    <p>
+                        Parce que nous sommes là pour être à l'écoute de nos clients , n'hésitez pas à nous poser des questions
+                        , nous donner vos avis ou encore nous dire ce que vous aimeriez voir sur notre site.
+                    </p>
+                    <p>La messagerie de contact est faite pour cela.</p>
+                    <p>A très vite , très chers clients.</p>
+                    <hr class="w-25">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/commun/contact.script.js') }}"></script>
+{% endblock %}

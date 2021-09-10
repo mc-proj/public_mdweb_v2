@@ -1,0 +1,307 @@
+body {
+
+    font-family: "aclonica", arial;
+    font-size: 16px;
+    color: #404248;
+}
+
+#loader {
+
+    position: fixed;
+    z-index: 9999;
+    background: url("../../images/loader.svg") 50% 50% no-repeat;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+}
+
+#table-modale {
+
+    text-align: center;
+    overflow: hidden;
+    border-top-left-radius: 5px;    
+    border-top-right-radius: 5px;  
+    margin-top: 32px;
+}
+
+.col-modale {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-modale {
+
+    width: 50%;
+    height: 50%;
+    min-width: 100px;
+    min-height: 100px;
+} 
+
+#flux-panier {
+
+    background-color: #C86262;
+}
+
+#msg-panier-vide {
+
+    width: 90%;
+    margin-left: 5%
+}
+
+#containeur-principal {
+
+    width: 98%;
+    margin-left: 1%;
+    letter-spacing: 3px;
+}
+
+h1 {
+
+    font-family: "roboto_condensed", arial;
+    font-size: 48px;
+}
+
+.case-centree {
+
+    border-top: 1px solid lightgrey;
+    padding: 10px;
+}
+
+.case-reduite {
+
+    border-top: 1px solid lightgrey;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.span-nom {
+
+    width: 65%;
+    text-align: right;
+}
+
+.span-quantite {
+
+    width: 20%;
+}
+
+.fond-gris {
+
+    background-color: rgb(237, 237, 237);
+}
+
+.entete-tableau {
+
+    background-color: rgb(237, 237, 237);
+    padding: 10px 0 10px 0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.case-article {
+
+    display: flex;
+    align-items: center;
+}
+
+#ligne-panier-vide {
+
+    padding: 16px 0 32px 0;
+}
+
+#case-panier-vide {
+
+    font-size: 13.6px;
+    color: #515151;
+    background-color: #F0F0F0;
+    border-radius: 3px;
+    padding: 20px;
+    letter-spacing: 4px;
+}
+
+#bouton-retour-boutique {
+
+    background-color: #C86262;
+    border-color: #C86262;
+    font-size: 12.8px;
+    letter-spacing: 3px;
+    font-weight: 700;
+    color: black;
+    margin-bottom: 60px;
+}
+
+#bouton-retour-boutique:hover {
+
+    background-color: rgb(0, 123, 255);
+    border-color: rgb(0, 123, 255);
+    color: white;
+}
+
+.span-poubelle {
+
+    background-color: #E16666;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 200ms;
+}
+
+.span-poubelle:hover {
+
+    background-color: #F37262;
+    cursor: pointer;
+}
+
+.poubelle{
+
+    margin-left: 2.5px;
+}
+    
+
+.poubelle:hover {
+
+    cursor: pointer;
+}
+
+.span-poubelle-reduite {
+
+    background-color: #E16666;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 200ms;
+}
+
+.span-poubelle-reduite:hover {
+
+    background-color: #F37262;
+}
+
+.span-poubelle-reduite{
+
+    margin-left: 2.5px;
+}
+    
+.span-poubelle-reduite:hover {
+
+    cursor: pointer;
+}
+
+.lien-produit-panier {
+
+    color: rgb(3, 102, 214);
+    text-decoration: underline;
+}
+
+.lien-produit-panier:hover {
+
+    color: rgb(14, 80, 167);
+    text-decoration: none;
+}
+
+#bouton-reset-promo, #bouton-vide-panier {
+
+    font-size: 12.8px;
+    border-color: #772929;
+    color: #772929;
+    background-color: #E16666;
+}
+
+#bouton-vide-panier:hover {
+
+    background-color: rgb(28, 117, 218);
+    border-color: rgb(28, 117, 218);
+    color: white;
+}
+
+#description-promo {
+
+    text-align: center;
+}
+
+#valeur-promo {
+
+    text-align: center;
+}
+
+#rang-code-promo {
+
+    margin-top: 28px;
+}
+
+#input-code-promo {
+
+    font-size: 12.8px;
+}
+
+#bouton-code-promo {
+
+    font-size: 12.8px;
+    border-color: #772929;
+    color: #772929;
+    background-color: #E16666;
+}
+
+#rang-sous-total {
+
+    margin-top: 32px;
+}
+
+#bouton-valide-commande {
+
+    background-color: #C86262;
+    color: black;
+    width: 96%;
+    margin-left: 2%;
+}
+
+#bouton-valide-commande:hover {
+
+    background-color: rgb(28, 117, 218);
+    border-color: rgb(28, 117, 218);
+    color: white;
+}
+
+@media (min-width: 768px) { /*md et plus*/
+
+    #affichage-sm {
+
+        display: none;
+    }
+
+    #bouton-code-promo {
+
+        width: auto;
+    }
+}
+
+@media (max-width: 767px) { /*sm et moins*/
+
+    .case-article.image {
+
+        display: none;
+    }
+
+    #affichage-md {
+
+        display: none;
+    }
+
+    #bouton-code-promo {
+
+        width: 100%;
+    }
+}

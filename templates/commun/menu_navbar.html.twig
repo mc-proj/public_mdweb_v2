@@ -1,0 +1,24 @@
+{% for categorie in categories %}
+    {% if categorie.getCategoriesParentes()|length == 0 %} {# on ne parcours que les categories principales #}
+        <div class="dropdown liste enligne">
+            {% if categorie.getSousCategories()|length == 0 %} {# la categorie en cours n'a pas de sous categorie associee #}
+                {# <a class="lien-header" href="{{ path('produits_par_categorie', {'categorie': categorie.nom }) }}"> #}
+                <a class="lien-header" href="#">
+                    {{ categorie.nom }}
+                </a>
+            {% else %}  {# la categorie en cours a au moins une sous categorie associee #}
+                {# <a class="lien-header dropdown-toggle lien-liste" href="{{ path('produits_par_categorie', {'categorie': categorie.nom }) }}" id="navbarDropdownMenuLink_{{ categorie.id }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> #}
+                <a class="lien-header dropdown-toggle lien-liste" href="#" id="navbarDropdownMenuLink_{{ categorie.id }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ categorie.nom }}
+                </a>
+
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink_{{ categorie.id }}">
+                    {% for sous_categorie in categorie.getSousCategories() %}
+                        {# <a class="dropdown-item sous-liste-normale" href="{{ path('produits_par_categorie', {'categorie': categorie.nom, 'sous_categorie': sous_categorie.getNom() }) }}">{{ sous_categorie.getNom() }}</a> #}
+                        <a class="dropdown-item sous-liste-normale" href="#">{{ sous_categorie.getNom() }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endfor %}

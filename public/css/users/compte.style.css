@@ -1,0 +1,217 @@
+body {
+
+    font-family: "aclonica", arial;
+    font-size: 16px;
+    color: #2B2B2B;
+}
+
+#corps-modale {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#container-adresses-modale {
+
+    padding: 0;
+    margin-top: 24px;
+    margin-bottom: 24x;
+}
+
+#row-adresses {
+
+    width: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.col-adresse {
+
+    padding: 4% 0 7% 0;
+}
+
+.div-adresse {
+
+    border: 1px solid lightgray;
+    height: 75%;
+    padding: 8px;
+    overflow-wrap: break-word;
+
+    width: 98%;
+    margin-left: 1%;
+}
+
+h5 {
+
+    margin-left: 2%;
+}
+
+#modale-adresse-facturation {
+
+    white-space : pre-line;
+}
+
+#modale-adresse-livraison {
+
+    white-space : pre-line;
+}
+
+#row-message {
+
+    width: 98%;
+    margin: 24px 1% 24px 1%;
+}
+
+.texte-souligne {
+
+    text-decoration: underline;
+}
+
+h3 {
+
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 800;
+}
+
+#bouton-deconnexion {
+
+    font-family: "crafty_girls", arial;
+    font-size: 16px;
+    background-color: rgb(92, 22, 22);
+    color: white;
+    font-weight: 700;
+    margin: 30px 0 30px 0;
+    transition: all 500ms;
+    width: 15%;
+    margin-left: 42.5%;
+}
+
+#bouton-deconnexion:hover {
+
+    color: white !important;
+    background-color: rgb(125, 52, 47);
+}
+
+.onglet {
+
+    background-color: rgb(92, 22, 22);
+    border-right: 1px solid white !important;
+    color: white;
+    font-weight: 700;
+    transition: all 500ms;
+}
+
+.onglet:hover {
+
+    color: white !important;
+    background-color: rgb(125, 52, 47);
+}
+
+.onglet.active {
+
+    border-top: 3px solid darkblue !important;
+    border-right: 1px solid lightgrey !important;
+    border-bottom: 1px solid lightgrey !important;
+    color: darkblue !important;
+}
+
+.nav-link {
+
+    font-family: "crafty_girls", arial;
+    font-size: 17.6px;
+}
+
+.tab-pane {
+
+    padding: 30px;
+}
+
+.bouton-envoi {
+
+    background-color: #C86262;
+    font-weight: 600;
+    width: 30%;
+    margin-left: 70%;
+}
+
+.bouton-envoi:hover {
+
+    background-color: rgb(0, 123, 255);
+    color: white !important;
+}
+
+#loader {
+
+    position: fixed;
+    z-index: 9999;
+    background: url("../../images/loader.svg") 50% 50% no-repeat;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+}
+
+@media (min-width: 992px) and (max-width: 1199px) { /*large*/
+
+    #bouton-deconnexion {
+
+        width: 17%;
+        margin-left: 41.5%;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) { /*medium*/
+
+    #bouton-deconnexion {
+
+        width: 23%;
+        margin-left: 38.5%;
+    }
+
+    .bouton-envoi {
+
+        width: 40%;
+        margin-left: 60%;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767px) { /*small*/
+
+    #bouton-deconnexion {
+
+        width: 30%;
+        margin-left: 35%;
+    }
+
+    .bouton-envoi {
+
+        width: 60%;
+        margin-left: 40%;
+    }
+}
+
+@media (max-width: 575px) { /*extra small*/
+
+    #bouton-deconnexion {
+
+        width: 50%;
+        margin-left: 25%;
+    }
+
+    .onglet {
+
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .bouton-envoi {
+
+        width: 80%;
+        margin-left: 20%;
+    }
+}

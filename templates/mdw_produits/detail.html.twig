@@ -1,0 +1,345 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if produit is not same as (null) %}
+        {{ produit.nom }} - Marché du Web
+    {% else %}
+        Produit inconnu
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/produits/detail.style.css') }}">
+{% endblock %}
+
+{% block body %}
+    {# <div id="loader"></div> #}
+    {% if produit is not same as (null) %}
+        <div class="modal fade" id="modale-image" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content" id="modal-content">
+                    <div class="modal-body">
+                        <div id="carouselImagesProduits" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+                            <div class="carousel-inner">
+
+                                {% for image in produit.getImages() %}
+                                    {% if loop.first %}
+                                        <div class="carousel-item active" id="carousel_{{ loop.index }}">
+                                    {% else %}
+                                        <div class="carousel-item" id="carousel_{{ loop.index }}">
+                                    {% endif %}
+                                        <img src="{{ asset('images/produits/') ~ image.getImage() }}" class="d-block image-secondaire-carousel" alt="image {{ produit.nom }}">
+                                        <div class="carousel-caption d-none d-md-block texte-carousel">
+                                            <h5>{{ produit.nom }}</h5>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselImagesProduits" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carouselImagesProduits" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> {# fin modale #}
+
+        @TODO messages flash ajout panier
+        {# {% for message_ok in app.flashes("confirmation_avis_poste") %}
+            <div class="alert alert-success message-flash">
+                {{ message_ok }}
+            </div>
+        {% endfor %}
+
+        {% for message_nok in app.flashes("erreur_avis_poste") %}
+            <div class="alert alert-danger message-flash">
+                {{ message_nok }}
+            </div>
+        {% endfor %} #}
+
+        <div class="container" id="container-principal">
+            <div class="row">
+                <div class="col-12" id="chemin">
+                    @TODO fil d'ariane
+                    {# <a href="{{ path('accueil') }}">Accueil</a> 
+                    >> <a href="{{ path('categories') }}">Boutique</a> 
+                    >> <a href="{{ path('produits_par_categorie', {'categorie': categorie}) }}"> {{ categorie }}</a> 
+                    >> <a href="{{ path('produits_par_categorie', {'categorie': categorie, 'sous_categorie': sous_categorie}) }}"> {{ sous_categorie }}</a> 
+                    >> {{ produit.nom }} #}
+                </div>
+            </div>
+
+            {# <i class="fas fa-search"></i> #} {# works fine #}
+
+            <div class="row">
+                <div class="col-md-6 col-12">
+                    <div class="row" id="rang-image">
+                        <div class="col-2" id="cale"></div>
+                        <div class="col-8" id="case-image-principale">
+                            {% set image = produit.getImages().getValues()|first %}
+                            <img src="{{ asset('images/produits/') ~ image.getImage() }}" class="card-img-top" id="photo-principale" alt="image {{ produit.nom }}">                   
+                        </div>
+                        <div class="col-2">
+                            <i class="fas fa-search" id="zoom-principale"></i>
+                        </div>
+                    </div>
+
+                    <div class="row"> {# galerie photos #}
+                        {% for image in produit.getImages() %}
+                            <div class="col-3">
+                                <img src="{{ asset('images/produits/') ~ image.getImage() }}" class="card-img-top image-galerie" alt="image {{ produit.nom }}" data-index="{{ loop.index }}">
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-12" id="case-presentation">
+                    <div class="row">
+                        <div class="col-12">
+                            <h1>{{ produit.nom }}</h1>
+                        </div>
+
+                        {% if produit.getTvaActive() %}
+                            {% set tva = produit.getTauxTva().getTaux() %}
+                        {% else %}
+                            {% set tva = 0 %}
+                        {% endif %}
+
+                        <div class="col-12" id="prix">
+                            {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
+                                <del>
+                                    {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
+                                </del>
+                                &nbsp;<ins>
+                                    {{ (produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000))|format_currency('EUR') }}
+                                </ins><br>
+                                <span class="prix-produit">promotion valable jusqu'au {{ produit.getDateFinPromo()|date('d/m/Y') }}</span>
+                            {% else %}
+                                    {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row rang-detail">
+                        <div class="col-12">{{ produit.getDescriptionCourte() }}</div>
+                    </div>
+
+                    <div class="row rang-detail">
+                        <div class="col-3">
+                            <input class="form-control" id="quantite-ajout-panier" type="number" value="1" step="1" min="1"
+                            {% if produit.getCommandableSansStock() %}
+                                max="99"
+                            {% else %}
+                                max="{{ produit.getQuantiteStock() }}" 
+                            {% endif %}
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
+                        </div>
+
+                        <div class="col-9">
+                            <button class="btn" id="ajout-panier">AJOUTER AU PANIER</button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 texte-13-6">
+                            UGS: {{ produit.reference }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 texte-13-6">
+                            Catégorie(s):&nbsp;
+                            {% for categorie in produit.getCategories() %}
+                                {{ categorie.nom }}
+                                {% if loop.last is not same as (true) %}
+                                    ,&nbsp;
+                                {% endif %}
+                            {% endfor %}
+                            <hr class="w-25">
+                        </div>
+                    </div>
+
+                    <div class="row" id="rang-reseaux">
+                        <div class="col-4">
+                            <div id="texte-partager">Partager :</div>
+                            <div id="div-logos-apparents">
+                                <i class="fab fa-twitter-square logo-social" id="logo-twitter"></i>
+                                <i class="fab fa-facebook" id="logo-facebook"></i>
+                            </div>
+                        </div>
+
+                        <div class="col-4" id="case-plus">
+                            <span id="plus" data-toggle="popover"  data-placement="bottom" data-html="true"
+                            data-content="<span id='social-content'>
+                                        <i class='fab fa-tumblr-square' id='logo-tumblr'></i> 
+                                        <i class='fab fa-pinterest' id='logo-pinterest'></i> 
+                                        <i class='fab fa-linkedin' id='logo-linkedin'></i> 
+                                        <i class='fab fa-whatsapp' id='logo-whatsapp'></i>
+                                        </span>">
+                                <i class="fas fa-share-alt"></i>&nbsp;Plus
+                            </span>
+                        </div>
+                        <div class="col-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <nav id="onglets">
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <a class="nav-link active texte-tab" id="nav-description-tab" data-toggle="tab" href="#nav-description" role="tab" aria-controls="nav-description" aria-selected="true">Description</a>
+                    <a class="nav-link texte-tab" id="nav-avis-tab" data-toggle="tab" href="#nav-avis" role="tab" aria-controls="nav-avis" aria-selected="false">Avis ({{ produit.getAvis()|length }})</a>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-description" role="tabpanel" aria-labelledby="nav-description-tab">
+                    <p>{{ produit.description }}</p>
+                    <p>
+                        <ul>
+                            {% for type_caracteristique in produit.getCaracteristiques() %}
+                                <li>
+                                    {{ type_caracteristique.getTypeCaracteristique().nom }}
+                                    :&nbsp; {{ type_caracteristique.valeur }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="tab-pane fade" id="nav-avis" role="tabpanel" aria-labelledby="nav-avis-tab">
+                    {% if app.user %}
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-10 offset-1">
+                                    {{ form_start(form_avis) }}
+                                        {{ form_widget(form_avis) }}
+                                        <button class="btn" id="bouton_envoi" formnovalidate>ENVOYER</button>
+                                    {{ form_end(form_avis) }}
+                                </div>
+                            </div>
+                        </div><hr>
+                    {% endif %}
+
+                    {% if produit.getAvis()|length is same as(0) %}
+                        <div id="no-avis">
+                            Il n’y a pas encore d’avis. 
+                        </div>
+
+                        <p>Soyez le premier à laisser votre avis sur “{{ produit.nom }}"</p>
+
+                        {% if app.user == false %}
+                            <p>Vous devez être <a href="{{ path('app_login') }}">connecté</a> pour publier un avis.</p>
+                        {% endif %}
+                    {% else %}
+
+                        <div class="container">
+                            {% if app.user == false %}
+                                <p id="ligne-deconnecte">
+                                    Vous devez être <a href="{{ path('app_login') }}">connecté</a> pour publier un avis.
+                                </p>
+                            {% endif %}
+
+                            {% for avis in produit.getAvis() %}
+                                {% if loop.index is divisible by(2) %}
+                                    <div class="row rang-avis fond-gris">
+                                {% else %}
+                                    <div class="row rang-avis">
+                                {% endif %}
+                                        <div class="col-md-3 col-6 case-note">
+                                            {% for i in 1..5 %}
+                                                {% if i <= avis.getNote() %}
+                                                    <i class="fas fa-star etoile"></i>
+                                                {% else %}
+                                                    <i class="far fa-star etoile"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+
+                                        <div class="col-md-9 col-6">
+                                            {{ avis.getUsersId().getNom() }}
+                                        </div>
+                                    </div>
+
+                                {% if loop.index is divisible by(2) %}
+                                    <div class="row rang-avis fond-gris">
+                                {% else %}
+                                    <div class="row rang-avis">
+                                {% endif %}
+                                        <div class="col-md-9 offset-md-3 col-12 commentaire">
+                                            {{ avis.getCommentaire() }}
+                                        </div>
+                                    </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row" id="rang-suggeres">
+                <div class="col-12">
+                    <h2>produits apparentés</h2>
+                </div>
+                {% for produit_suggere in produit.getProduitsSuggeres() %}
+                    <div class="col-md-3 col-6 case-produit">
+                        <a href="{{ path('vue_produit', {'nom_produit': produit_suggere.nom()}) }}" class="lien-article">
+                            <div class="card shadow">
+                                {% set article = produit_suggere.getImages().getValues()|first %}
+                                <img src="{{ asset('images/produits/') ~ article.getImage() }}" class="card-img-top card-suggere" alt="image {{ produit_suggere.nom }}">
+
+                                <div class="card-body">
+                                    <p class="nom-produit">{{ produit_suggere.nom }}</p>
+                                    {% if produit.getTvaActive() %}
+                                        {% set tva = produit.getTauxTva().getTaux() %}
+                                    {% else %}
+                                        {% set tva = 0 %}
+                                    {% endif %}
+
+                                    {% if produit_suggere.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit_suggere.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}  
+                                        <p class="prix-produit" id="paragraphe-promo">
+                                            <del>
+                                                {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
+                                            </del>
+                                            <ins>
+                                                {{ (produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000))|format_currency('EUR') }}
+                                            </ins>
+                                        </p>
+
+                                        <div class="prix-produit text-center">
+                                            promotion valable jusqu'au {{ produit_suggere.getDateFinPromo()|date('d/m/Y') }}
+                                        </div>
+                                    {% else %}
+                                        <p class="prix-produit">
+                                            {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div> {# fin container #}
+    {% else %}
+        {# {{ render(path('recherche_standard')) }} #}
+        @TODO include recherche
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% if produit is not same as (null) %}
+        <script>
+            let id_produit = {{ produit.id|json_encode|raw }}
+        </script>
+    {% endif %}
+    
+    <script src="{{ asset('js/produits/detail.script.js') }}"></script>
+{% endblock %}
+
