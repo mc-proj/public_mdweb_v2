@@ -67,12 +67,23 @@
         <div class="container" id="container-principal">
             <div class="row">
                 <div class="col-12" id="chemin">
-                    @TODO fil d'ariane
+                    {# @TODO ajouter href fil d'ariane #}
                     {# <a href="{{ path('accueil') }}">Accueil</a> 
                     >> <a href="{{ path('categories') }}">Boutique</a> 
                     >> <a href="{{ path('produits_par_categorie', {'categorie': categorie}) }}"> {{ categorie }}</a> 
                     >> <a href="{{ path('produits_par_categorie', {'categorie': categorie, 'sous_categorie': sous_categorie}) }}"> {{ sous_categorie }}</a> 
                     >> {{ produit.nom }} #}
+
+
+                    <a href="#">Accueil</a> 
+                    >> <a href="#">Boutique</a> 
+                    >> <a href="#"> {{ categorie }}</a> 
+                    >> <a href="#"> {{ sous_categorie }}</a> 
+                    >> {{ produit.nom }}
+
+
+
+
                 </div>
             </div>
 
@@ -176,8 +187,8 @@
                         </div>
 
                         <div class="col-4" id="case-plus">
-                            <span id="plus" data-toggle="popover"  data-placement="bottom" data-html="true"
-                            data-content="<span id='social-content'>
+                            <span id="plus" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-html="true"
+                            data-bs-content="<span id='social-content'>
                                         <i class='fab fa-tumblr-square' id='logo-tumblr'></i> 
                                         <i class='fab fa-pinterest' id='logo-pinterest'></i> 
                                         <i class='fab fa-linkedin' id='logo-linkedin'></i> 
@@ -191,13 +202,17 @@
                 </div>
             </div>
 
-            <nav id="onglets">
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-link active texte-tab" id="nav-description-tab" data-toggle="tab" href="#nav-description" role="tab" aria-controls="nav-description" aria-selected="true">Description</a>
-                    <a class="nav-link texte-tab" id="nav-avis-tab" data-toggle="tab" href="#nav-avis" role="tab" aria-controls="nav-avis" aria-selected="false">Avis ({{ produit.getAvis()|length }})</a>
-                </div>
-            </nav>
-            <div class="tab-content" id="nav-tabContent">
+            <ul class="nav nav-tabs mt-3 mb-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active texte-tab" id="nav-description-tab" data-bs-toggle="tab" data-bs-target="#nav-description" type="button" role="tab" aria-controls="nav-description" aria-selected="true">Description</button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link texte-tab" id="nav-avis-tab" data-bs-toggle="tab" data-bs-target="#nav-avis" type="button" role="tab" aria-controls="nav-avis" aria-selected="false">Avis ({{ produit.getAvis()|length }})</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="nav-description" role="tabpanel" aria-labelledby="nav-description-tab">
                     <p>{{ produit.description }}</p>
                     <p>
@@ -237,7 +252,6 @@
                             <p>Vous devez être <a href="{{ path('app_login') }}">connecté</a> pour publier un avis.</p>
                         {% endif %}
                     {% else %}
-
                         <div class="container">
                             {% if app.user == false %}
                                 <p id="ligne-deconnecte">
@@ -262,10 +276,9 @@
                                         </div>
 
                                         <div class="col-md-9 col-6">
-                                            {{ avis.getUsersId().getNom() }}
+                                            {{ avis.getUser().getPrenom() }} {{ avis.getUser().getNom() }}
                                         </div>
                                     </div>
-
                                 {% if loop.index is divisible by(2) %}
                                     <div class="row rang-avis fond-gris">
                                 {% else %}
@@ -278,7 +291,7 @@
                             {% endfor %}
                         </div>
                     {% endif %}
-                </div>
+                </div> {# fin #nav-avis #}
             </div>
 
             <div class="row" id="rang-suggeres">

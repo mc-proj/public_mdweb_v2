@@ -55,6 +55,11 @@ body {
 #chemin a{
 
     color: #767676;
+    text-decoration: none;
+}
+
+#chemin a:hover{
+    text-decoration: underline;
 }
 
 h1 {
@@ -202,10 +207,10 @@ h1 {
     color: rgb(67, 216, 84);
 }
 
-#onglets {
+/* #onglets {
 
     margin-top: 30px;
-}
+} */
 
 .texte-tab {
 
@@ -222,10 +227,10 @@ h1 {
     color: #404248;
 }
 
-#nav-tabContent {
+/* #nav-tabContent {
 
     padding-top: 10px;
-}
+} */
 
 #no-avis {
 
