@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Boutique - Marché du Web{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/produits/boutique.style.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <div id="chemin">
+        <a href="{{ path('accueil') }}">Accueil</a> >> Boutique
+    </div>
+
+    <div class="row">
+        {% for categorie in categories %}
+            <div class="col-md-3 col-6 case-categorie">
+                <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom() }) }}" class="lien-categorie">
+                    <div class="card shadow">
+                        <img src="{{ asset('images/categories/') ~ categorie.image }}" class="card-img-top" alt="image " ~ categorie.nom>
+                        <div class="card-body">
+                            <p class="nom-produit">{{ categorie.nom }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+

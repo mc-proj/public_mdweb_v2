@@ -51,9 +51,41 @@
         test #}
 
         {% block header %}
+        {# from doc begin  #}
+                        {# <form class="row row-cols-lg-auto g-3 align-items-center">
+                            <div class="col-10">
+                                <input type="text" class="form-control mr-3" placeholder="Rechercher..." aria-label="Rechercher...">
+                                <div class="form-control" id="resultats-recherche"></div>
+                            </div>
+
+                            <div class="col-2">
+                                <button id="croix-recherche" type="button" class="close ml-auto" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </form> #}
+                        {# from doc end #}
+
             <div id="div-header">
                 <div class="container-fluid" id="container-header">
-                    <div class="row ligne-recherche">
+
+                {# begin #}
+                <form class="row"> {# class="row row-cols-lg-auto g-3 align-items-center" #}
+                    <div class="col-11" style="text-align: center; background-color: cyan">
+                        <label class="visually-hidden" for="inlineFormInputGroupUsername">Username</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="inlineFormInputGroupUsername" placeholder="Username">
+                        </div>
+                    </div>
+
+                    <div class="col-1"  style="text-align: left; padding-left: 0; background-color: gold">
+                        <button class="btn btn-danger">test</button>
+                    </div>
+                </form>
+                {# end #}
+
+                {# ori #}
+                    {# <div class="row ligne-recherche">
                         <div class="col-12">
                             <form class="form-inline">
                                 <input class="form-control mr-3" id="texte-recherche" type="search" placeholder="Rechercher..." aria-label="Search">
@@ -64,7 +96,7 @@
                                 </button>
                             </form>  
                         </div>
-                    </div>
+                    </div> #}
 
                     <div class="row" id="header-main-row">
                         <div class="col-1" id='icone-recherche'>

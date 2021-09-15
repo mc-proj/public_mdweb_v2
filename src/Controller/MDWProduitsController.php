@@ -6,16 +6,32 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\MDWProduitsRepository;
+use App\Repository\MDWCategoriesRepository;
 
 #[Route('/produits')]
 
 class MDWProduitsController extends AbstractController
 {
     private $MDWProduitsRepository;
+    private $MDWCategoriesRepository;
 
-    public function __construct(MDWProduitsRepository $MDWProduitsRepository) {
+    public function __construct(MDWProduitsRepository $MDWProduitsRepository,
+                                MDWCategoriesRepository $MDWCategoriesRepository) {
         $this->MDWProduitsRepository = $MDWProduitsRepository;
+        $this->MDWCategoriesRepository = $MDWCategoriesRepository;
     }
+
+    #[Route('/', name: 'categories')]
+    public function vueBoutique(): Response {
+
+        $categories = $this->MDWCategoriesRepository->getMainCategories();
+
+        return $this->render('mdw_produits/boutique.html.twig', [
+            'categories' => $categories
+        ]);
+    }
+
+
     //@TODO : route /nb_id ac requirement integer + route /categorie/sous_categorie/produit requirements string
     //nb_id recherche produit par id puis redirige vers autre methode
     // #[Route('/m/d/w/produits', name: 'm_d_w_produits')]
@@ -61,44 +77,39 @@ class MDWProduitsController extends AbstractController
     #[Route('/filtre/{categorie}/{sous_categorie}/{nom_produit}', name: 'produits_par_categorie')]
     public function filtreCategorie($categorie, $sous_categorie=null, $nom_produit=null): Response {
 
-        /*$tri_date = 'DESC';
-
-        if($nom_produit === null) {
-            if($sous_categorie === null) {                
-                $produits = $this->MDWProduitsRepository->findBy(
-                    ['categories' => 'categorie_1'],
-                    //array('categories' => $categorie),
-                    //array('date_creation' => $tri_date)
-                );
-            }
-        }*/
-
-        /*$produits = $this->MDWProduitsRepository->findBy(
-            array('categories' => $categorie),
-            array('date_creation' => $tri_date)
-        );*/
-
-        $recu = [$categorie, $sous_categorie, $nom_produit];
-        //dd($recu);
+        //$tri_date = 'DESC';
+        //$recu = [$categorie, $sous_categorie, $nom_produit];
 
         $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, $nom_produit);
+        
 
-        /*foreach($produits as $produit) {
-            $nom_cat = [];
-            $categories = $produit->getCategories();
-            foreach($categories as $categorie) {
-                array_push($nom_cat, $categorie->getNom());
+        if($nom_produit !== null && count($produits) > 0) {
+            return $this->render('mdw_produits/detail.html.twig', [
+                'produit' => $produits[0],
+                'categorie' => $categorie,
+                'sous_categorie' => $sous_categorie,
+            ]);
+        }
+
+
+        $quantite_totale = count($produits);
+        
+        
+        //en attendant de faire mieux  -- WORKS
+        /*$copie_partielle = [];
+        if($quantite_totale > 6) {  //16
+            for($i=0; $i<6; $i) {  //16
+                array_push($copie_partielle, $produits[$i]);
             }
-
-            dd($nom_cat);
-        }*/
-
-        dd($produits);
+            $produits = $copie_partielle;
+        }
+        dd($produits);*/
         
-        
-
-        return $this->render('mdw_produits/index.html.twig', [
-            'controller_name' => 'MDWProduitsController',
+        return $this->render('mdw_produits/categorie.html.twig', [
+            'produits' => $produits,
+            'quantite_totale' => $quantite_totale,
+            'categorie' => $categorie,
+            'sous_categorie' => $sous_categorie,
         ]);
     }
 }

@@ -19,6 +19,14 @@ class MDWCategoriesRepository extends ServiceEntityRepository
         parent::__construct($registry, MDWCategories::class);
     }
 
+    public function getMainCategories() {
+        return $this->createQueryBuilder('c')
+                    ->leftJoin('c.categories_parentes', 'cp')
+                    ->where('cp.nom is null')
+                    ->getQuery()
+                    ->getResult();
+    }
+
     // /**
     //  * @return MDWCategories[] Returns an array of MDWCategories objects
     //  */

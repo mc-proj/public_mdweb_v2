@@ -44,111 +44,25 @@ class MDWProduitsRepository extends ServiceEntityRepository
 
     public function getByCategories($categorie, $sous_categorie=null, $nom_produit=null) {
 
-        //dd($categorie . '|' . $sous_categorie . '|' . $nom_produit);
-        //"categorie 1|sous_categorie 1|produit_6" OK
-
-        //essai v1
-        /*$requete = $this->createQueryBuilder('p')
-                ->where("p.est_visible = 1")
-                ->leftJoin('p.categories', 'c')
-                ->andWhere('c.nom = :categorie')
-                ->setParameter('categorie', $categorie);
+        $requete = $this->createQueryBuilder('p')
+                        ->innerJoin('p.categories', 'c')
+                        ->where('c.nom = :categorie')
+                        ->setParameter('categorie', $categorie)
+                        ->andWhere("p.est_visible = 1");
 
         if($sous_categorie !== null) {
-            $requete->leftJoin('c.sous_categories', 'sc')
+            $requete->innerJoin('p.categories', 'sc')
                     ->andWhere('sc.nom = :sous_categorie')
                     ->setParameter('sous_categorie', $sous_categorie);
+        }
 
-            if($nom_produit !== null) {
-                $requete->andWhere('p.nom = :nom_produit')
-                        ->setParameter('nom_produit', $nom_produit);
-            }
-        }*/
-
-        //essai v2
-        $requete = $this->createQueryBuilder('p')
-                /*->where('p.nom = :nom_produit')
-                        ->setParameter('nom_produit', $nom_produit)*/
-
-                //->where("p.est_visible = 1")
-                /*->leftJoin('p.categories', 'c')
-                ->where('c.nom = :categorie')
-                ->setParameter('categorie', $categorie);*/
-
-                //nope
-                /*->andWhere('c.nom = :sous_categorie')
-                ->setParameter('sous_categorie', $sous_categorie);*/
-
-                ///piste 1
-                //NOPE: avec un AND -> on veux une categorie qui a 2 valeur simultanement, un OR ne correspond pas a ce qu'on veux
-                /*->leftJoin('p.categories', 'c')
-                ->where('c.nom = :categorie OR c.nom = :sous_categorie')
-                ->setParameter('categorie', $categorie)
-                ->setParameter('sous_categorie', $sous_categorie);*/
-                /////fin piste 1
-
-                //piste 2  --> return []
-                ->leftJoin('p.categories', 'c')
-                ->where('c.nom = :categorie')
-                ->setParameter('categorie', $categorie)
-                ->leftJoin('c.sous_categories', 'sc')
-                ->andWhere('sc.nom = :sous_categorie')
-                ->setParameter('sous_categorie', $sous_categorie);
-                //fin piste 2
-
-                //nope
-                /*->leftJoin('c.sous_categories', 'sc')
-                ->orWhere('sc.nom = :sous_categorie')
-                ->setParameter('sous_categorie', $sous_categorie);*/
-
-                //nope
-                /*->andWhere('c.nom = :sous_categorie')
-                ->setParameter('sous_categorie', $sous_categorie);*/
-
-                
-
-        /*if($sous_categorie !== null) {
-            $requete->leftJoin('c.sous_categories', 'sc')
-                    ->andWhere('sc.nom = :sous_categorie')
-                    ->setParameter('sous_categorie', $sous_categorie);
-
-            if($nom_produit !== null) {
-                $requete->andWhere('p.nom = :nom_produit')
-                        ->setParameter('nom_produit', $nom_produit);
-            }
-        }*/
-        
-
-        //--fin xp zone
+        if($nom_produit !== null) {
+            $requete->andWhere('p.nom = :nom_produit')
+                    ->setParameter('nom_produit', $nom_produit);
+        }
 
         return $requete->getQuery()
             ->getResult();
-
-        /*return $this->createQueryBuilder('p')
-            ->where("p.est_visible = 1")
-            ->leftJoin('p.categories', 'c')
-            ->where('c.nom = :categorie')
-            ->setParameter('categorie', $categorie)
-            //->andWhere('p.quantite_stock >= p.limite_basse_stock OR p.commandable_sans_stock = 1')
-            //->orderBy('p.date_creation', 'DESC')
-            //->setMaxResults($quantite_max)
-
-            ->leftJoin('c.sous_categories', 'sc')
-            ->andWhere('sc.nom = :sous_categorie')
-            ->setParameter('sous_categorie', $sous_categorie)
-
-
-            ->getQuery()
-            ->getResult();*/
-
-            /*
-->leftJoin('p.categories', 'c')
-            ->where('c.nom = :categorie')
-            ->setParameter('categorie', $categorie)
-            ->leftJoin('c.sous_categories', 'sc')
-            ->andWhere('sc.nom = :sous_categorie')
-            ->setParameter('sous_categorie', $sous_categorie)
-            */
     }
 
     // /**

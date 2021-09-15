@@ -78,7 +78,9 @@
                     <a href="#">Accueil</a> 
                     >> <a href="#">Boutique</a> 
                     >> <a href="#"> {{ categorie }}</a> 
-                    >> <a href="#"> {{ sous_categorie }}</a> 
+                    {% if sous_categorie is not same as "" %}
+                        >> <a href="#"> {{ sous_categorie }}</a> 
+                    {% endif %}
                     >> {{ produit.nom }}
 
 
