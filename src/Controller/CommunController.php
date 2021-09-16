@@ -11,6 +11,7 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mailer\MailerInterface;
 use App\Repository\MDWCategoriesRepository;
+use App\Repository\MDWProduitsRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -19,11 +20,14 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class CommunController extends AbstractController
 {
     private $categoriesRepository;
+    private $produitsRepository;
     private $requestStack;
 
     public function __construct(MDWCategoriesRepository $categoriesRepository,
+                                MDWProduitsRepository $produitsRepository,
                                 RequestStack $requestStack) {
         $this->categoriesRepository = $categoriesRepository;
+        $this->produitsRepository = $produitsRepository;
         $this->requestStack = $requestStack;
     }
 
@@ -103,4 +107,34 @@ class CommunController extends AbstractController
         $response = new JsonResponse("");
         return $response;
     }
+
+    #[Route('/recherche', name: "recherche_produits", methods: "POST")]
+    public function rechercheProduits(Request $request) {
+
+        $debut = htmlspecialchars(trim($request->request->get("debut")), ENT_QUOTES, "UTF-8");
+
+        /*$resultats = $this->produitsRepository->findByBegin($debut);
+        dd($resultats);*/
+
+        if($debut == '') {
+
+            $resultats = [];
+        }
+
+        else {
+
+            $resultats = $this->produitsRepository->findByBegin($debut);
+
+            if($resultats == []) {
+
+                $resultats = $this->categoriesRepository->findByBegin($debut);
+            }
+        }
+
+        $resultats = json_encode($resultats);
+        $response = new JsonResponse($resultats);
+        return $response;
+    }
+
+    //
 }

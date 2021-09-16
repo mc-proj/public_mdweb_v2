@@ -65,6 +65,21 @@ class MDWProduitsRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findByBegin($debut) {
+
+        return $this->createQueryBuilder('p')
+            ->where('p.est_visible = 1')
+            ->leftJoin('p.categories', 'c')
+            ->leftJoin('c.sous_categories', 'sc')
+            ->andWhere('p.nom LIKE :debut')
+            ->setParameter('debut', $debut.'%')
+            ->select('p.nom AS nom_produit, c.nom AS categorie, sc.nom AS sous_categorie')
+            ->groupBy('nom_produit')
+            ->orderBy('nom_produit', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     // /**
     //  * @return MDWProduits[] Returns an array of MDWProduits objects
     //  */

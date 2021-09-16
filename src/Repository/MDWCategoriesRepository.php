@@ -27,6 +27,17 @@ class MDWCategoriesRepository extends ServiceEntityRepository
                     ->getResult();
     }
 
+    public function findByBegin($debut) {
+        return $this->createQueryBuilder('c')
+            ->leftJoin("c.sous_categories", "sc")
+            ->andWhere('c.nom LIKE :debut')
+            ->setParameter('debut', $debut.'%')
+            ->select('c.nom as categorie, sc.nom AS sous_categorie')
+            ->orderBy('c.nom', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     // /**
     //  * @return MDWCategories[] Returns an array of MDWCategories objects
     //  */

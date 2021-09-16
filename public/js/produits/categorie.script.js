@@ -65,6 +65,8 @@ $(document).ready(function() {
             }
         }
 
+
+        //@TODO gerer requete ac utilisation #filtre
         $.ajax({
             type: "POST",
             url: "/boutique/more",
@@ -120,6 +122,7 @@ $(document).ready(function() {
             },
             error: function(err) {
 
+                console.log(categorie + '|' + sous_categorie + '|' + numero_page);
                 loader(false);
                 console.log(err);
             }

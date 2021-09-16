@@ -120,10 +120,16 @@ body {
 
 .ligne-recherche {
 
-    display: none;
+    /* display: none; */
     padding: 10px;
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
     font-size: 12.8px;
+}
+
+.flex-centre {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #texte-recherche {
@@ -133,7 +139,7 @@ body {
 
 #resultats-recherche {
 
-    width: 95%;
+    /* width: 95%; */
     height: 80px;
     overflow-y: scroll;
     display: none;

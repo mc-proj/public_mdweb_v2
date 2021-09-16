@@ -237,7 +237,7 @@ $(document).ready(function() {
 
             $.ajax({
                 type: "POST",
-                url: "/recherche",
+                url: "commun/recherche",
                 data: {
                     debut: debut
                 },
@@ -255,8 +255,32 @@ $(document).ready(function() {
                     else {
 
                         for(result of results) {
-                            
-                            let lien = "<a href='/boutique/";
+
+                            //.nom_produit  categorie   sous_categorie
+                            //'/filtre/{categorie}/{sous_categorie}/{nom_produit}'
+
+                            //test begin
+
+                            //test end
+                            let texte_lien = result.categorie;
+                            let lien = "<a href='produits/filtre/" + result.categorie;
+
+                            //if(typeof(result.sous_categorie !== "undefined")) {
+                            if(result.sous_categorie !== null) {
+
+                                texte_lien = result.sous_categorie;
+                                lien += "/" + result.sous_categorie;
+                            }
+
+                            if(result.nom_produit !== null) {
+                                texte_lien = result.nom_produit;
+                                lien += "/" + result.nom_produit;
+                            }
+
+                            lien += "'>" + texte_lien + "</a><br>";
+
+                            //original
+                            /*let lien = "<a href='/boutique/";
 
                             if(typeof result.nom_produit === "undefined") {
 
@@ -281,7 +305,7 @@ $(document).ready(function() {
                                 }
 
                                 lien = lien + "/" + result.nom_produit + "'>" + result.nom_produit + "</a><br>";
-                            }
+                            }*/
 
                             $("#resultats-recherche").append(lien);
                         }

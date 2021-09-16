@@ -70,18 +70,23 @@
                 <div class="container-fluid" id="container-header">
 
                 {# begin #}
-                <form class="row"> {# class="row row-cols-lg-auto g-3 align-items-center" #}
-                    <div class="col-11" style="text-align: center; background-color: cyan">
-                        <label class="visually-hidden" for="inlineFormInputGroupUsername">Username</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="inlineFormInputGroupUsername" placeholder="Username">
-                        </div>
+                <div class="row ligne-recherche" style="display: none"> {# display none ds css casse le design lors du slideToggle #}
+                    <div class="col-11">
+                        <form>
+                            <label class="visually-hidden" for="texte-recherche">Rechercher un produit...</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="texte-recherche" placeholder="Rechercher un produit...">
+                            </div>
+
+                            {# essai #}
+                            <div class="form-control" id="resultats-recherche"></div>
+                        </form>
                     </div>
 
-                    <div class="col-1"  style="text-align: left; padding-left: 0; background-color: gold">
-                        <button class="btn btn-danger">test</button>
+                    <div class="col-1 flex-centre">
+                        <button id="croix-recherche"  class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </form>
+                </div>
                 {# end #}
 
                 {# ori #}

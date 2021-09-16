@@ -1,0 +1,20 @@
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/produits/recherche.style.css') }}">
+{% endblock %}
+
+<div class="container-fluid" id="container-principal">
+    <div id="message_null">
+        Il semble que nous ne puissions trouver ce que que vous recherchez. Essayez peut-être une recherche.
+    </div><hr>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 offset-md-4 col-sm-6 offset-sm-3" id="case-recherche">
+                {{ form_start(form_recherche) }}
+                    {{ form_widget(form_recherche) }}
+                    <button class="btn" id="bouton-recherche" {#formnovalidate#}><i class="fas fa-search icone-loupe"></i></button>
+                {{ form_end(form_recherche) }}
+            </div>
+        </div>
+    </div>
+</div>

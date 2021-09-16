@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\MDWProduitsRepository;
 use App\Repository\MDWCategoriesRepository;
+use App\Form\RechercheStandardType;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Route('/produits')]
 
@@ -28,6 +30,32 @@ class MDWProduitsController extends AbstractController
 
         return $this->render('mdw_produits/boutique.html.twig', [
             'categories' => $categories
+        ]);
+    }
+
+    #[Route('/recherche', name: 'recherche_standard')]
+    public function rechercheStandard(Request $request) {
+        $form = $this->createForm(RechercheStandardType::class);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            dd("submitted");
+            /*
+            $data = $form->getData();
+            $produits = $this->produitsRepository->rechercheGenerale($data["recherche"]);
+
+            return $this->render('produits/resultat_recherche.html.twig', [
+                'recherche' => $data["recherche"],
+                'produits' => $produits
+            ]);
+            */
+        } else if($form->isSubmitted()) {
+            dd('pwet');
+        }
+
+
+        return $this->render('mdw_produits/recherche.html.twig', [
+            'form_recherche' => $form->createView()
         ]);
     }
 
@@ -79,9 +107,14 @@ class MDWProduitsController extends AbstractController
 
         //$tri_date = 'DESC';
         //$recu = [$categorie, $sous_categorie, $nom_produit];
-
         $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, $nom_produit);
-        
+        $quantite_totale = count($produits);
+
+        //cas url /categorie/nom_produit
+        if($quantite_totale === 0 && $sous_categorie !== null && $nom_produit === null) {
+            return $this->redirectToRoute('vue_produit', ['nom_produit' => $sous_categorie]);
+            //$produits = $this->MDWProduitsRepository->getByCategories($categorie, null, $sous_categorie);
+        }
 
         if($nom_produit !== null && count($produits) > 0) {
             return $this->render('mdw_produits/detail.html.twig', [
@@ -92,7 +125,7 @@ class MDWProduitsController extends AbstractController
         }
 
 
-        $quantite_totale = count($produits);
+        
         
         
         //en attendant de faire mieux  -- WORKS
@@ -104,6 +137,13 @@ class MDWProduitsController extends AbstractController
             $produits = $copie_partielle;
         }
         dd($produits);*/
+
+        //test v2
+        /*if($quantite_totale > 0) {
+            $copie = [$produits[0], $produits[1], $produits[2]];
+            $produits = $copie;
+        }*/
+        //fin test v2
         
         return $this->render('mdw_produits/categorie.html.twig', [
             'produits' => $produits,
