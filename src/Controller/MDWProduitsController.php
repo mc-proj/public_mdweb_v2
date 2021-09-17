@@ -34,9 +34,17 @@ class MDWProduitsController extends AbstractController
     }
 
     #[Route('/recherche', name: 'recherche_standard')]
-    public function rechercheStandard(Request $request) {
-        $form = $this->createForm(RechercheStandardType::class);
+    public function rechercheStandard(Request $request): Response {
+
+        $form = $this->createForm(RechercheStandardType::class, null, [
+            'action' => $this->generateUrl('recherche_standard') //par defaut, route utilisee est celle de la page qui fait l'include
+            //!!! 2 includes faits 1 ds produits/categories et 1 ds produits/details
+        ]);
         $form->handleRequest($request);
+
+        //dd("passe");  //ok chargement + sousmission form
+        /*$data = $form->getData();
+        dd($data);*/
 
         if($form->isSubmitted() && $form->isValid()) {
             dd("submitted");
@@ -49,8 +57,6 @@ class MDWProduitsController extends AbstractController
                 'produits' => $produits
             ]);
             */
-        } else if($form->isSubmitted()) {
-            dd('pwet');
         }
 
 
