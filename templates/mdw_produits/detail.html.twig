@@ -67,25 +67,11 @@
         <div class="container" id="container-principal">
             <div class="row">
                 <div class="col-12" id="chemin">
-                    {# @TODO ajouter href fil d'ariane #}
-                    {# <a href="{{ path('accueil') }}">Accueil</a> 
+                    <a href="{{ path('accueil') }}">Accueil</a> 
                     >> <a href="{{ path('categories') }}">Boutique</a> 
                     >> <a href="{{ path('produits_par_categorie', {'categorie': categorie}) }}"> {{ categorie }}</a> 
                     >> <a href="{{ path('produits_par_categorie', {'categorie': categorie, 'sous_categorie': sous_categorie}) }}"> {{ sous_categorie }}</a> 
-                    >> {{ produit.nom }} #}
-
-
-                    <a href="#">Accueil</a> 
-                    >> <a href="#">Boutique</a> 
-                    >> <a href="#"> {{ categorie }}</a> 
-                    {% if sous_categorie is not same as "" %}
-                        >> <a href="#"> {{ sous_categorie }}</a> 
-                    {% endif %}
                     >> {{ produit.nom }}
-
-
-
-
                 </div>
             </div>
 
@@ -342,7 +328,6 @@
         </div> {# fin container #}
     {% else %}
         {{ render(path('recherche_standard')) }}
-        {# @TODO include recherche #}
     {% endif %}
 {% endblock %}
 

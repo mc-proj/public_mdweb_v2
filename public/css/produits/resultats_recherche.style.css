@@ -7,12 +7,23 @@ body .lien-article {
 }
 
 .card {
-
     margin-top: 20px;
     margin-bottom: 20px;
+    overflow: hidden;
 }
 
-#photo-principale {
+.card-img-top {
+
+    transform: scale(1.0);
+    transition: all 700ms;
+}
+
+.card-img-top:hover {
+
+    transform: scale(1.1);
+}
+
+.photo-principale {
 
     position: relative;
     width: 90%;
@@ -27,13 +38,18 @@ h1 {
     margin-top: 20px;
 }
 
-.nom-produit {
-
-    font-family: "roboto_condensed", arial !important;
-    font-size: 30px !important;
+.ligne-hr {
+    margin: 0;
 }
 
-.lien-article:hover {
+.nom-produit {
 
-    text-decoration: none !important;
-} 
+    font-family: "roboto_condensed", arial;
+    font-size: 30px;
+    text-align: center;
+}
+
+.lien-article {
+
+    text-decoration: none;
+}

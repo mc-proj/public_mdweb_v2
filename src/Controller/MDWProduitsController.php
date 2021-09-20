@@ -46,8 +46,32 @@ class MDWProduitsController extends AbstractController
         /*$data = $form->getData();
         dd($data);*/
 
-        if($form->isSubmitted() && $form->isValid()) {
-            dd("submitted");
+        /*
+        test faille xss
+        txt ds champ => <script>alert('C\'est une faille XSS qu\'on a là')</script> -> aucune execution :)
+        */
+
+        if($form->isSubmitted() /*&& $form->isValid()*/) {
+            //dd("submitted");
+
+            //dd($form->getData()["recherche"]);
+            //!! marche ok avec texte precis -- NOK si texte partiel (genre 'prod' au lieu 'produit_6')
+
+            //faire une requete perso ac un like
+            //on ne sait pas d'avance si le param soumis est la categorie pu la sous categorie pu le nom produit
+            //solution basique -> enchainement max de 3 requetes perso (passe a requete n+1 si resultat n === 0)
+            //faire like simultane sur les 3 champs -> permet recherche la + large pr user
+
+            $produits = $this->MDWProduitsRepository->globalFindByBegin($form->getData()["recherche"]);
+            //dd($produits);
+
+            return $this->render('mdw_produits/resultats_recherche.html.twig', [
+                'produits' => $produits,
+                'recherche' => $form->getData()["recherche"],
+            ]);
+
+            //return $this->redirectToRoute('produits_par_categorie', ['categorie' => $form->getData()["recherche"]]);
+
             /*
             $data = $form->getData();
             $produits = $this->produitsRepository->rechercheGenerale($data["recherche"]);
@@ -64,20 +88,6 @@ class MDWProduitsController extends AbstractController
             'form_recherche' => $form->createView()
         ]);
     }
-
-
-    //@TODO : route /nb_id ac requirement integer + route /categorie/sous_categorie/produit requirements string
-    //nb_id recherche produit par id puis redirige vers autre methode
-    // #[Route('/m/d/w/produits', name: 'm_d_w_produits')]
-    // public function index(): Response
-    // {
-    //     return $this->render('mdw_produits/index.html.twig', [
-    //         'controller_name' => 'MDWProduitsController',
-    //     ]);
-    // }
-
-    //Route("/blog/{page}", name="blog_list", requirements={"page"="\d+"})
-    //[0-9a-zA-Z_]
 
     #[Route('/details/{nom_produit}', name: 'vue_produit')] //recherche generale par nom ou id
     public function vueProduit($nom_produit): Response {
@@ -116,11 +126,26 @@ class MDWProduitsController extends AbstractController
         $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, $nom_produit);
         $quantite_totale = count($produits);
 
-        //cas url /categorie/nom_produit
-        if($quantite_totale === 0 && $sous_categorie !== null && $nom_produit === null) {
-            return $this->redirectToRoute('vue_produit', ['nom_produit' => $sous_categorie]);
-            //$produits = $this->MDWProduitsRepository->getByCategories($categorie, null, $sous_categorie);
+        //notes tests begin
+        /* methode getByCategories modifiee pr pouvoir prendre en compte rang min et qte max resultats a retourner
+        //a ce niveau, on a besoin du nb total de produits correspondants
+        //faire une recherche sans limite (comme de base) --> recup nb total resultats
+        //puis faire une copie partielle des resultats pr affichage
+        */
+
+        if($quantite_totale !== 0) {
+            dd($produits[0]);  //works fine (pre test pr copie partielle)
+            //array_chunk -- https://www.php.net/manual/fr/function.array-chunk.php
         }
+        //notes tests end
+
+        if($quantite_totale === 0 && $nom_produit === null) {
+            if($sous_categorie !== null) {  //cas url /categorie/nom_produit
+                return $this->redirectToRoute('vue_produit', ['nom_produit' => $sous_categorie]);
+            }
+            return $this->redirectToRoute('vue_produit', ['nom_produit' => $categorie]); // ! cas ou seul 1er param fourni, correspond a un nom de produit
+        }
+        //----
 
         if($nom_produit !== null && count($produits) > 0) {
             return $this->render('mdw_produits/detail.html.twig', [

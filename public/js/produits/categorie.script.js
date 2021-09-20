@@ -66,8 +66,12 @@ $(document).ready(function() {
         }
 
 
+        console.log(categorie); //categorie 1
+        console.log(sous_categorie); //sous categorie 1 || null
+        console.log(numero_page); //2
+
         //@TODO gerer requete ac utilisation #filtre
-        $.ajax({
+        /*$.ajax({
             type: "POST",
             url: "/boutique/more",
             data: {
@@ -126,7 +130,7 @@ $(document).ready(function() {
                 loader(false);
                 console.log(err);
             }
-        })
+        })*/
     })
 
     function ajoutCarte(produit) {

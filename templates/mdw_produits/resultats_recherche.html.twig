@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vous avez cherché {{ recherche }} - Marché du Web{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/produits/resultats_recherche.style.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <h1>Résultat de recherche pour : {{ recherche }}</h1><hr>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            {% for produit in produits %}
+                <div class="col-md-4 offset-md-1 col-sm-8 offset-sm-2">
+                    <a href="{{ path('vue_produit', {'nom_produit': produit.nom()}) }}" class="lien-article">
+                        <div class="card shadow">
+                            {% set article = produit.getImages().getValues()|first %}
+                            <img src="{{ asset('images/produits/') ~ article.getImage() }}" class="card-img-top photo-principale" alt="image " ~ produit.nom>
+                            <hr class="ligne-hr">
+                            <div class="card-body">
+                                <p class="nom-produit mb-5">{{ produit.nom }}</p>
+
+                                <p>{{ produit.getDescriptionCourte() }}</p>
+                                <p>
+                                    Catégories: 
+                                    {% for categorie in produit.getCategories() %}
+                                        {{ categorie.nom }}
+                                        {% if loop.last is not same as (true) %}
+                                            ,&nbsp;
+                                        {% endif %}
+                                    {% endfor %}
+                                </p>
+                                <p>
+                                    <ul>
+                                        {% for caracteristique in produit.getCaracteristiques() %}
+                                            <li>
+                                                {{ caracteristique.getTypeCaracteristique().getNom() }} : 
+                                                {{ caracteristique.getValeur() }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+

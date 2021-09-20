@@ -42,7 +42,8 @@ class MDWProduitsRepository extends ServiceEntityRepository
         ;
     }
 
-    public function getByCategories($categorie, $sous_categorie=null, $nom_produit=null) {
+    //original
+    /*public function getByCategories($categorie, $sous_categorie=null, $nom_produit=null) {
 
         $requete = $this->createQueryBuilder('p')
                         ->innerJoin('p.categories', 'c')
@@ -63,6 +64,50 @@ class MDWProduitsRepository extends ServiceEntityRepository
 
         return $requete->getQuery()
             ->getResult();
+    }*/
+
+    public function getByCategories($categorie, $sous_categorie=null, $nom_produit=null, $rang_min=null, $quantite=null) {
+
+        $requete = $this->createQueryBuilder('p')
+                        ->innerJoin('p.categories', 'c')
+                        ->where('c.nom = :categorie')
+                        ->setParameter('categorie', $categorie)
+                        ->andWhere("p.est_visible = 1");
+
+        if($sous_categorie !== null) {
+            $requete->innerJoin('p.categories', 'sc')
+                    ->andWhere('sc.nom = :sous_categorie')
+                    ->setParameter('sous_categorie', $sous_categorie);
+        }
+
+        if($nom_produit !== null) {
+            $requete->andWhere('p.nom = :nom_produit')
+                    ->setParameter('nom_produit', $nom_produit);
+        }
+
+        if($rang_min !== null) {
+            $requete->setFirstResult($rang_min);
+        }
+
+        if($quantite !== null) {
+            $requete->setMaxResults($quantite);
+        }
+
+        /*
+            ->setFirstResult($rang_min)
+
+            //->orderBy($champ_tri, $type_tri)
+            //->orderBy('p.date_creation', 'DESC')
+            //->orderBy(':champ', ':tri')
+            //->setParameter('champ', $champ_tri)
+            //->setParameter('tri', $champ_tri)
+
+            ->setMaxResults($quantite)
+            ->addOrderBy($champ_tri, $type_tri)
+        */
+
+        return $requete->getQuery()
+            ->getResult();
     }
 
     public function findByBegin($debut) {
@@ -76,6 +121,21 @@ class MDWProduitsRepository extends ServiceEntityRepository
             ->select('p.nom AS nom_produit, c.nom AS categorie, sc.nom AS sous_categorie')
             ->groupBy('nom_produit')
             ->orderBy('nom_produit', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function globalFindByBegin($debut) {
+        return $this->createQueryBuilder('p')
+            ->where('p.est_visible = 1')
+            ->leftJoin('p.categories', 'c')
+            ->leftJoin('c.sous_categories', 'sc')
+            ->andWhere('p.nom LIKE :debut')
+            ->orWhere('c.nom LIKE :debut')
+            ->orWhere('sc.nom LIKE :debut')
+            ->setParameter('debut', $debut.'%')
+            ->groupBy('p.nom')
+            ->orderBy('p.nom', 'DESC')
             ->getQuery()
             ->getResult();
     }

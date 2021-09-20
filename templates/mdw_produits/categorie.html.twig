@@ -21,13 +21,6 @@
                 {% else %}
                     <a href="{{ path('accueil') }}">Accueil</a> >> <a href="{{ path('categories') }}">Boutique</a> >> <a href="{{ path('produits_par_categorie', {'categorie': categorie}) }}"> {{ categorie }}</a> >> {{ sous_categorie }}
                 {% endif %}
-
-{# @TODO href vers path 'categorie' (simple page qui liste les categories)
-                {% if sous_categorie is same as (null) %}
-                    <a href="{{ path('accueil') }}">Accueil</a> >> <a href="#">Boutique</a> >> {{ categorie }}
-                {% else %}
-                    <a href="{{ path('accueil') }}">Accueil</a> >> <a href="#">Boutique</a> >> <a href="{{ path('produits_par_categorie', {'categorie': categorie}) }}"> {{ categorie }}</a> >> {{ sous_categorie }}
-                {% endif %} #}
             </div>
 
             <div class="col-6" id="texte-resultats">
@@ -171,7 +164,6 @@
 
     {% else %}
         {{ render(path('recherche_standard')) }}
-        {# @TODO render recherche #}
     {% endif %}
 </div>
 {% endblock %}
