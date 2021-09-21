@@ -6,6 +6,7 @@ use App\Repository\MDWProduitsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=MDWProduitsRepository::class)
@@ -17,6 +18,7 @@ class MDWProduits
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $id;
 
     /**
@@ -27,6 +29,7 @@ class MDWProduits
     /**
      * @ORM\Column(type="string", length=45)
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $nom;
 
     /**
@@ -52,16 +55,19 @@ class MDWProduits
     /**
      * @ORM\Column(type="date", nullable=true)
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $date_debut_promo;
 
     /**
      * @ORM\Column(type="date", nullable=true)
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $date_fin_promo;
 
     /**
      * @ORM\Column(type="boolean")
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $tva_active;
 
     /**
@@ -87,27 +93,32 @@ class MDWProduits
     /**
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $tarif;
 
     /**
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $tarif_promo;
 
     /**
      * @ORM\Column(type="date")
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $date_creation;
 
     /**
      * @ORM\ManyToOne(targetEntity=MDWTauxTva::class, inversedBy="produits")
      * @ORM\JoinColumn(nullable=false)
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $taux_tva;
 
     /**
      * @ORM\OneToMany(targetEntity=MDWImages::class, mappedBy="produit", orphanRemoval=true)
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $images;
 
     /**

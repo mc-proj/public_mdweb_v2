@@ -9,6 +9,8 @@ use App\Repository\MDWProduitsRepository;
 use App\Repository\MDWCategoriesRepository;
 use App\Form\RechercheStandardType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 #[Route('/produits')]
 
@@ -133,9 +135,15 @@ class MDWProduitsController extends AbstractController
         //puis faire une copie partielle des resultats pr affichage
         */
 
+
         if($quantite_totale !== 0) {
-            dd($produits[0]);  //works fine (pre test pr copie partielle)
+            //dd($produits[0]);  //works fine (pre test pr copie partielle)
             //array_chunk -- https://www.php.net/manual/fr/function.array-chunk.php
+
+            $selection = array_chunk($produits, 3);
+            $produits = $selection[0];
+            //dd($produits);
+
         }
         //notes tests end
 
@@ -154,27 +162,6 @@ class MDWProduitsController extends AbstractController
                 'sous_categorie' => $sous_categorie,
             ]);
         }
-
-
-        
-        
-        
-        //en attendant de faire mieux  -- WORKS
-        /*$copie_partielle = [];
-        if($quantite_totale > 6) {  //16
-            for($i=0; $i<6; $i) {  //16
-                array_push($copie_partielle, $produits[$i]);
-            }
-            $produits = $copie_partielle;
-        }
-        dd($produits);*/
-
-        //test v2
-        /*if($quantite_totale > 0) {
-            $copie = [$produits[0], $produits[1], $produits[2]];
-            $produits = $copie;
-        }*/
-        //fin test v2
         
         return $this->render('mdw_produits/categorie.html.twig', [
             'produits' => $produits,
@@ -182,5 +169,25 @@ class MDWProduitsController extends AbstractController
             'categorie' => $categorie,
             'sous_categorie' => $sous_categorie,
         ]);
+    }
+
+    #[Route('/more', name: 'more_produits', methods: 'POST')]
+    public function getMore(Request $request, NormalizerInterface $normalizer) {
+
+        $categorie = $request->request->get("categorie");
+        $sous_categorie = $request->request->get("sous_categorie");
+        $page_visee = $request->request->get("numero_page");
+        $nb_max_articles = $this->getParameter('app.nb_max_articles_affiches');
+        $rang_min = ($page_visee - 1) * $nb_max_articles; // *16
+
+        if($sous_categorie === '') {
+            $sous_categorie = null;
+        }
+
+        $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, null, $rang_min, $nb_max_articles/*3*//*$quantite=null*/);
+        $produits = $normalizer->normalize($produits, 'json',  ['groups' => 'read:carte:MDWProduit']);
+        $produits = json_encode($produits);
+        $response = new JsonResponse($produits);
+        return $response;
     }
 }

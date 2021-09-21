@@ -6,6 +6,8 @@
 parameters:
     admin_mail: 'symfo.testmail@gmail.com'
 
+    app.nb_max_articles_affiches: '%env(NOMBRE_MAX_ARTICLES_AFFICHES)%'
+
     #perso
     #stripe_pk: 'pk_test_51HtbJdIfRUAUkm1D3LrKGG5kkBEf66jaT4DdAfD8eqFtoJfHwfpBcnoW0tOhUfDmBKoXt0q0TeiyQOn5Aj1NuEfM00kCu9qIzU'
     #stripe_sk: 'sk_test_51HtbJdIfRUAUkm1DXPNADXgTmWa2jRcvgOmZCaUmtJe466M3XmJWl1aSkLBsKRCW0Mo9cdj0ln5V0Xul3G63vXwN002ud1dOzz'

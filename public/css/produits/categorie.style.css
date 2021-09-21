@@ -81,9 +81,13 @@
     text-align: left;
 }
 
-#rang-produit .lien-article:hover {
+/* #rang-produit .lien-article:hover {
 
     text-decoration: none !important;
+}  */
+.lien-article {
+
+    text-decoration: none;
 } 
 
 #message_null {

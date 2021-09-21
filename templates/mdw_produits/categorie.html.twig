@@ -63,10 +63,10 @@
                             {% endif %}
 
                             {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
-                                <p class="prix-produit" id="ligne-promo">
+                                <p class="prix-produit" {#id="ligne-promo"#}>
                                     <del>
                                         {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
-                                    </del>
+                                    </del>&nbsp;
                                     <ins>
                                         {{ (produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000))|format_currency('EUR') }}
                                     </ins><br>

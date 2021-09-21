@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\MDWImagesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=MDWImagesRepository::class)
@@ -20,6 +21,7 @@ class MDWImages
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['read:carte:MDWProduit'])]
     private $image;
 
     /**
