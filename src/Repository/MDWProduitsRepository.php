@@ -66,7 +66,26 @@ class MDWProduitsRepository extends ServiceEntityRepository
             ->getResult();
     }*/
 
-    public function getByCategories($categorie, $sous_categorie=null, $nom_produit=null, $rang_min=null, $quantite=null) {
+    public function getByCategories($categorie, $sous_categorie=null, $nom_produit=null, $rang_min=null, $quantite=null, $tri=null) {
+
+        $champ_tri = 'p.date_creation';
+        $type_tri = 'DESC';
+
+        switch($tri) {
+            case 'ancien':
+                $type_tri = 'ASC';
+                break;
+
+            case 'croissant':
+                $champ_tri = 'p.tarif';
+                $type_tri = 'ASC';
+                break;
+
+            case 'decroissant':
+                $champ_tri = 'p.tarif';
+                $type_tri = 'DESC';
+                break;
+        }
 
         $requete = $this->createQueryBuilder('p')
                         ->innerJoin('p.categories', 'c')
@@ -106,7 +125,8 @@ class MDWProduitsRepository extends ServiceEntityRepository
             ->addOrderBy($champ_tri, $type_tri)
         */
 
-        return $requete->getQuery()
+        return $requete->addOrderBy($champ_tri, $type_tri)
+            ->getQuery()
             ->getResult();
     }
 

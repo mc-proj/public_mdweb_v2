@@ -128,24 +128,10 @@ class MDWProduitsController extends AbstractController
         $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, $nom_produit);
         $quantite_totale = count($produits);
 
-        //notes tests begin
-        /* methode getByCategories modifiee pr pouvoir prendre en compte rang min et qte max resultats a retourner
-        //a ce niveau, on a besoin du nb total de produits correspondants
-        //faire une recherche sans limite (comme de base) --> recup nb total resultats
-        //puis faire une copie partielle des resultats pr affichage
-        */
-
-
         if($quantite_totale !== 0) {
-            //dd($produits[0]);  //works fine (pre test pr copie partielle)
-            //array_chunk -- https://www.php.net/manual/fr/function.array-chunk.php
-
             $selection = array_chunk($produits, 3);
             $produits = $selection[0];
-            //dd($produits);
-
         }
-        //notes tests end
 
         if($quantite_totale === 0 && $nom_produit === null) {
             if($sous_categorie !== null) {  //cas url /categorie/nom_produit
@@ -153,7 +139,6 @@ class MDWProduitsController extends AbstractController
             }
             return $this->redirectToRoute('vue_produit', ['nom_produit' => $categorie]); // ! cas ou seul 1er param fourni, correspond a un nom de produit
         }
-        //----
 
         if($nom_produit !== null && count($produits) > 0) {
             return $this->render('mdw_produits/detail.html.twig', [
@@ -168,6 +153,7 @@ class MDWProduitsController extends AbstractController
             'quantite_totale' => $quantite_totale,
             'categorie' => $categorie,
             'sous_categorie' => $sous_categorie,
+            'qte_max_articles_affiches' => $this->getParameter('app.nb_max_articles_affiches'),
         ]);
     }
 
@@ -177,6 +163,7 @@ class MDWProduitsController extends AbstractController
         $categorie = $request->request->get("categorie");
         $sous_categorie = $request->request->get("sous_categorie");
         $page_visee = $request->request->get("numero_page");
+        $tri = $request->request->get("tri");
         $nb_max_articles = $this->getParameter('app.nb_max_articles_affiches');
         $rang_min = ($page_visee - 1) * $nb_max_articles; // *16
 
@@ -184,7 +171,7 @@ class MDWProduitsController extends AbstractController
             $sous_categorie = null;
         }
 
-        $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, null, $rang_min, $nb_max_articles/*3*//*$quantite=null*/);
+        $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, null, $rang_min, $nb_max_articles/*3*//*$quantite=null*/, $tri);
         $produits = $normalizer->normalize($produits, 'json',  ['groups' => 'read:carte:MDWProduit']);
         $produits = json_encode($produits);
         $response = new JsonResponse($produits);

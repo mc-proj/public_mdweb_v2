@@ -24,10 +24,10 @@
             </div>
 
             <div class="col-6" id="texte-resultats">
-                {% if produits|length < 16 %}
+                {% if produits|length < qte_max_articles_affiches %}
                     Affichage de 1–{{ produits|length }} sur {{ quantite_totale }} résultat(s)
                 {% else %}
-                    Affichage de 1–16 sur {{ quantite_totale }} résultat(s)
+                    Affichage de 1–{{ qte_max_articles_affiches }} sur {{ quantite_totale }} résultat(s)
                 {% endif %}
             </div>
         </div>
@@ -37,6 +37,7 @@
                 <select class="form-control" id="filtre">
                     {# <option value="popularite">Tri par popularité</option> #}
                     <option value="recent" selected>Tri par du plus récent au plus ancien</option>
+                    <option value="ancien">Tri par du plus ancien au plus récent</option>
                     <option value="croissant">Tri par tarif croissant</option>
                     <option value="decroissant">Tri par tarif décroissant</option>
                 </select>
@@ -129,21 +130,21 @@
         </div>
 
 
-@TODO: tester nb produits > 16
-        {% if quantite_totale > 3 %}  {# 16 #}
+@TODO: tester nb produits > {{ qte_max_articles_affiches }}
+        {% if quantite_totale > qte_max_articles_affiches %}  {# 16 #}
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                     <li class="page-item d-none" id="fleche-premier" data-number="1">
                         <a class="page-link page-navigation"><i class="fas fa-arrow-left"></i></a>
                     </li>
 
-                    {% if (quantite_totale % 3) is same as (0)%}  {# 16 #}
+                    {% if (quantite_totale % qte_max_articles_affiches ) is same as (0)%}  {# 16 #}
                         {% set ajout = 0 %}
                     {% else %}
                         {% set ajout = 1 %}
                     {% endif %}
 
-                    {% for i in 1..(quantite_totale / 3)|round(0, 'floor') + ajout %}  {# 16 #}
+                    {% for i in 1..(quantite_totale / qte_max_articles_affiches)|round(0, 'floor') + ajout %}  {# 16 #}
                         {% if loop.first %}
                             <li class="page-item page-number active">
                         {% else %}
@@ -153,7 +154,7 @@
                             </li>
                     {% endfor %}
 
-                    {% if quantite_totale / 3 > 1%}  {# 16 #}
+                    {% if quantite_totale / qte_max_articles_affiches > 1%}  {# 16 #}
                         <li class="page-item" id="fleche-dernier">
                             <a class="page-link page-navigation"><i class="fas fa-arrow-right"></i></a>
                         </li>
@@ -174,6 +175,7 @@
         let categorie = {{ categorie|json_encode|raw }};
         let sous_categorie = {{ sous_categorie|json_encode|raw }};
         let quantite_totale = {{ quantite_totale|json_encode|raw }};
+        let qte_max_articles_affiches = {{ qte_max_articles_affiches|json_encode|raw }};
     </script>
     <script src="{{ asset('js/produits/categorie.script.js') }}"></script>
 {% endblock %}
