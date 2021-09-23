@@ -42,30 +42,6 @@ class MDWProduitsRepository extends ServiceEntityRepository
         ;
     }
 
-    //original
-    /*public function getByCategories($categorie, $sous_categorie=null, $nom_produit=null) {
-
-        $requete = $this->createQueryBuilder('p')
-                        ->innerJoin('p.categories', 'c')
-                        ->where('c.nom = :categorie')
-                        ->setParameter('categorie', $categorie)
-                        ->andWhere("p.est_visible = 1");
-
-        if($sous_categorie !== null) {
-            $requete->innerJoin('p.categories', 'sc')
-                    ->andWhere('sc.nom = :sous_categorie')
-                    ->setParameter('sous_categorie', $sous_categorie);
-        }
-
-        if($nom_produit !== null) {
-            $requete->andWhere('p.nom = :nom_produit')
-                    ->setParameter('nom_produit', $nom_produit);
-        }
-
-        return $requete->getQuery()
-            ->getResult();
-    }*/
-
     public function getByCategories($categorie, $sous_categorie=null, $nom_produit=null, $rang_min=null, $quantite=null, $tri=null) {
 
         $champ_tri = 'p.date_creation';
@@ -111,19 +87,6 @@ class MDWProduitsRepository extends ServiceEntityRepository
         if($quantite !== null) {
             $requete->setMaxResults($quantite);
         }
-
-        /*
-            ->setFirstResult($rang_min)
-
-            //->orderBy($champ_tri, $type_tri)
-            //->orderBy('p.date_creation', 'DESC')
-            //->orderBy(':champ', ':tri')
-            //->setParameter('champ', $champ_tri)
-            //->setParameter('tri', $champ_tri)
-
-            ->setMaxResults($quantite)
-            ->addOrderBy($champ_tri, $type_tri)
-        */
 
         return $requete->addOrderBy($champ_tri, $type_tri)
             ->getQuery()

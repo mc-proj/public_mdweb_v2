@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\MDWUsers;
 use App\Form\RegistrationFormType;
+use App\Form\EditeCompteType;
+use App\Form\EditeMdpType;
 use App\Security\EmailVerifier;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,7 +26,7 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/inscription', name: 'app_register')]
-    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
+    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response //UserPasswordHasherInterface
     {
         $user = new MDWUsers();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -87,5 +89,46 @@ class RegistrationController extends AbstractController
         }
 
         return $this->redirectToRoute('app_login');
+    }
+
+    #[Route('/compte', name: 'mon_compte')]
+    public function monCompte(Request $request): Response {
+
+        if($this->getUser()) {
+            
+            $user = $this->getUser();
+            $form_profil = $this->createForm(EditeCompteType::class, $user);
+            $form_profil->handleRequest($request);
+
+            $form_mdp = $this->createForm(EditeMdpType::class, $user);
+            $form_mdp->handleRequest($request);
+
+            if($form_profil->isSubmitted() && $form_profil->isValid()) {
+                //
+                dd("form edition profil envoye");
+            } else if($form_profil->isSubmitted()) {
+                $this->addFlash('erreur_edition_profil', 'Erreur: un des champs contient une information incorrecte');
+            }
+
+            $edition_mdp = false;
+            if($form_mdp->isSubmitted() && $form_mdp->isValid()) {
+                //
+                dd("form edition mdp envoye");
+            } else if($form_mdp->isSubmitted()) {
+                $edition_mdp = true;
+            }
+
+            return $this->render('registration/compte.html.twig', [
+                'formulaire_profil' => $form_profil->createView(),
+                'formulaire_mdp' => $form_mdp->createView(),
+                'factures' => $user->getFactures(),
+                'edition_mdp' => $edition_mdp,
+            ]);
+
+        } else {
+            return $this->redirectToRoute('app_login');
+        }
+
+        
     }
 }

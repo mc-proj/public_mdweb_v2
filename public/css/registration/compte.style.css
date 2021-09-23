@@ -95,7 +95,8 @@ h3 {
     background-color: rgb(125, 52, 47);
 }
 
-.onglet {
+/* .onglet { */
+.onglet:not(.active) {
 
     background-color: rgb(92, 22, 22);
     border-right: 1px solid white !important;
@@ -111,11 +112,11 @@ h3 {
 }
 
 .onglet.active {
-
     border-top: 3px solid darkblue !important;
     border-right: 1px solid lightgrey !important;
     border-bottom: 1px solid lightgrey !important;
     color: darkblue !important;
+    background-color: white !important;
 }
 
 .nav-link {

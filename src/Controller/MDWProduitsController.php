@@ -123,13 +123,11 @@ class MDWProduitsController extends AbstractController
     #[Route('/filtre/{categorie}/{sous_categorie}/{nom_produit}', name: 'produits_par_categorie')]
     public function filtreCategorie($categorie, $sous_categorie=null, $nom_produit=null): Response {
 
-        //$tri_date = 'DESC';
-        //$recu = [$categorie, $sous_categorie, $nom_produit];
         $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, $nom_produit);
         $quantite_totale = count($produits);
 
         if($quantite_totale !== 0) {
-            $selection = array_chunk($produits, 3);
+            $selection = array_chunk($produits, $this->getParameter('app.nb_max_articles_affiches'));
             $produits = $selection[0];
         }
 
@@ -165,7 +163,7 @@ class MDWProduitsController extends AbstractController
         $page_visee = $request->request->get("numero_page");
         $tri = $request->request->get("tri");
         $nb_max_articles = $this->getParameter('app.nb_max_articles_affiches');
-        $rang_min = ($page_visee - 1) * $nb_max_articles; // *16
+        $rang_min = ($page_visee - 1) * $nb_max_articles;
 
         if($sous_categorie === '') {
             $sous_categorie = null;

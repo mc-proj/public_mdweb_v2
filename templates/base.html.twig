@@ -115,12 +115,11 @@
                                 </span>
                             {% endif %}
                             <span class="element-menu">
-                                @TODO mon compte / connexion (base.html)
-                                {# {% if app.user %}
-                                    <a href="{{ path('page_compte') }}">Mon compte</a>
+                                {% if app.user %}
+                                    <a href="{{ path('mon_compte') }}">Mon compte</a>
                                 {% else %}
                                     <a href="{{ path('app_login') }}">Connexion</a>
-                                {% endif %} #}
+                                {% endif %}
                             </span>
                         </div>
 
@@ -142,10 +141,8 @@
                                 </span>
                             {% endif %}
                             <span class="element-menu">
-                                {# @TODO mon compte / connexion (base.html) #}
                                 {% if app.user %}
-                                    {# <a href="{{ path('page_compte') }}">Mon compte</a> #}
-                                    <a href="#">Mon compte @TODO base.html</a>  {# 2 menus gd/pt #}
+                                    <a href="{{ path('mon_compte') }}">Mon compte</a>
                                 {% else %}
                                     <a href="{{ path('app_login') }}">Connexion</a>
                                     {# sur page connexion, changer pour inscription ? #}

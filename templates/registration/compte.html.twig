@@ -1,0 +1,193 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - Marché du Web{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/registration/compte.style.css') }}">
+{% endblock %}
+
+
+{% block body %}
+    <div id="loader"></div>
+    <div class="modal fade" id="modale-facture" tabindex="-1" aria-labelledby="modale-facture" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Facture</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" id="corps-modale">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Produit</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="body-table-facture">
+                            <tr>
+                                <td>Sous-total HT :</td>
+                                <td id="modale-prix-total-ht">€42.00</td>
+                            </tr>
+
+                            <tr>
+                                <td>Expédition :</td>
+                                <td>Livraison gratuite</td>
+                            </tr>
+
+                            <tr>
+                                <td>TVA :</td>
+                                <td id="modale-tva">€42.01</td>
+                            </tr>
+
+                            <tr>
+                                <td>Moyen de paiement :</td>
+                                <td>Carte de paiement (Stripe)</td>
+                            </tr>
+
+                            <tr>
+                                <td>Total :</td>
+                                <td id="modale-prix-total">€4242.12</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="container container-fluid" id="container-adresses-modale">
+                        <div class="row" id="row-adresses">
+                            <div class="col-6 col-adresse">
+                                <h5>Adresse de Facturation</h5>
+                                <div id="modale-adresse-facturation" class="div-adresse"></div>
+                            </div>
+
+                            <div class="col-6 col-adresse">
+                                <h5>Adresse de Livraison</h5>
+                                <div id="modale-adresse-livraison" class="div-adresse"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# modal end #}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <a href="{{ path('app_logout') }}" class="btn btn-lg" id="bouton-deconnexion">Déconnection</a>
+            </div>
+        </div>
+
+        {% for flashError in app.flashes('erreur_edition_profil') %}
+            <div class="alert alert-danger" role="alert">{{ flashError }}</div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-12">
+                <nav id="onglets">
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        {# <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-profil" role="tab" aria-controls="nav-profil" aria-selected="true">Profil</a>
+                        <a class="nav-link onglet active" data-bs-toggle="tab" href="#nav-informations" role="tab" aria-controls="nav-informations" aria-selected="false">Informations</a>
+                        <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-commandes" role="tab" aria-controls="nav-commandes" aria-selected="true">Commandes</a> #}
+                    
+                    
+                        {% if edition_mdp %}
+                            <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-profil" role="tab" aria-controls="nav-profil" aria-selected="true">Profil</a>
+                            <a class="nav-link onglet active" data-bs-toggle="tab" href="#nav-informations" role="tab" aria-controls="nav-informations" aria-selected="false">Informations</a>
+                        {% else %}
+                            <a class="nav-link onglet active" data-bs-toggle="tab" href="#nav-profil" role="tab" aria-controls="nav-profil" aria-selected="true">Profil</a>
+                            <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-informations" role="tab" aria-controls="nav-informations" aria-selected="false">Informations</a>
+                        {% endif %}
+                            <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-commandes" role="tab" aria-controls="nav-commandes" aria-selected="true">Commandes</a>
+
+                    
+                    
+                    </div>
+                </nav>
+
+
+                <div class="tab-content" id="nav-tabContent">
+                    {% if edition_mdp %}
+                        <div class="tab-pane fade" id="nav-profil" role="tabpanel" aria-labelledby="nav-profil-tab">
+                    {% else %}
+                        <div class="tab-pane fade show active" id="nav-profil" role="tabpanel" aria-labelledby="nav-profil-tab">
+                    {% endif %}
+
+                        <h3>Modifier vos informations</h3>
+                        <div class="container">
+                            {{ form_start(formulaire_profil) }}
+                                {{ form_widget(formulaire_profil) }}
+                                <div>* Champs obligatoires</div>
+                                <button class="btn bouton-envoi" {#formnovalidate#}>METTRE A JOUR LE PROFIL</button>
+                            {{ form_end(formulaire_profil) }}
+                        </div>
+                    </div>
+
+                    {% if edition_mdp %}
+                        <div class="tab-pane fade show active" id="nav-informations" role="tabpanel" aria-labelledby="nav-informations-tab">
+                    {% else %}
+                        <div class="tab-pane fade" id="nav-informations" role="tabpanel" aria-labelledby="nav-informations-tab">
+                    {% endif %}
+
+                        <h3>Changer le mot de passe</h3>
+                        {{ form_start(formulaire_mdp) }}
+                            {{ form_widget(formulaire_mdp) }}
+                            <button class="btn bouton-envoi" formnovalidate>METTRE A JOUR LE MOT DE PASSE</button>
+                        {{ form_end(formulaire_mdp) }}
+                    </div>
+
+                    <div class="tab-pane fade" id="nav-commandes" role="tabpanel" aria-labelledby="nav-commandes-tab">
+                        @TODO affichage factures -- A TESTER
+                        {% if factures|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Numéro</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Montant</th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for facture in factures %}
+                                            <tr>
+                                                <td>{{ facture["id_facture"] }}</td>
+                                                <td>{{ facture["date"]|date('d/m/Y') }}</td>
+                                                <td>&euro;{{ (facture["montant"]/100)|number_format(2, ',', ' ') }}</td>
+                                                <td>
+                                                    <button class="btn btn-info bouton-facture" data-id="{{ facture["id_facture"] }}">Voir la facture</button>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            Vous n'avez aucune facture enregistrée.
+                        {% endif %}
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/registration/compte.script.js') }}"></script>
+{% endblock %}
+
