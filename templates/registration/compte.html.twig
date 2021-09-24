@@ -91,6 +91,10 @@
             <div class="alert alert-danger" role="alert">{{ flashError }}</div>
         {% endfor %}
 
+        {% for flashError in app.flashes('edition_mdp') %}
+            <div class="alert alert-success" role="alert">{{ flashError }}</div>
+        {% endfor %}
+
         <div class="row">
             <div class="col-12">
                 <nav id="onglets">
@@ -162,11 +166,11 @@
                                     <tbody>
                                         {% for facture in factures %}
                                             <tr>
-                                                <td>{{ facture["id_facture"] }}</td>
-                                                <td>{{ facture["date"]|date('d/m/Y') }}</td>
-                                                <td>&euro;{{ (facture["montant"]/100)|number_format(2, ',', ' ') }}</td>
+                                                <td>{{ facture.getId }}</td>
+                                                <td>{{ facture.getDateCreation|date('d/m/Y') }}</td>
+                                                <td>&euro;{{ (facture.getMontantTotal/100)|number_format(2, ',', ' ') }}</td>
                                                 <td>
-                                                    <button class="btn btn-info bouton-facture" data-id="{{ facture["id_facture"] }}">Voir la facture</button>
+                                                    <button class="btn btn-info bouton-facture" data-id="{{ facture.getId }}">Voir la facture</button>
                                                 </td>
                                             </tr>
                                         {% endfor %}

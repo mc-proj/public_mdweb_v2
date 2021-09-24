@@ -6,6 +6,7 @@ use App\Repository\MDWFacturesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=MDWFacturesRepository::class)
@@ -17,43 +18,63 @@ class MDWFactures
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $id;
 
     /**
      * @ORM\Column(type="datetime")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $date_creation;
 
     /**
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $montant_total;
 
     /**
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $montant_ht;
 
     /**
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $montant_ttc;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $message;
 
     /**
      * @ORM\ManyToOne(targetEntity=MDWUsers::class, inversedBy="factures")
      * @ORM\JoinColumn(nullable=false)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $user;
 
     /**
      * @ORM\OneToMany(targetEntity=MDWFacturesProduits::class, mappedBy="facture", orphanRemoval=true)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $produit;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=MDWAdressesLivraison::class, inversedBy="Factures")
+     */
+    #[Groups(['read:facture:MDWFacture'])]
+    private $adresseLivraison;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=MDWCodesPromos::class, inversedBy="Factures")
+     */
+    #[Groups(['read:facture:MDWFacture'])]
+    private $code_promo;
 
     public function __construct()
     {
@@ -163,6 +184,30 @@ class MDWFactures
                 $produit->setFacture(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAdresseLivraison(): ?MDWAdressesLivraison
+    {
+        return $this->adresseLivraison;
+    }
+
+    public function setAdresseLivraison(?MDWAdressesLivraison $adresseLivraison): self
+    {
+        $this->adresseLivraison = $adresseLivraison;
+
+        return $this;
+    }
+
+    public function getCodePromo(): ?MDWCodesPromos
+    {
+        return $this->code_promo;
+    }
+
+    public function setCodePromo(?MDWCodesPromos $code_promo): self
+    {
+        $this->code_promo = $code_promo;
 
         return $this;
     }

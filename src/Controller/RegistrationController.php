@@ -7,6 +7,7 @@ use App\Form\RegistrationFormType;
 use App\Form\EditeCompteType;
 use App\Form\EditeMdpType;
 use App\Security\EmailVerifier;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,10 +20,13 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 class RegistrationController extends AbstractController
 {
     private $emailVerifier;
+    private $entityManager;
 
-    public function __construct(EmailVerifier $emailVerifier)
+    public function __construct(EmailVerifier $emailVerifier,
+                                EntityManagerInterface $entityManager)
     {
         $this->emailVerifier = $emailVerifier;
+        $this->entityManager = $entityManager;
     }
 
     #[Route('/inscription', name: 'app_register')]
@@ -92,30 +96,39 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/compte', name: 'mon_compte')]
-    public function monCompte(Request $request): Response {
+    public function monCompte(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response {
 
         if($this->getUser()) {
-            
             $user = $this->getUser();
             $form_profil = $this->createForm(EditeCompteType::class, $user);
             $form_profil->handleRequest($request);
-
             $form_mdp = $this->createForm(EditeMdpType::class, $user);
             $form_mdp->handleRequest($request);
 
             if($form_profil->isSubmitted() && $form_profil->isValid()) {
-                //
-                dd("form edition profil envoye");
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
             } else if($form_profil->isSubmitted()) {
                 $this->addFlash('erreur_edition_profil', 'Erreur: un des champs contient une information incorrecte');
             }
 
             $edition_mdp = false;
-            if($form_mdp->isSubmitted() && $form_mdp->isValid()) {
-                //
-                dd("form edition mdp envoye");
-            } else if($form_mdp->isSubmitted()) {
+
+            if($form_mdp->isSubmitted()) {
                 $edition_mdp = true;
+
+                if($form_mdp->isValid()) {
+                    $user->setPassword(
+                        $passwordEncoder->encodePassword(
+                            $user,
+                            $form_mdp->get('plainPassword')->getData()
+                        )
+                    );
+        
+                    $this->entityManager->persist($user);
+                    $this->entityManager->flush();
+                    $this->addFlash('edition_mdp', 'Votre mot de passe a bien été modifié');
+                }
             }
 
             return $this->render('registration/compte.html.twig', [
@@ -124,11 +137,8 @@ class RegistrationController extends AbstractController
                 'factures' => $user->getFactures(),
                 'edition_mdp' => $edition_mdp,
             ]);
-
         } else {
             return $this->redirectToRoute('app_login');
-        }
-
-        
+        } 
     }
 }

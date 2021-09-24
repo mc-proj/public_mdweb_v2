@@ -7,15 +7,20 @@ $(document).ready(function() {
         $.ajax({
 
             type: "POST",
-            url: "factures/unefacture",
+            url: racine + "factures/mafacture",
             data: {
                 facture_id: $(this).data("id")
             },
             success: function(data) {
 
+                loader(false);
                 let resultats = JSON.parse(data);
+                console.log(resultats);
+
+
+                /*let resultats = JSON.parse(data);
                 let date_creation_facture = convertiDates(resultats.date_creation);
-                /*on enleve les donnees de la precedente facture affichee*/
+                //on enleve les donnees de la precedente facture affichee
                 $("#modale-adresse-facturation").text('');
                 $("#modale-adresse-livraison").text('');
                 $("#tr-promo").remove();
@@ -103,7 +108,7 @@ $(document).ready(function() {
                 }
 
                 loader(false);
-                $("#modale-facture").modal("show");
+                $("#modale-facture").modal("show");*/
             },
             error: function(err) {
 

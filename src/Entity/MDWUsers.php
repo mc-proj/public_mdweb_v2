@@ -10,6 +10,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=MDWUsersRepository::class)
@@ -23,6 +24,7 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $id;
 
     /**
@@ -59,6 +61,7 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      *         maxMessage = "Votre Nom doit comporter moins de {{ limit }} caractères"
      * )
      */
+    #[Groups(['read:facture:MDWFacture'])] //ori alone
     private $nom;
 
     /**
@@ -71,6 +74,7 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      *         maxMessage = "Votre Prénom doit comporter moins de {{ limit }} caractères"
      * )
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $prenom;
 
     /**
@@ -83,6 +87,7 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      *         maxMessage = "Votre Adresse doit comporter moins de {{ limit }} caractères"
      * )
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $adresse;
 
     /**
@@ -95,6 +100,7 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      *         maxMessage = "Votre Code Postal doit comporter moins de {{ limit }} caractères"
      * )
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $code_postal;
 
     /**
@@ -107,6 +113,7 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      *         maxMessage = "Votre Ville doit comporter moins de {{ limit }} caractères"
      * )
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $ville;
 
     /**
@@ -119,6 +126,7 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      *         maxMessage = "Votre numéro de téléphone doit comporter moins de {{ limit }} caractères"
      * )
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $telephone;
 
     /**
@@ -140,6 +148,7 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message = "Veuillez entrer votre pays")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $pays;
 
     /**

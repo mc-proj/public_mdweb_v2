@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\MDWFacturesProduitsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=MDWFacturesProduitsRepository::class)
@@ -15,17 +16,20 @@ class MDWFacturesProduits
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $id;
 
     /**
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $quantite;
 
     /**
      * @ORM\ManyToOne(targetEntity=MDWProduits::class, inversedBy="factures")
      * @ORM\JoinColumn(nullable=false)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $produit;
 
     /**

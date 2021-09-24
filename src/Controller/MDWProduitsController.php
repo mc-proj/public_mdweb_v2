@@ -53,7 +53,7 @@ class MDWProduitsController extends AbstractController
         txt ds champ => <script>alert('C\'est une faille XSS qu\'on a là')</script> -> aucune execution :)
         */
 
-        if($form->isSubmitted() /*&& $form->isValid()*/) {
+        if($form->isSubmitted() && $form->isValid()) {
             //dd("submitted");
 
             //dd($form->getData()["recherche"]);

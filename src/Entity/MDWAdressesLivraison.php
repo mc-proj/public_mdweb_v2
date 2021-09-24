@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\MDWAdressesLivraisonRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=MDWAdressesLivraisonRepository::class)
@@ -15,41 +18,49 @@ class MDWAdressesLivraison
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $adresse;
 
     /**
      * @ORM\Column(type="string", length=45)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $ville;
 
     /**
      * @ORM\Column(type="string", length=45)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $code_postal;
 
     /**
      * @ORM\Column(type="string", length=45)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $pays;
 
     /**
      * @ORM\Column(type="string", length=45, nullable=true)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $telephone;
 
     /**
@@ -61,6 +72,16 @@ class MDWAdressesLivraison
      * @ORM\Column(type="datetime")
      */
     private $derniere_modification;
+
+    /**
+     * @ORM\OneToMany(targetEntity=MDWFactures::class, mappedBy="adresseLivraison")
+     */
+    private $Factures;
+
+    public function __construct()
+    {
+        $this->Factures = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -171,6 +192,36 @@ class MDWAdressesLivraison
     public function setDerniereModification(\DateTimeInterface $derniere_modification): self
     {
         $this->derniere_modification = $derniere_modification;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|MDWFactures[]
+     */
+    public function getFactures(): Collection
+    {
+        return $this->Factures;
+    }
+
+    public function addFacture(MDWFactures $facture): self
+    {
+        if (!$this->Factures->contains($facture)) {
+            $this->Factures[] = $facture;
+            $facture->setAdresseLivraison($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFacture(MDWFactures $facture): self
+    {
+        if ($this->Factures->removeElement($facture)) {
+            // set the owning side to null (unless already changed)
+            if ($facture->getAdresseLivraison() === $this) {
+                $facture->setAdresseLivraison(null);
+            }
+        }
 
         return $this;
     }

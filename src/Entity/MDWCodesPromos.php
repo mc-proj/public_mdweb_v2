@@ -6,6 +6,7 @@ use App\Repository\MDWCodesPromosRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=MDWCodesPromosRepository::class)
@@ -17,41 +18,49 @@ class MDWCodesPromos
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $code;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $type_promo;
 
     /**
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $valeur;
 
     /**
      * @ORM\Column(type="integer")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $minimum_achat;
 
     /**
      * @ORM\Column(type="date")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $date_debut_validite;
 
     /**
      * @ORM\Column(type="date")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $date_fin_validite;
 
     /**
@@ -59,9 +68,15 @@ class MDWCodesPromos
      */
     private $users;
 
+    /**
+     * @ORM\OneToMany(targetEntity=MDWFactures::class, mappedBy="code_promo")
+     */
+    private $Factures;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->Factures = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -177,6 +192,36 @@ class MDWCodesPromos
             // set the owning side to null (unless already changed)
             if ($user->getCodePromo() === $this) {
                 $user->setCodePromo(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|MDWFactures[]
+     */
+    public function getFactures(): Collection
+    {
+        return $this->Factures;
+    }
+
+    public function addFacture(MDWFactures $facture): self
+    {
+        if (!$this->Factures->contains($facture)) {
+            $this->Factures[] = $facture;
+            $facture->setCodePromo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFacture(MDWFactures $facture): self
+    {
+        if ($this->Factures->removeElement($facture)) {
+            // set the owning side to null (unless already changed)
+            if ($facture->getCodePromo() === $this) {
+                $facture->setCodePromo(null);
             }
         }
 

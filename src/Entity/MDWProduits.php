@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+//#[Groups(['read:facture:MDWFacture'])]
+
 /**
  * @ORM\Entity(repositoryClass=MDWProduitsRepository::class)
  */
@@ -18,18 +20,19 @@ class MDWProduits
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $id;
 
     /**
      * @ORM\Column(type="string", length=45)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $reference;
 
     /**
      * @ORM\Column(type="string", length=45)
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $nom;
 
     /**
@@ -45,29 +48,31 @@ class MDWProduits
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $description_courte;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $description;
 
     /**
      * @ORM\Column(type="date", nullable=true)
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $date_debut_promo;
 
     /**
      * @ORM\Column(type="date", nullable=true)
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $date_fin_promo;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $tva_active;
 
     /**
@@ -93,37 +98,38 @@ class MDWProduits
     /**
      * @ORM\Column(type="integer")
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $tarif;
 
     /**
      * @ORM\Column(type="integer")
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $tarif_promo;
 
     /**
      * @ORM\Column(type="date")
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $date_creation;
 
     /**
      * @ORM\ManyToOne(targetEntity=MDWTauxTva::class, inversedBy="produits")
      * @ORM\JoinColumn(nullable=false)
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $taux_tva;
 
     /**
      * @ORM\OneToMany(targetEntity=MDWImages::class, mappedBy="produit", orphanRemoval=true)
      */
-    #[Groups(['read:carte:MDWProduit'])]
+    #[Groups(['read:carte:MDWProduit', 'read:facture:MDWFacture'])]
     private $images;
 
     /**
      * @ORM\ManyToMany(targetEntity=MDWCategories::class, inversedBy="produits")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $categories;
 
     /**

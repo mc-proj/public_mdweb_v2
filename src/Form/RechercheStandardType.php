@@ -15,17 +15,17 @@ class RechercheStandardType extends AbstractType
     {
         $builder
             ->add('recherche', TextType::class, [
-                /*'constraints' => [
+                'constraints' => [
                     new NotBlank([
                         'message' => 'Veuillez renseigner ce que vous recherchez'
                     ]),
-                    new Length([
+                    /*new Length([
                         'min' => 3,
                         'minMessage' => 'Votre recherche doit comporter au moins {{ limit }} caractères',
                         'max' => 40,
                         'maxMessage' => 'Votre recherche doit comporter {{ limit }} caractères maximum',
-                    ])
-                ],*/
+                    ])*/
+                ],
                 'label' => ' ',
                 'attr' => [
                     'placeholder' => 'Rechercher...'
