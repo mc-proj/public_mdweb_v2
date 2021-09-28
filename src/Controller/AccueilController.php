@@ -22,9 +22,9 @@ class AccueilController extends AbstractController
     {
         $produits_recents = $this->MDWProduitsRepository->findBy(array(),
                                                                 array("date_creation" => "DESC"),
-                                                                6
+                                                                $this->getParameter('app.nb_articles_recents')
                                                             );
-        $produits_en_avant = $this->MDWProduitsRepository->getMisEnAvant(6);
+        $produits_en_avant = $this->MDWProduitsRepository->getMisEnAvant($this->getParameter('app.nb_articles_mis_en_avant'));
 
         return $this->render('accueil/index.html.twig', [
             'produits_recents' => $produits_recents,

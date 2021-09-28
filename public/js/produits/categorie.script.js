@@ -1,9 +1,7 @@
 $(document).ready(function() {  
-
     let page_actuelle = 1;
 
     $("#filtre").on("change", function() {
-
         loader(true);
         let numero_page = page_actuelle;
 
@@ -47,10 +45,7 @@ $(document).ready(function() {
 
                 numero_page = Math.ceil(quantite_totale/qte_max_articles_affiches);
                 $(document).find(".page-number").last().addClass("active");
-            }
-
-            else {
-
+            } else {
                 numero_page = 1;
                 $(document).find(".page-number").first().addClass("active");
             }
@@ -71,22 +66,14 @@ $(document).ready(function() {
                 let produits = JSON.parse(response);
 
                 if(numero_page == 1) {
-
                     $("#fleche-premier").addClass("d-none");
-                }
-
-                else {
-
+                } else {
                     $("#fleche-premier").removeClass("d-none");
                 }
 
                 if(numero_page == Math.ceil(quantite_totale/qte_max_articles_affiches)) {
-
                     $("#fleche-dernier").addClass("d-none");
-                }
-
-                else {
-
+                } else {
                     $("#fleche-dernier").removeClass("d-none");
                 }
                 
@@ -96,7 +83,6 @@ $(document).ready(function() {
                let dernier = qte_max_articles_affiches * numero_page;
 
                if(dernier > quantite_totale) {
-
                     dernier = quantite_totale;
                }
 
@@ -121,7 +107,6 @@ $(document).ready(function() {
         $("#rang-produit").empty();
 
         for(produit of produits) {
-
             let copie = cible.clone();
             copie.find('.lien-article').attr("href", produit.nom);
             let image = produit.images[0];
@@ -137,9 +122,10 @@ $(document).ready(function() {
 
             let tarif_standard = produit.tarif/100 + (produit.tarif/100 * taux_tva/10000);
             tarif_standard = CurrencyFormatted(tarif_standard);
-            let now = new Date();
-            let date_debut_promo = new Date(produit.date_debut_promo);
-            let date_fin_promo = new Date(produit.date_fin_promo);
+            let now = new Date().getTime();
+            let date_debut_promo = convertiDates(produit.date_debut_promo);
+            let date_fin_promo = convertiDates(produit.date_fin_promo);
+
             //la partie avec le/les prix differere si promo en cours ou pas
             //on detruit cette partie du clone et on la reconstruit pour chaque produit selon presence / absence promo
             copie.find(".prix-produit").remove();
@@ -165,23 +151,17 @@ $(document).ready(function() {
         }        
     }
 
-    //recup stackoverflow
-    function CurrencyFormatted(amount)
-    {
-        var i = parseFloat(amount);
-        if(isNaN(i)) { i = 0.00; }
-        var minus = '';
-        if(i < 0) { minus = '-'; }
-        i = Math.abs(i);
-        i = parseInt((i + .005) * 100);
-        i = i / 100;
-        s = new String(i);
-        if(s.indexOf('.') < 0) { s += '.00'; }
-        if(s.indexOf('.') == (s.length - 2)) { s += '0'; }
-        s = minus + s;
-        return s;
+    function convertiDates(date) {
+        let date_js = new Date(date).getTime();
+        return date_js.toLocaleString('fr-FR');
     }
-    //fin recup
+
+    function CurrencyFormatted(amount) {
+        return amount.toLocaleString('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
 
     function loader(show) {
         if(show) {

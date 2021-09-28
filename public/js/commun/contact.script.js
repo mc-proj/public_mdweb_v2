@@ -4,7 +4,6 @@ $(document).ready(function() {
         let hauteur_message = $("#message-clients").offset().top;
 
         if(hauteur_scrollee >= hauteur_message) {
-
             $("#message-clients").css({
                 'left': '0',
                 'transition': 'all 800ms'

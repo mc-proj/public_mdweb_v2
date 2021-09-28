@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ asset('css/registration/compte.style.css') }}">
 {% endblock %}
 
-
 {% block body %}
     <div id="loader"></div>
     <div class="modal fade" id="modale-facture" tabindex="-1" aria-labelledby="modale-facture" aria-hidden="true">
@@ -15,9 +14,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Facture</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body" id="corps-modale">
@@ -73,12 +70,11 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
                 </div>
             </div>
         </div>
-    </div>
-    {# modal end #}
+    </div> {# fin div modale #}
 
     <div class="container">
         <div class="row">
@@ -99,11 +95,6 @@
             <div class="col-12">
                 <nav id="onglets">
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        {# <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-profil" role="tab" aria-controls="nav-profil" aria-selected="true">Profil</a>
-                        <a class="nav-link onglet active" data-bs-toggle="tab" href="#nav-informations" role="tab" aria-controls="nav-informations" aria-selected="false">Informations</a>
-                        <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-commandes" role="tab" aria-controls="nav-commandes" aria-selected="true">Commandes</a> #}
-                    
-                    
                         {% if edition_mdp %}
                             <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-profil" role="tab" aria-controls="nav-profil" aria-selected="true">Profil</a>
                             <a class="nav-link onglet active" data-bs-toggle="tab" href="#nav-informations" role="tab" aria-controls="nav-informations" aria-selected="false">Informations</a>
@@ -112,12 +103,8 @@
                             <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-informations" role="tab" aria-controls="nav-informations" aria-selected="false">Informations</a>
                         {% endif %}
                             <a class="nav-link onglet" data-bs-toggle="tab" href="#nav-commandes" role="tab" aria-controls="nav-commandes" aria-selected="true">Commandes</a>
-
-                    
-                    
                     </div>
                 </nav>
-
 
                 <div class="tab-content" id="nav-tabContent">
                     {% if edition_mdp %}
@@ -131,7 +118,7 @@
                             {{ form_start(formulaire_profil) }}
                                 {{ form_widget(formulaire_profil) }}
                                 <div>* Champs obligatoires</div>
-                                <button class="btn bouton-envoi" {#formnovalidate#}>METTRE A JOUR LE PROFIL</button>
+                                <button class="btn bouton-envoi position-droite">METTRE A JOUR LE PROFIL</button>
                             {{ form_end(formulaire_profil) }}
                         </div>
                     </div>
@@ -145,12 +132,11 @@
                         <h3>Changer le mot de passe</h3>
                         {{ form_start(formulaire_mdp) }}
                             {{ form_widget(formulaire_mdp) }}
-                            <button class="btn bouton-envoi" formnovalidate>METTRE A JOUR LE MOT DE PASSE</button>
+                            <button class="btn bouton-envoi position-droite" formnovalidate>METTRE A JOUR LE MOT DE PASSE</button>
                         {{ form_end(formulaire_mdp) }}
                     </div>
 
                     <div class="tab-pane fade" id="nav-commandes" role="tabpanel" aria-labelledby="nav-commandes-tab">
-                        @TODO affichage factures -- A TESTER
                         {% if factures|length > 0 %}
                             <div class="table-responsive">
                                 <table class="table table-striped">
@@ -170,7 +156,9 @@
                                                 <td>{{ facture.getDateCreation|date('d/m/Y') }}</td>
                                                 <td>&euro;{{ (facture.getMontantTotal/100)|number_format(2, ',', ' ') }}</td>
                                                 <td>
-                                                    <button class="btn btn-info bouton-facture" data-id="{{ facture.getId }}">Voir la facture</button>
+                                                    {# <button class="btn bouton-facture" data-id="{{ facture.getId }}">Voir la facture</button> #}
+
+                                                    <button class="btn bouton-envoi" data-id="{{ facture.getId }}">Voir la facture</button>
                                                 </td>
                                             </tr>
                                         {% endfor %}
@@ -182,9 +170,6 @@
                         {% endif %}
                     </div>
                 </div>
-
-
-
             </div>
         </div>
     </div>

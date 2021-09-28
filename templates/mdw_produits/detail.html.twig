@@ -51,18 +51,17 @@
             </div>
         </div> {# fin modale #}
 
-        @TODO messages flash ajout panier
-        {# {% for message_ok in app.flashes("confirmation_avis_poste") %}
+        {% for message_ok in app.flashes("confirmation_avis") %}
             <div class="alert alert-success message-flash">
                 {{ message_ok }}
             </div>
         {% endfor %}
 
-        {% for message_nok in app.flashes("erreur_avis_poste") %}
+        {% for message_nok in app.flashes("erreur_avis") %}
             <div class="alert alert-danger message-flash">
                 {{ message_nok }}
             </div>
-        {% endfor %} #}
+        {% endfor %}
 
         <div class="container" id="container-principal">
             <div class="row">
@@ -220,10 +219,7 @@
                         <div class="container">
                             <div class="row">
                                 <div class="col-10 offset-1">
-                                    {{ form_start(form_avis) }}
-                                        {{ form_widget(form_avis) }}
-                                        <button class="btn" id="bouton_envoi" formnovalidate>ENVOYER</button>
-                                    {{ form_end(form_avis) }}
+                                    {{ render(path('form_avis', {'id_produit': produit.id })) }}
                                 </div>
                             </div>
                         </div><hr>
@@ -286,44 +282,49 @@
                 <div class="col-12">
                     <h2>produits apparentés</h2>
                 </div>
-                {% for produit_suggere in produit.getProduitsSuggeres() %}
-                    <div class="col-md-3 col-6 case-produit">
-                        <a href="{{ path('vue_produit', {'nom_produit': produit_suggere.nom()}) }}" class="lien-article">
-                            <div class="card shadow">
-                                {% set article = produit_suggere.getImages().getValues()|first %}
-                                <img src="{{ asset('images/produits/') ~ article.getImage() }}" class="card-img-top card-suggere" alt="image {{ produit_suggere.nom }}">
 
-                                <div class="card-body">
-                                    <p class="nom-produit">{{ produit_suggere.nom }}</p>
-                                    {% if produit.getTvaActive() %}
-                                        {% set tva = produit.getTauxTva().getTaux() %}
-                                    {% else %}
-                                        {% set tva = 0 %}
-                                    {% endif %}
+                {% if produit.getProduitsSuggeres()|length is same as(0) %}
+                    <div class="col-12"><span class="m-4">Aucun produit apparenté</span></div>
+                {% else %}
+                    {% for produit_suggere in produit.getProduitsSuggeres() %}
+                        <div class="col-md-3 col-6 case-produit">
+                            <a href="{{ path('vue_produit', {'nom_produit': produit_suggere.nom()}) }}" class="lien-article">
+                                <div class="card shadow">
+                                    {% set article = produit_suggere.getImages().getValues()|first %}
+                                    <img src="{{ asset('images/produits/') ~ article.getImage() }}" class="card-img-top card-suggere" alt="image {{ produit_suggere.nom }}">
 
-                                    {% if produit_suggere.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit_suggere.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}  
-                                        <p class="prix-produit" id="paragraphe-promo">
-                                            <del>
+                                    <div class="card-body">
+                                        <p class="nom-produit">{{ produit_suggere.nom }}</p>
+                                        {% if produit.getTvaActive() %}
+                                            {% set tva = produit.getTauxTva().getTaux() %}
+                                        {% else %}
+                                            {% set tva = 0 %}
+                                        {% endif %}
+
+                                        {% if produit_suggere.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit_suggere.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}  
+                                            <p class="prix-produit" id="paragraphe-promo">
+                                                <del>
+                                                    {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
+                                                </del>
+                                                <ins>
+                                                    {{ (produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000))|format_currency('EUR') }}
+                                                </ins>
+                                            </p>
+
+                                            <div class="prix-produit text-center">
+                                                promotion valable jusqu'au {{ produit_suggere.getDateFinPromo()|date('d/m/Y') }}
+                                            </div>
+                                        {% else %}
+                                            <p class="prix-produit">
                                                 {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
-                                            </del>
-                                            <ins>
-                                                {{ (produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000))|format_currency('EUR') }}
-                                            </ins>
-                                        </p>
-
-                                        <div class="prix-produit text-center">
-                                            promotion valable jusqu'au {{ produit_suggere.getDateFinPromo()|date('d/m/Y') }}
-                                        </div>
-                                    {% else %}
-                                        <p class="prix-produit">
-                                            {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
-                                        </p>
-                                    {% endif %}
+                                            </p>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
-                    </div>
-                {% endfor %}
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% endif %}
             </div>
         </div> {# fin container #}
     {% else %}

@@ -40,51 +40,17 @@ class MDWProduitsController extends AbstractController
 
         $form = $this->createForm(RechercheStandardType::class, null, [
             'action' => $this->generateUrl('recherche_standard') //par defaut, route utilisee est celle de la page qui fait l'include
-            //!!! 2 includes faits 1 ds produits/categories et 1 ds produits/details
         ]);
         $form->handleRequest($request);
 
-        //dd("passe");  //ok chargement + sousmission form
-        /*$data = $form->getData();
-        dd($data);*/
-
-        /*
-        test faille xss
-        txt ds champ => <script>alert('C\'est une faille XSS qu\'on a là')</script> -> aucune execution :)
-        */
-
         if($form->isSubmitted() && $form->isValid()) {
-            //dd("submitted");
-
-            //dd($form->getData()["recherche"]);
-            //!! marche ok avec texte precis -- NOK si texte partiel (genre 'prod' au lieu 'produit_6')
-
-            //faire une requete perso ac un like
-            //on ne sait pas d'avance si le param soumis est la categorie pu la sous categorie pu le nom produit
-            //solution basique -> enchainement max de 3 requetes perso (passe a requete n+1 si resultat n === 0)
-            //faire like simultane sur les 3 champs -> permet recherche la + large pr user
-
             $produits = $this->MDWProduitsRepository->globalFindByBegin($form->getData()["recherche"]);
-            //dd($produits);
 
             return $this->render('mdw_produits/resultats_recherche.html.twig', [
                 'produits' => $produits,
                 'recherche' => $form->getData()["recherche"],
             ]);
-
-            //return $this->redirectToRoute('produits_par_categorie', ['categorie' => $form->getData()["recherche"]]);
-
-            /*
-            $data = $form->getData();
-            $produits = $this->produitsRepository->rechercheGenerale($data["recherche"]);
-
-            return $this->render('produits/resultat_recherche.html.twig', [
-                'recherche' => $data["recherche"],
-                'produits' => $produits
-            ]);
-            */
         }
-
 
         return $this->render('mdw_produits/recherche.html.twig', [
             'form_recherche' => $form->createView()
@@ -132,7 +98,7 @@ class MDWProduitsController extends AbstractController
         }
 
         if($quantite_totale === 0 && $nom_produit === null) {
-            if($sous_categorie !== null) {  //cas url /categorie/nom_produit
+            if($sous_categorie !== null) {  //url du type ../categorie/nom_produit
                 return $this->redirectToRoute('vue_produit', ['nom_produit' => $sous_categorie]);
             }
             return $this->redirectToRoute('vue_produit', ['nom_produit' => $categorie]); // ! cas ou seul 1er param fourni, correspond a un nom de produit
@@ -169,7 +135,7 @@ class MDWProduitsController extends AbstractController
             $sous_categorie = null;
         }
 
-        $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, null, $rang_min, $nb_max_articles/*3*//*$quantite=null*/, $tri);
+        $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, null, $rang_min, $nb_max_articles, $tri);
         $produits = $normalizer->normalize($produits, 'json',  ['groups' => 'read:carte:MDWProduit']);
         $produits = json_encode($produits);
         $response = new JsonResponse($produits);

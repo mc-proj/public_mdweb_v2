@@ -44,6 +44,7 @@ class MDWCategories
     /**
      * @ORM\ManyToMany(targetEntity=MDWCategories::class, inversedBy="categories_parentes")
      */
+    #[Groups(['read:facture:MDWFacture'])]
     private $sous_categories;
 
     /**

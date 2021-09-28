@@ -113,20 +113,12 @@ class CommunController extends AbstractController
 
         $debut = htmlspecialchars(trim($request->request->get("debut")), ENT_QUOTES, "UTF-8");
 
-        /*$resultats = $this->produitsRepository->findByBegin($debut);
-        dd($resultats);*/
-
         if($debut == '') {
-
             $resultats = [];
-        }
-
-        else {
-
+        } else {
             $resultats = $this->produitsRepository->findByBegin($debut);
 
             if($resultats == []) {
-
                 $resultats = $this->categoriesRepository->findByBegin($debut);
             }
         }
@@ -135,6 +127,4 @@ class CommunController extends AbstractController
         $response = new JsonResponse($resultats);
         return $response;
     }
-
-    //
 }

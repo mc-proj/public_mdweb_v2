@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\MDWAvisRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=MDWAvisRepository::class)
@@ -19,11 +20,16 @@ class MDWAvis
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank(message = "Veuillez choisir une note")
      */
     private $note;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Length(
+     *         max = 255,
+     *         maxMessage = "Votre Avis doit comporter moins de {{ limit }} caractères"
+     * )
      */
     private $commentaire;
 
