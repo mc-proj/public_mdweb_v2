@@ -1,0 +1,322 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon panier - Marché du Web{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/panier/index.style.css') }}">
+{% endblock %}
+
+
+{% block body %}
+    <div id="loader"></div>
+
+    {# {% for message in app.flashes("panier vide") %}
+        <div class="alert alert-danger" id="msg-panier-vide">
+            {{ message }}
+        </div>
+    {% endfor %} #}
+
+    {# remplacer par un flashbag ? (plus court / simple) #}
+    {# {% if modifications is not same as ([]) %}
+        <div class="modal" tabindex="-1" id="modale-modifications">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Produits indisponibles</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <p>Les produits suivants de votre panier ne sont plus disponibles dans les quantites desirées. Votre panier a été modifié en consequence</p>
+
+                        <div class="container">
+                            <table class="table" id="table-modale">
+                                <thead class="thead-dark" style="border: 0">
+                                    <tr>
+                                        <th scope="col col-modale" colspan="2" style="border: 0">
+                                            Produit(s) concerné(s)
+                                        </th>
+
+                                        <th scope="col col-modale" style="border: 0">
+                                            Nouvelle quantité
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for infos in modifications %}
+                                        {% set produit_actuel = infos["produit"] %}
+                                        {% set images = produit_actuel.getImages() %}
+                                        <tr>
+                                            <td class="align-middle">
+                                                <img src="{{ asset('images/produits/') ~ images[0].getImage() }}" class="card-img-top image-modale" alt="image " ~ produit_actuel.getNom()>
+                                            </td>
+
+                                            <td class="align-middle">
+                                                {{ produit_actuel.getNom() }}
+                                            </td>
+
+                                            <td class="align-middle">
+                                                {% if infos.difference is not defined %}
+                                                    {{ infos["quantite"] }}
+                                                {% else %}
+                                                    {{ infos["quantite"] }} sont immédiatement disponibles,
+                                                    {{ infos["difference"] }} necessitent un délai supplémentaire pour etre livrés
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %} #}
+
+    <div class="container-fluid" id="containeur-principal">
+        <h1>Mon panier</h1><hr>
+        {# {% if panier.getProduits()|length > 0 %} #}
+        {% if false %}
+            panier pas vide
+            {# <div id="affichage-sm">
+                {% for panier_produit in panier.getPaniersProduits() %}
+                    {% set produit = panier_produit.getProduitsId() %}
+                    {% if loop.index is divisible by(2) %}
+                        {% set fond = "fond-gris" %}
+                    {% else %}
+                        {% set fond = "" %}
+                    {% endif %}
+                    <div class="row" id="rang_reduit_{{ produit.id }}">
+                        <div class="col-12 case-centree {{ fond }}">
+                            <span class="span-poubelle-reduite">
+                                <i class="fas fa-trash-alt poubelle-reduite" data-id="{{ produit.id }}" data-quantite="{{ panier_produit.getQuantite() }}"></i>
+                            </span>
+                        </div>
+
+                        <div class="col-12 case-reduite {{ fond }}">
+                            <span>Produit:</span>
+                            <span class="span-nom">
+                                {% set categorie = produit.getCategories()|first %}
+                                {% if categorie.getCategory()|length == 0 %}
+                                    <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': produit.getNom()}) }}" class="lien-produit-panier">
+                                {% else %}
+                                    {% set sous_categorie = categorie.getNom() %}
+                                    {% set categorie = categorie.getCategory()|first %}
+                                    <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': sous_categorie, 'produit': produit.getNom() }) }}" class="lien-article">
+                                {% endif %}
+                                    {{ produit.getNom() }}</a>
+                            </span>
+                        </div>
+
+                        <div class="col-12 case-reduite {{ fond }}">
+                            <span>Prix:</span>
+                            <span>
+                                {% if produit.getEtatTva() %}
+                                    {% set tva = produit.getTauxTvaId().getTaux() %}
+                                {% else %}
+                                    {% set tva = 0 %}
+                                {% endif %}
+
+                                <span>&euro;</span>
+                                {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
+                                    {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
+                                    {{ prix|number_format(2, ',', ' ') }}
+                                {% else %}
+                                    {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
+                                    {{ prix|number_format(2, ',', ' ') }}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="col-12 case-reduite {{ fond }}">
+                            <span>Quantité:</span>
+                            <span class="span-quantite">
+                                <input class="form-control quantite-reduite" id="quantite_reduite_{{ produit.id }}" data-cible="#quantite_article_{{ produit.id }}" type="number" value="{{ panier_produit.getQuantite() }}" step="1" min="0"
+                                {% if produit.getCommandeSansStock() %}
+                                    max="99"
+                                {% else %}
+                                    max="{{ produit.getQuantiteStock() }}" 
+                                {% endif %}
+                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                            </span>
+                        </div>
+
+                        <div class="col-12 case-reduite {{ fond }}">
+                            <span>Sous-total:</span>
+                            <span>
+                                <span>&euro;</span>
+                                <span id="prix_total_article_reduit_{{ produit.id }}">
+                                    {{ (prix|number_format(2) * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div id="affichage-md">
+                <div class="row entete-tableau">
+                    <div class="col-md-4 offset-md-2 col-4 offset-1">Produit</div>
+                    <div class="col-2">Prix</div>
+                    <div class="col-md-2 col-3">Quantité</div>
+                    <div class="col-2">Sous-total</div>
+                </div>
+
+                {% for panier_produit in panier.getPaniersProduits() %}
+                    {% set produit = panier_produit.getProduitsId() %}
+                    <div class="row" id="ligne_article_{{ produit.id }}">
+                        <div class="col-1 case-article">
+                            <span class="span-poubelle">
+                                <i class="fas fa-trash-alt poubelle" id="poubelle_{{ produit.id }}" data-id="{{ produit.id }}" data-quantite="{{ panier_produit.getQuantite() }}"></i>
+                            </span>
+                        </div>
+
+                        <div class="col-1 case-article image">
+                            {% set images = produit.getImages() %}
+                            <img src="{{ asset('images/produits/') ~ images[0].getImage() }}" class="card-img-top image-produit" alt="image " ~ produit.getNom()>
+                        </div>
+
+                        <div class="col-4 case-article">
+                            {% set categorie = produit.getCategories()|first %}
+                            {% if categorie.getCategory()|length == 0 %}
+                                <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': produit.getNom()}) }}" class="lien-produit-panier">
+                            {% else %}
+                                {% set sous_categorie = categorie.getNom() %}
+                                {% set categorie = categorie.getCategory()|first %}
+                                <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': sous_categorie, 'produit': produit.getNom() }) }}" class="lien-article">
+
+                            {% endif %}
+                                {{ produit.getNom() }}</a>
+                        </div>
+
+                        <div class="col-2 case-article" id="prix_unitaire_{{ produit.id }}">
+                            {% if produit.getEtatTva() %}
+                                {% set tva = produit.getTauxTvaId().getTaux() %}
+                            {% else %}
+                                {% set tva = 0 %}
+                            {% endif %}
+
+                            <span>&euro;</span>
+                            {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
+                                {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
+                                {{ prix|number_format(2, ',', ' ') }}
+                            {% else %}
+                                {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
+                                {{ prix|number_format(2, ',', ' ') }}
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-2 col-3 case-article">
+                            <input class="form-control quantite" id="quantite_article_{{ produit.id }}" type="number" value="{{ panier_produit.getQuantite() }}" step="1" min="0"
+                                {% if produit.getCommandeSansStock() %}
+                                    max="99"
+                                {% else %}
+                                    max="{{ produit.getQuantiteStock() }}" 
+                                {% endif %}
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                        </div>
+
+                        <div class="col-2 case-article total">
+                            <span>&euro;</span>
+                            <span id="prix_total_article_{{ produit.id }}">{{ (prix|number_format(2) * panier_produit.getQuantite())|number_format(2, ',', ' ') }}</span>
+                        </div>
+                    </div><hr>
+                {% endfor %}
+            </div>
+
+            <div class="row d-none" id='ligne-promo'>
+                <div class="col-2">
+                    <button class="btn" id="bouton-reset-promo">Annuler le code promo</button>
+                </div>
+
+                <div class="col-8" id='description-promo'>
+                </div>
+
+                <div class="col-2" id="valeur-promo">
+                </div>
+            </div>
+
+            <div class="row" id="rang-code-promo">
+                <div class="col-md-3 col-6">
+                    <input type="text" class="form-control" id="input-code-promo" placeholder="Code promo">   
+                </div>
+
+                <div class="col-md-4 col-6 p-md-0 p-auto">
+                    <button type="button" class="btn" id="bouton-code-promo">APPLIQUER LE CODE PROMO</button>
+                </div>
+            </div><hr>
+
+            <div class="row">
+                <div class="col-12">
+                    <button class="btn" id="bouton-vide-panier">VIDER LE PANIER</button>
+                </div>
+            </div>
+
+            <div class="row" id="rang-sous-total">
+                <div class="col-md-6 offset-md-6 col-12">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td colspan="2" class="entete-tableau">Total panier</td>
+                            </tr>
+
+                            <tr>
+                                <td>Sous total HT</td>
+                                <td>&euro;<span id="prix_ht">{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td>
+                            </tr>
+
+                            <tr>
+                                <td>Expédition</td>
+                                <td>Livraison gratuite</td>
+                            </tr>
+
+                            <tr>
+                                <td>TVA</td>
+                                <td>&euro;<span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td>
+                            </tr>
+
+                            <tr class="d-none" id="tr-total-promo">
+                                <td>Code promo</td>
+                                <td id="td-total-promo"></td>
+                            </tr>
+
+                            <tr>
+                                <td>Sous total TTC</td>
+                                <td>&euro;<span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</span></td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a href="{{ path('panier_paiement') }}" id="bouton-valide-commande" class="btn btn-danger">VALIDER LA COMMANDE</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> #}
+        
+        {% else %}
+            <div class="row" id="ligne-panier-vide">
+                <div class="col-12" id="case-panier-vide">
+                    Votre panier est actuellement vide.
+                </div>
+            </div>
+            <a href="{{ path('categories') }}" class="btn" id="bouton-retour-boutique">RETOUR A LA BOUTIQUE</a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/panier/index.script.js') }}"></script>
+{% endblock %}
+

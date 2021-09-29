@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-    //init popover
+    //init popover  //base 363 lignes
     $(function () {
         $('[data-toggle="popover"]').popover()
     })
@@ -8,32 +8,24 @@ $(document).ready(function() {
     //apparition-disparition du formulaire de recherche
     //au clic sur l'icone "loupe"
     $("#icone-recherche").on("click", function() {
-
         $(".ligne-recherche").slideToggle();
     })
 
     //disparition du formulaire de recherche
     //au clic sur la croix de fermeture du formulaire
     $("#croix-recherche").on("click", function() {
-
         $("#icone-recherche").trigger("click");
     })
 
     //les listes deroulantes du menu de navigation se deroulent au survol
     $(".liste").hover(function() {
-
         $(this).find('[data-toggle=dropdown]').dropdown('toggle');
     })
 
     $("#bouton-fermeture-lateral").on("click", function() {
-
         if($("#menu-lateral").is(":visible")) {
-
             $("#cache").css("display", "none");
-        }
-
-        else {
-
+        }else {
             $("#cache").css("display", "block");
         }
 
@@ -41,33 +33,28 @@ $(document).ready(function() {
     });
 
     $("#burger-button").on("click", function() {
-
         $("#bouton-fermeture-lateral").trigger("click"); 
     })
 
     $(".sous-liste-normale").on("mouseover", function() {
-
          //ajout pseudo element pour avoir la barre rouge au dessus du texte
         $(this).parent().prev().addClass("special");
         $(this).parent().prev().css("color", "rgb(202, 64, 64)");
     })
 
     $(".sous-liste-normale").on("mouseleave", function() {
-
         //retrait pseudo element pour avoir la barre rouge au dessus du texte
        $(this).parent().prev().removeClass("special");
        $(this).parent().prev().css("color", "black");
    })
 
    $(".sous-liste-laterale").on("mouseover", function() {
-
         //ajout pseudo element pour avoir la barre rouge au dessus du texte
         $(this).parent().prev().addClass("special");
         $(this).parent().prev().css("color", "rgb(202, 64, 64)");
     })
 
     $(".sous-liste-laterale").on("mouseleave", function() {
-
     //retrait pseudo element pour avoir la barre rouge au dessus du texte
         $(this).parent().prev().removeClass("special");
         $(this).parent().prev().css("color", "black");
@@ -82,7 +69,6 @@ $(document).ready(function() {
             url: racine + 'panier/apercu_panier',
             method: 'POST',
             success: function (response) {
-
                 let result = JSON.parse(response);
                 let total = 0;
                 let html = "";
@@ -205,17 +191,14 @@ $(document).ready(function() {
     })
 
     $("#bouton-cookies").on("click", function() {
-
         $.ajax({
             type: "POST",
             url: racine + "commun/cookies_acceptes",
             success: function() {
-
                 $("#container-cookies").css("display", "none");
             },
             error: function(err) {
-
-                console.log(err);
+                //console.log(err);
             }
         })
     })
@@ -224,9 +207,7 @@ $(document).ready(function() {
     let tempo = null;
 
     $("#texte-recherche").on("keyup", function() {
-
         if(tempo != null) {
-
             clearTimeout(tempo);
             tempo = null;
         }
@@ -244,30 +225,17 @@ $(document).ready(function() {
                 success: function(response) {
 
                     let results = JSON.parse(response);
-                    console.log(results);
                     $("#resultats-recherche").empty();
 
                     if(results.length == 0) {
-
                         $("#resultats-recherche").slideUp();
-                    }
-
-                    else {
+                    } else {
 
                         for(result of results) {
-
-                            //.nom_produit  categorie   sous_categorie
-                            //'/filtre/{categorie}/{sous_categorie}/{nom_produit}'
-
-                            //test begin
-
-                            //test end
                             let texte_lien = result.categorie;
                             let lien = "<a href='produits/filtre/" + result.categorie;
 
-                            //if(typeof(result.sous_categorie !== "undefined")) {
                             if(result.sous_categorie !== null) {
-
                                 texte_lien = result.sous_categorie;
                                 lien += "/" + result.sous_categorie;
                             }
@@ -278,35 +246,6 @@ $(document).ready(function() {
                             }
 
                             lien += "'>" + texte_lien + "</a><br>";
-
-                            //original
-                            /*let lien = "<a href='/boutique/";
-
-                            if(typeof result.nom_produit === "undefined") {
-
-                                if(result.nom_categorie_parent === null) {
-
-                                    lien = lien + result.nom_categorie + "'>" + result.nom_categorie + "</a><br>";
-                                }
-
-                                else {
-
-                                    lien  = lien + result.nom_categorie_parent + "/" + result.nom_categorie + "'>" + result.nom_categorie + "</a><br>";
-                                }
-                            }
-
-                            else {
-
-                                lien = lien + result.nom_categorie;
-
-                                if(result.nom_sous_categorie !== null) {
-
-                                    lien = lien + "/" + result.nom_sous_categorie;
-                                }
-
-                                lien = lien + "/" + result.nom_produit + "'>" + result.nom_produit + "</a><br>";
-                            }*/
-
                             $("#resultats-recherche").append(lien);
                         }
 
@@ -314,7 +253,6 @@ $(document).ready(function() {
                     }    
                 },
                 error: function(err) {
-
                     console.log(err);
                 }
             })
@@ -322,15 +260,25 @@ $(document).ready(function() {
     })
 
     $("#bouton-cookies").on("click", function() {
-
         $("#container-cookies").css("display", "none");
     })
 
     $(".lien-liste").on("click", function() {
-
         window.location.replace($(this).attr("href"));
     })
 
+    //
+    function CurrencyFormatted(amount) {
+        return amount.toLocaleString('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+    // @TODO remplacer fct formatteNombrePourAffichage par fct CurrencyFormatted
+    //utilisation avec icone panier (partie panier pas encore traitee au moment de ce com)
+
+
+    //here
     function formatteNombrePourAffichage(nombre) {
 
         nombre /= 100;
