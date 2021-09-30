@@ -14,6 +14,7 @@ use DateTime;
 class SecurityController extends AbstractController
 {
     private $entityManager;
+    private $session;
 
     public function __construct(SessionInterface $session,
                                 EntityManagerInterface $entityManager) {
@@ -62,7 +63,7 @@ class SecurityController extends AbstractController
         $guest->setDateCreation($now);
         $guest->setDateModification($now);
         $this->entityManager->persist($guest);
-        $this->entityManger->flush();
+        $this->entityManager->flush();
         $this->session->set("guest", $guest);
         return $guest;
     }

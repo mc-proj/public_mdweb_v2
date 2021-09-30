@@ -73,10 +73,16 @@ class MDWCodesPromos
      */
     private $Factures;
 
+    /**
+     * @ORM\OneToMany(targetEntity=MDWPaniers::class, mappedBy="code_promo")
+     */
+    private $paniers;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->Factures = new ArrayCollection();
+        $this->paniers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -222,6 +228,36 @@ class MDWCodesPromos
             // set the owning side to null (unless already changed)
             if ($facture->getCodePromo() === $this) {
                 $facture->setCodePromo(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|MDWPaniers[]
+     */
+    public function getPaniers(): Collection
+    {
+        return $this->paniers;
+    }
+
+    public function addPanier(MDWPaniers $panier): self
+    {
+        if (!$this->paniers->contains($panier)) {
+            $this->paniers[] = $panier;
+            $panier->setCodePromo($this);
+        }
+
+        return $this;
+    }
+
+    public function removePanier(MDWPaniers $panier): self
+    {
+        if ($this->paniers->removeElement($panier)) {
+            // set the owning side to null (unless already changed)
+            if ($panier->getCodePromo() === $this) {
+                $panier->setCodePromo(null);
             }
         }
 

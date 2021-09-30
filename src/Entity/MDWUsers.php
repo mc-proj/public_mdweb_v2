@@ -166,6 +166,11 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $id_stripe;
 
+    /**
+     * @ORM\OneToOne(targetEntity=MDWPaniers::class, mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $panier;
+
     public function __construct()
     {
         $this->factures = new ArrayCollection();
@@ -497,5 +502,22 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function MAJDateModification() {
         $this->date_modification = new \DateTime();
+    }
+
+    public function getPanier(): ?MDWPaniers
+    {
+        return $this->panier;
+    }
+
+    public function setPanier(MDWPaniers $panier): self
+    {
+        // set the owning side of the relation if necessary
+        if ($panier->getUser() !== $this) {
+            $panier->setUser($this);
+        }
+
+        $this->panier = $panier;
+
+        return $this;
     }
 }

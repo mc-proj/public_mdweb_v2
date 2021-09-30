@@ -46,7 +46,6 @@ class MDWPaniers
 
     /**
      * @ORM\OneToOne(targetEntity=MDWAdressesLivraison::class, cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
      */
     private $adresse_livraison;
 
@@ -54,6 +53,22 @@ class MDWPaniers
      * @ORM\OneToMany(targetEntity=MDWPaniersProduits::class, mappedBy="panier", orphanRemoval=true)
      */
     private $produits;
+
+    /**
+     * @ORM\OneToOne(targetEntity=MDWUsers::class, inversedBy="panier", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $user;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=MDWCodesPromos::class, inversedBy="paniers")
+     */
+    private $code_promo;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $date_modification;
 
     public function __construct()
     {
@@ -163,6 +178,42 @@ class MDWPaniers
                 $produit->setPanier(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?MDWUsers
+    {
+        return $this->user;
+    }
+
+    public function setUser(MDWUsers $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getCodePromo(): ?MDWCodesPromos
+    {
+        return $this->code_promo;
+    }
+
+    public function setCodePromo(?MDWCodesPromos $code_promo): self
+    {
+        $this->code_promo = $code_promo;
+
+        return $this;
+    }
+
+    public function getDateModification(): ?\DateTimeInterface
+    {
+        return $this->date_modification;
+    }
+
+    public function setDateModification(\DateTimeInterface $date_modification): self
+    {
+        $this->date_modification = $date_modification;
 
         return $this;
     }

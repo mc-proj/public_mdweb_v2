@@ -120,7 +120,7 @@ $(document).ready(function() {
         
         $.ajax({
             type: "POST",
-            url: "/panier/modifie-quantite",
+            url: racine + "/paniers/modifie-quantite",
             data: {
 
                 id_produit: id_produit,
@@ -133,9 +133,9 @@ $(document).ready(function() {
                 
                 if(response.nombre_articles != false) {
 
-                    //securite: cas ou le user modifie le front pour entrer une quantite superieure au stock
+                    //securite: cas ou le user modifie le front pour entrer une quantite negative ou superieure au stock
                     //le back renvoie la quantite reelle
-                    if($("#quantite-ajout-panier").val() > response.quantite_finale_produit) {
+                    if($("#quantite-ajout-panier").val() !== response.quantite_finale_produit) {
                         $("#quantite-ajout-panier").val(response.quantite_finale_produit);
                     }
 
@@ -149,7 +149,7 @@ $(document).ready(function() {
             },
             error: function(err) {
 
-                console.log(err);
+                //console.log(err);
                 loader(false);
                 toastr.error("Erreur ajout produit au panier");
             }
