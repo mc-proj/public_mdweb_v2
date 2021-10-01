@@ -120,7 +120,7 @@ $(document).ready(function() {
         
         $.ajax({
             type: "POST",
-            url: racine + "/paniers/modifie-quantite",
+            url: racine + "paniers/modifie-quantite",
             data: {
 
                 id_produit: id_produit,
@@ -130,8 +130,21 @@ $(document).ready(function() {
             success: function(response) {
 
                 response = JSON.parse(response);
+
+                if(typeof(response.erreur) !== "undefined") { //cas ou le user est un bricoleur
+                    toastr.error(response.erreur);
+                } else {
+                    /*
+            $retour = [
+                "quantite_finale_produit" => $quantite_finale,
+                "nombre_articles_panier" => $nombre_articles_panier,
+                "total_ht" => $panier->getMontantHt(),
+                "total_ttc" => $panier->getMontantTtc()
+            ];
+                    */
+                }
                 
-                if(response.nombre_articles != false) {
+                /*if(response.nombre_articles != false) {
 
                     //securite: cas ou le user modifie le front pour entrer une quantite negative ou superieure au stock
                     //le back renvoie la quantite reelle
@@ -143,13 +156,13 @@ $(document).ready(function() {
                     toastr.success("Produit ajouté au panier");
                 } else {
                     toastr.error("Erreur ajout produit au panier");
-                }
+                }*/
 
                 loader(false);
             },
             error: function(err) {
 
-                //console.log(err);
+                console.log(err);
                 loader(false);
                 toastr.error("Erreur ajout produit au panier");
             }

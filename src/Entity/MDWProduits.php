@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use DateTime;
 
 //#[Groups(['read:facture:MDWFacture'])]
 
@@ -574,4 +575,26 @@ class MDWProduits
 
         return $this;
     }
+
+    //retourne tarif ttc d'un produit avec promo si besoin (! controle promo par rapport à la date de l'appel de la methode)
+    public function getTarifEffectif() {
+        $tarif_ht = $this->getTarif();
+        $tarif_ttc = 0;
+        $now = new DateTime();
+
+        if($this->getDateDebutPromo() <= $now || $this->getDateFinPromo() >= $now) {
+            $tarif_ht = $this->getTarifPromo();
+        }
+
+        if($this->getTvaActive()) {
+            $tarif_ttc = $tarif_ht + ($tarif_ht * $this->getTauxTva()->getTaux()/10000);
+        }
+        //return [$tarif_ht, $tarif_ttc];
+
+        return [
+            'ht' => $tarif_ht,
+            'ttc' => $tarif_ttc
+        ];
+    }
+    //
 }

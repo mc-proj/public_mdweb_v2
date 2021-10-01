@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/paniers')]
 
@@ -44,16 +45,17 @@ class MDWPaniersController extends AbstractController
         //dd($panier); //bien null si rien trouve
         $panier = $this->getPanier();
 
-        //test local pour fct ajout panier
-        /*$panier = $this->getPanier();
-        $paniers_produits = $panier->getProduits();
-        foreach($paniers_produits as $pp) {
-            dd($pp->getProduit()->getNom());
-            dd($pp->getQuantite());  //donne bien qte
-        }*/
+        //test local conception fct calcul ttc article ac promo ou pas
+        /*
+                    produit->getTarif()  getTarifPromo() getTvaActive() getTauxTva()(!get entite!)
+                    getDateDebutPromo()  getDateFinPromo()
+                    */
+            
+            /*        $produit = $this->produitsRepository->findOneBy(['id' => 126]); //produit_5
+            dd($produit->getTarifEffectif());*/
         //
 
-        //@TODO: controlle des quantites produits + modofication qtes + flashbag si necessaire
+        //@TODO: controlle des quantites produits + modification qtes + flashbag si necessaire
 
         return $this->render('mdw_paniers/index.html.twig', [
             //'controller_name' => 'MDWPaniersController',
@@ -62,79 +64,108 @@ class MDWPaniersController extends AbstractController
     }
 
     ///modifie-quantite
-    #[Route('/modifie-quantite', name: 'modifie_panier')]
+    #[Route('/modifie-quantite', name: 'modifie_panier', methods: 'POST')]
     public function editeQuantite(Request $request) {
         $quantite = $request->request->get("quantite");
         $id_produit = $request->request->get("id_produit");
         $mode = $request->request->get("mode");
-
-        //secu anti bricoleur
+        $retour = null;
+        $produit = $this->produitsRepository->findOneBy(["id" => $id_produit]);
+        $nombre_articles_panier = 0;
+        
+        //secu modification front par user
         if($quantite == '' || $quantite < 1) {
-
-            //return back a erreur ?
-            //$is_ok = false;
+            $quantite = 0;
         }
 
-        else {
-            $produit = $this->produitsRepository->findOneBy(["id" => $id_produit]);
+        if($produit !== null) {
+            $quantite_finale = 0;
+            $quantite_ajout = 0; //negative dans le cas d'un retrait
+            $presence_produit = false;
+            $panier = $this->getPanier();
 
-            if($produit !== null) {
-                $presence_produit = false;
-                $panier = $this->getPanier();
+            //parcours des produits lies au panier (via la table pivot paniers_produits)
+            foreach($panier->getProduits() as $panier_produit) {
+                //recuperation du nombre d'articles dans le panier AVANT ajout/retrait
+                $nombre_articles_panier += $panier_produit->getQuantite();
 
-                //parcours des produits lies au panier (via la table pivot paniers_produits)
-                foreach($panier->getProduits() as $panier_produit) {
-                    //si produit deja present dans panier
-                    if($panier_produit->getProduit()->getId() === $id_produit) {
-                        $presence_produit = true;
-                        $suppression = false;
+                //si produit deja present dans panier
+                if($panier_produit->getProduit()->getId() === $id_produit) {
+                    $presence_produit = true;
+                    $suppression = false;
+                    //$mode => ajout retrait suppression
 
-                        //ajout retrait suppression
+                    /*
+                    ajouter message succes ds retour ?
+                    qte bien ajoutee
+                    qte all stock ajoute
+                    max deja atteint => 0 ajout
+                    retrait qte OK
+                    retrait article ok
+                    */
 
-                        if($mode === "ajout") {
-                            //si qte panier + qte ajout <= qte en stock ==> simple incrementation qte panier
-                            if(($panier_produit->getQuantite() + $quantite) <= $produit->getQuantiteStock()) {
-                                $panier_produit->setQuantite($panier_produit->getQuantite() + $quantite);
-                            } else {
-                                //on ajoute le met tt le stock ds panier (on veux plus que ce qui est dispo en stock a ce niveau)
-                                //flashbag
-                                $panier_produit->setQuantite($produit->getQuantiteStock());
-                            }
-                        } else if($mode === "retrait") {
-                            if(($panier_produit->getQuantite() - $quantite) > 0) {
-                                $panier_produit->setQuantite($quantite);
-                            } else {
-                                $suppression = true;
-                            }
+                    if($mode === "ajout") {
+                        //si qte panier + qte ajout <= qte en stock ==> simple incrementation qte panier
+                        if(($panier_produit->getQuantite() + $quantite) <= $produit->getQuantiteStock()) {
+                            $quantite_finale = $panier_produit->getQuantite() + $quantite;
+                        } else {
+                            //on ajoute le met tt le stock ds panier (on veux plus que ce qui est dispo en stock a ce niveau)
+                            $quantite_finale = $produit->getQuantiteStock();
                         }
-
-                        if($mode === "suppression" || $suppression) {
-                            $panier->removeProduit($panier_produit);
+                    } else if($mode === "retrait") {
+                        if(($panier_produit->getQuantite() - $quantite) > 0) {
+                            $quantite_finale = $panier_produit->getQuantite() - $quantite;
+                        } else {
+                            $suppression = true;
                         }
                     }
-                }
+                    $quantite_ajout = $quantite_finale - $panier_produit->getQuantite();
 
-                //produit absent du panier de base
-                if(!$presence_produit && $mode === "ajout") {
-                    $panier_produit = new MDWPaniersProduits();
-                    $panier_produit->setProduit($produit);
-
-                    //la qte a ajouter est dispo en stock
-                    if($quantite <= $produit->getQuantiteStock()) {
-                        $panier_produit->setQuantite($quantite);
-                    } else {
-                        //flashbag
-                        $panier_produit->setQuantite($produit->getQuantiteStock());
+                    if($mode === "suppression" || $suppression) {
+                        $quantite_ajout = -$panier_produit->getQuantite();
+                        $panier->removeProduit($panier_produit);
                     }
-
-                    $this->entityManager->persist($panier_produit);
-                    $this->entityManager->flush();
+                    //persist panier ?
                 }
-            } else {
-                //return erreur;
             }
-            
+
+            //produit absent du panier de base
+            if(!$presence_produit && $mode === "ajout") {
+                $panier_produit = new MDWPaniersProduits();
+                $panier_produit->setPanier($panier);
+                $panier_produit->setProduit($produit);
+
+                //la qte a ajouter est dispo en stock
+                if($quantite <= $produit->getQuantiteStock()) {
+                    $quantite_finale = $quantite;
+                } else {
+                    $quantite_finale = $produit->getQuantiteStock();
+                }
+
+                $quantite_ajout = $quantite_finale;
+                $this->entityManager->persist($panier_produit);
+            }
+
+            $nombre_articles_panier += $quantite_ajout; 
+            $panier_produit->setQuantite($quantite_finale);
+            $tarifs = $produit->getTarifEffectif();
+            $panier->setMontantHt($panier->getMontantHt() + $quantite_ajout * $tarifs['ht']);
+            $panier->setMontantTtc($panier->getMontantTtc() + $quantite_ajout * $tarifs['ttc']);
+            $this->entityManager->persist($panier);
+            $this->entityManager->flush();
+            $retour = [
+                "quantite_finale_produit" => $quantite_finale,
+                "nombre_articles_panier" => $nombre_articles_panier,
+                "total_ht" => $panier->getMontantHt(),
+                "total_ttc" => $panier->getMontantTtc()
+            ];
+        } else {
+            $retour = ["erreur" => "Erreur: vous tentez une modification sur un produit inconnu"];
         }
+
+        $response = json_encode($retour);
+        $response = new JsonResponse($response);
+        return $response;
     }
 
     private function getPanier() {

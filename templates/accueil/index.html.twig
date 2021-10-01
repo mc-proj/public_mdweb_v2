@@ -27,7 +27,6 @@
 
                         <div class="card-body">
                             <p class="nom-produit">{{ produit.nom }}</p>
-                            
                             {% if produit.getTvaActive() %}
                                 {% set tva = produit.getTauxTva().getTaux() %}
                             {% else %}
