@@ -124,6 +124,7 @@ class MDWPaniersController extends AbstractController
                     if($mode === "suppression" || $suppression) {
                         $quantite_ajout = -$panier_produit->getQuantite();
                         $panier->removeProduit($panier_produit);
+                        $quantite_finale = 0;
                     }
                     //persist panier ?
                 }
@@ -146,13 +147,19 @@ class MDWPaniersController extends AbstractController
                 $this->entityManager->persist($panier_produit);
             }
 
+            if($mode !== "suppression") {
+                $panier_produit->setQuantite($quantite_finale);
+            }
+            
             $nombre_articles_panier += $quantite_ajout; 
-            $panier_produit->setQuantite($quantite_finale);
             $tarifs = $produit->getTarifEffectif();
             $panier->setMontantHt($panier->getMontantHt() + $quantite_ajout * $tarifs['ht']);
             $panier->setMontantTtc($panier->getMontantTtc() + $quantite_ajout * $tarifs['ttc']);
             $this->entityManager->persist($panier);
             $this->entityManager->flush();
+
+            $this->quantitesEnSession($produit->getId(), $quantite_finale);
+
             $retour = [
                 "quantite_finale_produit" => $quantite_finale,
                 "nombre_articles_panier" => $nombre_articles_panier,
@@ -166,6 +173,18 @@ class MDWPaniersController extends AbstractController
         $response = json_encode($retour);
         $response = new JsonResponse($response);
         return $response;
+    }
+
+    private function quantitesEnSession($id_produit, $quantite) {
+        $quantites = $this->session->get('quantites_session');
+
+        if($quantites === null) {
+            $this->session->set('quantites_session', [$id_produit => $quantite]);
+        } else {
+            $quantites[$id_produit] = $quantite;
+        }
+
+        $this->session->set('quantites_session', $quantites);
     }
 
     private function getPanier() {
