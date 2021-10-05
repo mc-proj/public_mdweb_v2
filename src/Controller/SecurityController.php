@@ -7,18 +7,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use App\Entity\MDWUsers;
 use DateTime;
 
 class SecurityController extends AbstractController
 {
     private $entityManager;
-    private $session;
+    private $requestStack;
 
-    public function __construct(SessionInterface $session,
+    public function __construct(RequestStack $requestStack,
                                 EntityManagerInterface $entityManager) {
-        $this->session = $session;
+        $this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
     }
     /**
@@ -64,7 +64,8 @@ class SecurityController extends AbstractController
         $guest->setDateModification($now);
         $this->entityManager->persist($guest);
         $this->entityManager->flush();
-        $this->session->set("guest", $guest);
+        $session = $this->requestStack->getSession();
+        $session->set("guest", $guest);
         return $guest;
     }
 }

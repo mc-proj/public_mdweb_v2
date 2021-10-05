@@ -1,5 +1,4 @@
 $(document).ready(function() {
-
     //sans lui, les popover ne marchent pas
     $('[data-toggle="popover"]').popover();
 
@@ -134,13 +133,37 @@ $(document).ready(function() {
                 if(typeof(response.erreur) !== "undefined") { //cas ou le user est un bricoleur
                     toastr.error(response.erreur);
                 } else {
+
+                    //si plus de stock et non commandable sans stock
+                    if(!response.produit_dispo_sans_stock &&
+                        (response.quantite_finale_produit >= response.quantite_produit_stock || response.quantite_produit_stock === 0)
+                    ) {
+                        $("#quantite-ajout-panier").val(0);
+                        $("#quantite-ajout-panier").attr("disabled", true);
+                        $("#ajout-panier").attr("disabled", true);
+                    
+                        let message = "<div class='col-12 p-3'>"
+                        message += "Ce produit n'est actuellement plus disponible";
+                        message += "</div>";
+                        $(".rang-detail").last().append(message);
+                    } else {
+                        $("#quantite-ajout-panier").val(1);
+                        toastr.success("Produit ajouté au panier");
+                        //@TODO: utiliser qtes panier pr modifier "logo" panier
+                    }
+
+                    
                     /*
-            $retour = [
+                        $retour = [
+                "produit_dispo_sans_stock" => $produit->getCommandableSansStock(),
+                "quantite_produit_stock" => $produit->getQuantiteStock(),
                 "quantite_finale_produit" => $quantite_finale,
                 "nombre_articles_panier" => $nombre_articles_panier,
                 "total_ht" => $panier->getMontantHt(),
                 "total_ttc" => $panier->getMontantTtc()
             ];
+
+            $retour = ["erreur" => "Erreur: vous tentez une modification sur un produit inconnu"];
                     */
                 }
                 
@@ -162,7 +185,7 @@ $(document).ready(function() {
             },
             error: function(err) {
 
-                console.log(err);
+                //console.log(err);
                 loader(false);
                 toastr.error("Erreur ajout produit au panier");
             }

@@ -130,8 +130,8 @@
                     </div>
 
                     {% set quantite_panier = app.session.get('quantites_session') %}
-                    {% if quantite_panier.produit.id is defined %}
-                        {% set quantite_panier = quantite_panier.produit.id %}
+                    {% if quantite_panier[produit.id] is defined %}
+                        {% set quantite_panier = quantite_panier[produit.id] %}
                     {% else %}
                         {% set quantite_panier = 0 %}
                     {% endif %}
@@ -141,15 +141,20 @@
                         {% set indisponible = true %}
                     {% endif %}
 
-                    {% set indisponible = true %}  {# pur test #}
+                    {# {% set indisponible = true %} test only  #}
                     <div class="row rang-detail">
                         <div class="col-3">
 
-                            <input class="form-control" id="quantite-ajout-panier" type="number" step="1" min="1" disabled={{indisponible}}
+                            <input class="form-control" id="quantite-ajout-panier" type="number" step="1" min="1"
+
+                            {% if indisponible == true %}
+                                disabled
+                            {% endif %}
+
                             {% if produit.getCommandableSansStock() %}
                                 max="99"
                             {% else %}
-                                max="{{ produit.getQuantiteStock() }}" 
+                                max="{{ produit.getQuantiteStock() - quantite_panier }}"
                             {% endif %}
 
                             {% if indisponible %}
@@ -171,20 +176,32 @@
 
                         <div class="col-9">
                             {# <button class="btn" id="ajout-panier">AJOUTER AU PANIER</button> #}
-                            <button class="btn" id="ajout-panier" disabled={{indisponible}}>AJOUTER AU PANIER</button>
+                            <button class="btn" id="ajout-panier"
+                                {% if indisponible == true %}
+                                    disabled
+                                {% endif %}
+                            >
+                                AJOUTER AU PANIER
+                            </button>
                         </div>
+
+                        {% if indisponible == true %}
+                            <div class="col-12 p-3">
+                                Ce produit n'est actuellement plus disponible
+                            </div>
+                        {% endif %}
                     </div>
 
                     {# voir pr gerer le cote dispo => plus dispo apres ajax #}
 
                     {#  #}
-                    {% if indisponible == true %}
+                    {# {% if indisponible == true %}
                     <div class="row">
                         <div class="col-12">
                             Ce produit n'est actuellement plus disponible
                         </div>
                     </div>
-                    {% endif %}
+                    {% endif %} #}
                     {#  #}
 
                     <div class="row">
