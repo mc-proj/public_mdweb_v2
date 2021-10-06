@@ -41,20 +41,7 @@ class MDWPaniersController extends AbstractController
     #[Route('/', name: 'accueil_panier')]
     public function index(): Response
     {
-        //$panier = $this->paniersRepository->findOneBy(['id' => 0]);
-        //dd($panier); //bien null si rien trouve
         $panier = $this->getPanier();
-
-        //test local conception fct calcul ttc article ac promo ou pas
-        /*
-                    produit->getTarif()  getTarifPromo() getTvaActive() getTauxTva()(!get entite!)
-                    getDateDebutPromo()  getDateFinPromo()
-                    */
-            
-            /*        $produit = $this->produitsRepository->findOneBy(['id' => 126]); //produit_5
-            dd($produit->getTarifEffectif());*/
-        //
-
         //@TODO: controlle des quantites produits + modification qtes + flashbag si necessaire
 
         return $this->render('mdw_paniers/index.html.twig', [
@@ -63,7 +50,6 @@ class MDWPaniersController extends AbstractController
         ]);
     }
 
-    ///modifie-quantite
     #[Route('/modifie-quantite', name: 'modifie_panier', methods: 'POST')]
     public function editeQuantite(Request $request) {
         $quantite = $request->request->get("quantite");
@@ -80,31 +66,21 @@ class MDWPaniersController extends AbstractController
 
         if($produit !== null) {
             $quantite_finale = 0;
-            $quantite_ajout = 0; //negative dans le cas d'un retrait
+            $quantite_ajout = 0; //peux avoir une valeur negative dans le cas d'un retrait
             $presence_produit = false;
             $panier = $this->getPanier();
-
-            //test begin
-            /*$liens = $panier->getProduits();
-            $recup = [];
-            foreach($liens as $lien) {
-                array_push($recup, $lien->getId());
-            }
-            dd($recup);*/
-            //test end
 
             //parcours des produits lies au panier (via la table pivot paniers_produits)
             foreach($panier->getProduits() as $panier_produit) {
                 //recuperation du nombre d'articles dans le panier AVANT ajout/retrait
                 $nombre_articles_panier += $panier_produit->getQuantite();
 
-
                 //si produit deja present dans panier
                 if($panier_produit->getProduit()->getId() === intval($id_produit)) {
                     $presence_produit = true;
                     $suppression = false;
-                    //$mode => ajout retrait suppression                    
 
+                    //$mode possibles => "ajout", "retrait", "suppression"                    
                     if($mode === "ajout") {
                         //si qte panier + qte ajout <= qte en stock ==> simple incrementation qte panier
                         if(($panier_produit->getQuantite() + $quantite) <= $produit->getQuantiteStock()) {
@@ -133,9 +109,6 @@ class MDWPaniersController extends AbstractController
                 }
             }
 
-            //dd($id_produit); "126"
-            //dd($id_produits); //test cle 0 => 126
-
             //produit absent du panier de base
             if(!$presence_produit && $mode === "ajout") {
                 $panier_produit = new MDWPaniersProduits();
@@ -153,11 +126,6 @@ class MDWPaniersController extends AbstractController
                 $panier_produit->setQuantite($quantite_finale);
                 $this->entityManager->persist($panier_produit);
             }
-
-            /*if($mode !== "suppression") {
-                $panier_produit->setQuantite($quantite_finale);
-                $this->entityManager->persist($panier_produit);  //!! portee $panier_produit !!!
-            }*/
             
             $nombre_articles_panier += $quantite_ajout; 
             $tarifs = $produit->getTarifEffectif();
@@ -166,9 +134,8 @@ class MDWPaniersController extends AbstractController
             $this->entityManager->persist($panier);
             $this->entityManager->flush();
 
-            //$this->quantitesEnSession($produit->getId(), $quantite_finale);  OBSOLETE symfo 5.3
-            //test begin
-            $session = $this->requestStack->getSession();
+            //--
+            /*$session = $this->requestStack->getSession();
             $quantites = $session->get('quantites_session');
 
             if($quantites === null) {
@@ -176,13 +143,11 @@ class MDWPaniersController extends AbstractController
             } else {
                 $quantites[$id_produit] = $quantite_finale;
                 $session->set('quantites_session', $quantites);
-            }
+            }*/
 
-            //$session2->set('quantites_session', $quantites);
+            $this->quantitesEnSession($id_produit, $quantite_finale);
 
-            //$test = [$session2->get('quantites_session'), $quantites];
-            //dd($test); //tabl ac null pr les 2 cles
-            //test end
+            //--
 
             $retour = [
                 "produit_dispo_sans_stock" => $produit->getCommandableSansStock(),
@@ -201,8 +166,31 @@ class MDWPaniersController extends AbstractController
         return $response;
     }
 
+    #[Route('/apercu_panier', name: 'panier_apercu', methods: 'POST')]
+    public function getApercuPanier() {
+        $panier = $this->getPanier();
+        $resultats = [];
+
+        foreach($panier->getProduits() as $panier_produit) {
+            $produit = $panier_produit->getProduit();
+            $images = $produit->getImages();
+            $donnees = [
+                "id" => $produit->getId(),
+                "quantite" => $panier_produit->getQuantite(),
+                "nom" => $produit->getNom(),
+                "tarif" => $produit->getTarifEffectif(),
+                "image" => $images[0]->getImage()
+            ];
+            array_push($resultats, $donnees);
+        }
+
+        $response = json_encode($resultats);
+        $response = new JsonResponse($response);
+        return $response;
+    }
+
     private function quantitesEnSession($id_produit, $quantite) {
-        $session = $this->requestStack->getSession();
+        /*$session = $this->requestStack->getSession();
         $quantites = $session->get('quantites_session');
 
         if($quantites === null) {
@@ -210,6 +198,16 @@ class MDWPaniersController extends AbstractController
         } else {
             $quantites[$id_produit] = $quantite;  //a corriger: pr le moment on remplace juste la valeur
             $this->session->set('quantites_session', $quantites);
+        }*/
+
+        $session = $this->requestStack->getSession();
+        $quantites = $session->get('quantites_session');
+
+        if($quantites === null) {
+            $session->set('quantites_session', [$id_produit => $quantite]);
+        } else {
+            $quantites[$id_produit] = $quantite;
+            $session->set('quantites_session', $quantites);
         }
     }
 

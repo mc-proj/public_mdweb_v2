@@ -577,7 +577,7 @@ class MDWProduits
     }
 
     //retourne tarif ttc d'un produit avec promo si besoin (! controle promo par rapport à la date de l'appel de la methode)
-    public function getTarifEffectif() {
+    /*public function getTarifEffectif() {
         $tarif_ht = $this->getTarif();
         $tarif_ttc = 0;
         $now = new DateTime();
@@ -589,7 +589,29 @@ class MDWProduits
         if($this->getTvaActive()) {
             $tarif_ttc = $tarif_ht + ($tarif_ht * $this->getTauxTva()->getTaux()/10000);
         }
-        //return [$tarif_ht, $tarif_ttc];
+
+        return [
+            'ht' => $tarif_ht,
+            'ttc' => $tarif_ttc
+        ];
+    }*/
+
+    //date en parametre doit etre un DateTime
+    public function getTarifEffectif($date_achat=null) {
+        $tarif_ht = $this->getTarif();
+        $tarif_ttc = 0;
+
+        if($date_achat === null) {
+            $date_achat = new DateTime();
+        }
+
+        if($this->getDateDebutPromo() <= $date_achat || $this->getDateFinPromo() >= $date_achat) {
+            $tarif_ht = $this->getTarifPromo();
+        }
+
+        if($this->getTvaActive()) {
+            $tarif_ttc = $tarif_ht + ($tarif_ht * $this->getTauxTva()->getTaux()/10000);
+        }
 
         return [
             'ht' => $tarif_ht,

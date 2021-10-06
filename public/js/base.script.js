@@ -66,9 +66,10 @@ $(document).ready(function() {
         html: true,
     }).on("show.bs.popover", function() {
         $.ajax({
-            url: racine + 'panier/apercu_panier',
+            //url: racine + 'paniers/apercu_panier',
+            url: route_apercu_panier,
             method: 'POST',
-            success: function (response) {
+            success: function (response) {                
                 let result = JSON.parse(response);
                 let total = 0;
                 let html = "";
@@ -77,10 +78,9 @@ $(document).ready(function() {
                 if(result.length > 0) {
 
                     for(produit of result) {
-
-                        let prix = produit.tarif * produit.quantite;
+                        let prix = produit.tarif.ttc * produit.quantite;
                         total += prix;
-                        prix = formatteNombrePourAffichage(prix);
+                        prix = CurrencyFormatted(prix/100);
                         let image = "<img src='" + racine + "images/produits/" + produit.image + "' class='image-appercu' alt='image " + produit.nom + "'>";
     
                         html += "<div class='row'>";
@@ -99,7 +99,7 @@ $(document).ready(function() {
                     html += "<div class='col-8' id='bloc-total-gauche'>";
                     html += "<span id='span-total-panier'>Total Panier</span><span>Hors frais de livraison</span>"
                     html += "</div>"; //fin col-8
-                    html += "<div class='col-4' id='bloc-total-droit'>€" + formatteNombrePourAffichage(total) + "</div>";
+                    html += "<div class='col-4' id='bloc-total-droit'>€" + CurrencyFormatted(total/100) + "</div>";
                     html += "<div class='col-12' id='bloc-bouton-apercu'><a class='btn btn-info' id='lien-apercu-panier' href='" + route_panier + "'>Voir mon Panier</a></div>";
                     html += "</div>"; //fin row
                 }
@@ -147,11 +147,12 @@ $(document).ready(function() {
             url: route_retrait,
             data: {
                 id_produit: id,
-                quantite: quantite
+                //quantite: quantite  //normallement useless
+                mode: "suppression",
             },
             success: function(response) {
 
-                if(current_route == "panier") {
+                if(current_route == "accueil_panier") {
 
                     //si on se trouve sur la page panier, on provoque un f5
                     location.reload();
@@ -160,14 +161,13 @@ $(document).ready(function() {
                 else {
 
                     let result = JSON.parse(response);
-                    $("#compteur-panier").text(result.nombre_articles);
+                    $("#compteur-panier").text(result.nombre_articles_panier);
                     //retrait de l'article de l'apercu
                     _this.parent().parent().next().remove();
                     _this.parent().parent().remove();
 
                     //cas panier vide
-                    if(result.nombre_articles == 0) {
-
+                    if(result.nombre_articles_panier == 0) {
                         let html = "<div class='row'>";
                         html += "<div class='col-12'>Votre panier est vide</div>";
                         html += "</div>";
@@ -177,7 +177,8 @@ $(document).ready(function() {
                     else {
 
                         //correction du total affiche apres suppression;
-                        $("#bloc-total-droit").text("€" + formatteNombrePourAffichage(result.total_ttc));
+                        //$("#bloc-total-droit").text("€" + formatteNombrePourAffichage(result.total_ttc));
+                        $("#bloc-total-droit").text("€" + CurrencyFormatted(result.total_ttc));
                     }
                 }
             },

@@ -150,17 +150,20 @@
                             </span>
                         </div>
                         <div class="col-2" id='icone-panier'>
-                            @TODO panier (base.html)
-                            {# <a href="{{ path('panier') }}">                                      
-                                <i class="fas fa-shopping-cart icone" id="logo-panier" data-container="body" data-toggle="popover" data-content="<div class='container' id='apercu-popover'><img id='loader-apercu' src='{{ asset("images/loader.svg") }}'></div>"></i>
-                                <span class="badge badge-light" id="compteur-panier">
+                            {# @TODO panier (base.html) #}
+                            <a href="{{ path('accueil_panier') }}">                                      
+                                {# <i class="fas fa-shopping-cart icone" id="logo-panier" data-container="body" data-toggle="popover" data-content="<div class='container' id='apercu-popover'><img id='loader-apercu' src='{{ asset("images/loader.svg") }}'></div>"></i> #}
+                                <i class="fas fa-shopping-cart icone" id="logo-panier" data-container="body" data-bs-toggle="popover" data-bs-content="<div class='container' id='apercu-popover'><img id='loader-apercu' src='{{ asset("images/loader.svg") }}'></div>"></i>
+
+
+                                <span class="badge bg-light text-dark" id="compteur-panier">
                                     {% if app.session.get("nombre_articles") is not same as (null) %}
                                         {{ app.session.get("nombre_articles") }}
                                     {% else %}
                                         0  
                                     {% endif %}
                                 </span>
-                            </a>    #}
+                            </a>   
                         </div>
                     </div>
                 </div>
@@ -323,8 +326,11 @@
             <script>
                 let current_route = '{{ app.request.get("_route") }}';
                 let racine = '{{ asset("") }}';
+                let route_apercu_panier = '{{ path("panier_apercu")}}';
                 {# let route_retrait = '{{ path("panier_retrait") }}';
                 let route_panier = '{{ path("panier") }}'; #}
+                let route_panier = '{{ path("accueil_panier") }}';
+                let route_retrait = '{{ path("modifie_panier") }}';
             </script>
         {% endblock %}
     </body>
