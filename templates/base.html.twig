@@ -157,8 +157,8 @@
 
 
                                 <span class="badge bg-light text-dark" id="compteur-panier">
-                                    {% if app.session.get("nombre_articles") is not same as (null) %}
-                                        {{ app.session.get("nombre_articles") }}
+                                    {% if app.session.get("quantites_session") is not same as (null) %}
+                                        {{ app.session.get("quantites_session")['nombre_articles_panier'] }}
                                     {% else %}
                                         0  
                                     {% endif %}

@@ -202,13 +202,31 @@ class MDWPaniersController extends AbstractController
 
         $session = $this->requestStack->getSession();
         $quantites = $session->get('quantites_session');
+        
 
         if($quantites === null) {
-            $session->set('quantites_session', [$id_produit => $quantite]);
+            $session->set('quantites_session', [
+                $id_produit => $quantite,
+                'nombre_articles_panier' => $quantite,
+            ]);
         } else {
             $quantites[$id_produit] = $quantite;
+
+            //begin
+            $nombre_articles_panier = 0;  //test
+            foreach($quantites as $quantite_article) {
+                $nombre_articles_panier += $quantite_article;
+            }
+
+            $quantites['nombre_articles_panier'] = $nombre_articles_panier;
+
+            //dd($quantites);
+            //end
+
             $session->set('quantites_session', $quantites);
         }
+
+        
     }
 
     private function getPanier() {

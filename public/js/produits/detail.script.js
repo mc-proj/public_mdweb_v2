@@ -149,7 +149,7 @@ $(document).ready(function() {
                     } else {
                         $("#quantite-ajout-panier").val(1);
                         toastr.success("Produit ajouté au panier");
-                        //@TODO: utiliser qtes panier pr modifier "logo" panier
+                        $("#compteur-panier").html(response.nombre_articles_panier);
                     }
 
                     

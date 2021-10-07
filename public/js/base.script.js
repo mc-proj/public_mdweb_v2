@@ -86,7 +86,8 @@ $(document).ready(function() {
                         html += "<div class='row'>";
                         html += "<div class='col-3 centre-verticallement'>" + image + "</div>";
                         html += "<div class='col-6'>";
-                        html += "Nom: " + produit.nom + "<br>Quantité: " + produit.quantite + "<br>€" + prix + "</div>";
+                        // html += "Nom: " + produit.nom + "<br>Quantité: " + produit.quantite + "<br>€" + prix + "</div>";
+                        html += "<u>Nom</u> : " + produit.nom + "<br><u>Quantité</u> : " + produit.quantite + "<br>€ " + prix + "</div>";
                         html += "<div class='col-3 centre-verticallement'>";
                         html += "<button class='btn btn-secondary apercu-supprime' data-id='"+ produit.id +"' data-quantite='" + produit.quantite + "'>";
                         html += "<i class='fas fa-trash-alt'></i>";
@@ -99,7 +100,7 @@ $(document).ready(function() {
                     html += "<div class='col-8' id='bloc-total-gauche'>";
                     html += "<span id='span-total-panier'>Total Panier</span><span>Hors frais de livraison</span>"
                     html += "</div>"; //fin col-8
-                    html += "<div class='col-4' id='bloc-total-droit'>€" + CurrencyFormatted(total/100) + "</div>";
+                    html += "<div class='col-4' id='bloc-total-droit'>€ " + CurrencyFormatted(total/100) + "</div>";
                     html += "<div class='col-12' id='bloc-bouton-apercu'><a class='btn btn-info' id='lien-apercu-panier' href='" + route_panier + "'>Voir mon Panier</a></div>";
                     html += "</div>"; //fin row
                 }
