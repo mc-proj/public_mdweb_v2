@@ -83,10 +83,9 @@ $(document).ready(function() {
                         prix = CurrencyFormatted(prix/100);
                         let image = "<img src='" + racine + "images/produits/" + produit.image + "' class='image-appercu' alt='image " + produit.nom + "'>";
     
-                        html += "<div class='row'>";
+                        html += "<div class='row' style='width: 100%'>";
                         html += "<div class='col-3 centre-verticallement'>" + image + "</div>";
                         html += "<div class='col-6'>";
-                        // html += "Nom: " + produit.nom + "<br>Quantité: " + produit.quantite + "<br>€" + prix + "</div>";
                         html += "<u>Nom</u> : " + produit.nom + "<br><u>Quantité</u> : " + produit.quantite + "<br>€ " + prix + "</div>";
                         html += "<div class='col-3 centre-verticallement'>";
                         html += "<button class='btn btn-secondary apercu-supprime' data-id='"+ produit.id +"' data-quantite='" + produit.quantite + "'>";
@@ -96,7 +95,7 @@ $(document).ready(function() {
                         html += "</div><hr class='trait-hr'>"; //fin row
                     }
     
-                    html += "<div class='row'>";
+                    html += "<div class='row' style='width: 100%'>";
                     html += "<div class='col-8' id='bloc-total-gauche'>";
                     html += "<span id='span-total-panier'>Total Panier</span><span>Hors frais de livraison</span>"
                     html += "</div>"; //fin col-8
@@ -106,8 +105,6 @@ $(document).ready(function() {
                 }
 
                 else {
-
-                    //panier vide
                     html += "<div class='row'>";
                     html += "<div class='col-12'>Votre panier est vide</div>";
                     html += "</div>";
@@ -121,11 +118,9 @@ $(document).ready(function() {
         let _this = this;
         $(this).popover("show");
         $(".popover").on("mouseleave", function() {
-
             $(_this).popover("hide");
         })
     }).on("mouseleave", function() {
-
         let _this = this;
         setTimeout(function () {
             if(!$(".popover:hover").length) {
@@ -176,10 +171,8 @@ $(document).ready(function() {
                     }
 
                     else {
-
                         //correction du total affiche apres suppression;
-                        //$("#bloc-total-droit").text("€" + formatteNombrePourAffichage(result.total_ttc));
-                        $("#bloc-total-droit").text("€" + CurrencyFormatted(result.total_ttc));
+                        $("#bloc-total-droit").text("€" + CurrencyFormatted(result.total_ttc/100));
                     }
                 }
             },
@@ -255,7 +248,7 @@ $(document).ready(function() {
                     }    
                 },
                 error: function(err) {
-                    console.log(err);
+                    //console.log(err);
                 }
             })
         }, 700);
@@ -276,12 +269,9 @@ $(document).ready(function() {
             maximumFractionDigits: 2
         });
     }
-    // @TODO remplacer fct formatteNombrePourAffichage par fct CurrencyFormatted
-    //utilisation avec icone panier (partie panier pas encore traitee au moment de ce com)
-
 
     //here
-    function formatteNombrePourAffichage(nombre) {
+    /*function formatteNombrePourAffichage(nombre) {
 
         nombre /= 100;
         nombre = nombre.toLocaleString('fr');
@@ -309,5 +299,5 @@ $(document).ready(function() {
         }
 
         return nombre;
-    }
+    }*/
 })

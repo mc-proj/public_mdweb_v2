@@ -44,6 +44,12 @@ class MDWPaniersController extends AbstractController
         $panier = $this->getPanier();
         //@TODO: controlle des quantites produits + modification qtes + flashbag si necessaire
 
+        //test begin
+        /*$session = $this->requestStack->getSession();
+        $quantites = $session->get('quantites_session');
+        dd($quantites);*/
+        //test end
+
         return $this->render('mdw_paniers/index.html.twig', [
             //'controller_name' => 'MDWPaniersController',
             'panier' => $panier, //provi
@@ -133,21 +139,7 @@ class MDWPaniersController extends AbstractController
             $panier->setMontantTtc($panier->getMontantTtc() + $quantite_ajout * $tarifs['ttc']);
             $this->entityManager->persist($panier);
             $this->entityManager->flush();
-
-            //--
-            /*$session = $this->requestStack->getSession();
-            $quantites = $session->get('quantites_session');
-
-            if($quantites === null) {
-                $session->set('quantites_session', [$id_produit => $quantite]);
-            } else {
-                $quantites[$id_produit] = $quantite_finale;
-                $session->set('quantites_session', $quantites);
-            }*/
-
             $this->quantitesEnSession($id_produit, $quantite_finale);
-
-            //--
 
             $retour = [
                 "produit_dispo_sans_stock" => $produit->getCommandableSansStock(),
@@ -155,7 +147,7 @@ class MDWPaniersController extends AbstractController
                 "quantite_finale_produit" => $quantite_finale,
                 "nombre_articles_panier" => $nombre_articles_panier,
                 "total_ht" => $panier->getMontantHt(),
-                "total_ttc" => $panier->getMontantTtc()
+                "total_ttc" => $panier->getMontantTtc(),
             ];
         } else {
             $retour = ["erreur" => "Erreur: vous tentez une modification sur un produit inconnu"];
@@ -211,18 +203,13 @@ class MDWPaniersController extends AbstractController
             ]);
         } else {
             $quantites[$id_produit] = $quantite;
-
-            //begin
-            $nombre_articles_panier = 0;  //test
-            foreach($quantites as $quantite_article) {
-                $nombre_articles_panier += $quantite_article;
+            $nombre_articles_panier = 0;
+            foreach($quantites as $index => $quantite_article) {
+                if($index !== 'nombre_articles_panier') {
+                    $nombre_articles_panier += $quantite_article;
+                }
             }
-
             $quantites['nombre_articles_panier'] = $nombre_articles_panier;
-
-            //dd($quantites);
-            //end
-
             $session->set('quantites_session', $quantites);
         }
 

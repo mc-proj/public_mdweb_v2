@@ -69,7 +69,9 @@
                     <a href="{{ path('accueil') }}">Accueil</a> 
                     >> <a href="{{ path('categories') }}">Boutique</a> 
                     >> <a href="{{ path('produits_par_categorie', {'categorie': categorie}) }}"> {{ categorie }}</a> 
-                    >> <a href="{{ path('produits_par_categorie', {'categorie': categorie, 'sous_categorie': sous_categorie}) }}"> {{ sous_categorie }}</a> 
+                    {% if sous_categorie is not same as "" %}
+                        >> <a href="{{ path('produits_par_categorie', {'categorie': categorie, 'sous_categorie': sous_categorie}) }}"> {{ sous_categorie }}</a> 
+                    {% endif %}
                     >> {{ produit.nom }}
                 </div>
             </div>
