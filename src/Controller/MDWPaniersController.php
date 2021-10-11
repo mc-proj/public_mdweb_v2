@@ -86,8 +86,11 @@ class MDWPaniersController extends AbstractController
                     $presence_produit = true;
                     $suppression = false;
 
-                    //$mode possibles => "ajout", "retrait", "suppression"                    
-                    if($mode === "ajout") {
+                    //$mode possibles => "ajout", "retrait", "suppression"    
+                    
+
+                    //base
+                    /*if($mode === "ajout") {
                         //si qte panier + qte ajout <= qte en stock ==> simple incrementation qte panier
                         if(($panier_produit->getQuantite() + $quantite) <= $produit->getQuantiteStock()) {
                             $quantite_finale = $panier_produit->getQuantite() + $quantite;
@@ -101,7 +104,38 @@ class MDWPaniersController extends AbstractController
                         } else {
                             $suppression = true;
                         }
+                    }*/
+
+                    //test begin
+                    if($mode === "ajout") {
+                        //si qte panier + qte ajout <= qte en stock ==> simple incrementation qte panier
+                        if(($panier_produit->getQuantite() + $quantite) <= $produit->getQuantiteStock()) {
+                            $quantite_finale = $panier_produit->getQuantite() + $quantite;
+                        } else {
+                            //on ajoute le met tt le stock ds panier (on veux plus que ce qui est dispo en stock a ce niveau)
+                            $quantite_finale = $produit->getQuantiteStock();
+                        }
+                    } else if($mode ==="edition") {  //ajout de ce mode --- a tester
+                        //$quantite_finale = $quantite;
+
+
+                        if($quantite <= $produit->getQuantiteStock()) {
+                            $quantite_finale = $quantite;
+                        } else {
+                            $quantite_finale = $produit->getQuantiteStock();
+                        }
+
+
+
+
+                    } else if($mode === "retrait") {
+                        if(($panier_produit->getQuantite() - $quantite) > 0) {
+                            $quantite_finale = $panier_produit->getQuantite() - $quantite;
+                        } else {
+                            $suppression = true;
+                        }
                     }
+                    //test end
                     $quantite_ajout = $quantite_finale - $panier_produit->getQuantite();
 
                     if($mode === "suppression" || $suppression) {

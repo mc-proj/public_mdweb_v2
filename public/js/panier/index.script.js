@@ -98,6 +98,8 @@ $(document).ready(function() {
 
         loader(true);
 
+
+        /*  normallmeent useless now
         //controle en front qu'on n'entre pas une quantite superieure à ce qui present en stock
         //dans le cas ou le produit peut etre commande sans stock, limite a 99 geree dans la vue
         let entree = $(this).val();
@@ -108,7 +110,7 @@ $(document).ready(function() {
         if(entree > max) {
 
             $(this).val($(this).attr("max"));
-        }
+        }*/
 
         //la quantite en version reduite (sm et moins) est solidaire de la quantite en version taille md et plus
         let id_en_cours = $(this).attr("id");
@@ -116,8 +118,7 @@ $(document).ready(function() {
         let id_produit = id_en_cours[1];
         $("#quantite_reduite_" + id_produit).val($(this).val());
 
-        if($(this).val() == 0) {
-
+        if($(this).val() === 0) {
             $("#poubelle_" + id_produit).trigger("click");
         }
 
@@ -125,7 +126,8 @@ $(document).ready(function() {
 
             $.ajax({
                 type: "POST",
-                url: "/panier/modifie-quantite",
+                //url: racine + "/paniers/modifie-quantite",
+                url: "/paniers/modifie-quantite",
                 data: {
     
                     id_produit: id_produit,
@@ -135,8 +137,55 @@ $(document).ready(function() {
                 success: function(response) {
     
                     response = JSON.parse(response);
+
+                    console.log(response);
+                    //Object { produit_dispo_sans_stock: false, quantite_produit_stock: 50, quantite_finale_produit: "2", nombre_articles_panier: 7, total_ht: 50102, total_ttc: 52856 }
     
-                    if(response.nombre_articles != false) {
+                    //if(response.nombre_articles != false) {  //secu useless ?
+    
+                        //securite: cas ou le user modifie le front pour entrer une quantite superieure au stock
+                        //le back renvoie la quantite reelle
+                        //now useless -- secus en back
+                        /*if($("#quantite_article_" + id_produit).val() > response.quantite_finale_produit) {
+    
+                            $("#quantite_article_" + id_produit).val(response.quantite_finale_produit);
+                            $("#quantite_reduite_" + id_produit).val(response.quantite_finale_produit);
+                        }*/
+
+                        //CurrencyFormatted
+                        //produit 7 -> id 128
+    
+                        let prix_unitaire = convertionNombreTextePourCalcul($("#prix_unitaire_" + id_produit).text());  //€68.50
+                        //let total = $("#quantite_article_" + id_produit).val() * prix_unitaire;
+                        let total = response.quantite_finale_produit * prix_unitaire; //qte article remplacee par celle renvoyee par ctrleur (secu)
+                        //total = convertionNombrePourAffichage(total);  
+                        total = CurrencyFormatted(total);
+                        $("#prix_total_article_" + id_produit).text(total);
+                        $("#prix_total_article_reduit_" + id_produit).text(total);
+                        $("#compteur-panier").text(response.nombre_articles_panier);
+                        /*$("#prix_ht").text(formatteNombre(response.total_ht/100));
+                        $("#prix_ttc").text(formatteNombre(response.total_ttc/100));
+                        $("#prix_tva").text(formatteNombre(response.total_ttc/100 - response.total_ht/100));*/
+
+                        $("#prix_ht").text(CurrencyFormatted(response.total_ht/100));
+                        $("#prix_ttc").text(CurrencyFormatted(response.total_ttc/100));
+                        $("#prix_tva").text(CurrencyFormatted(response.total_ttc/100 - response.total_ht/100));
+                    //}
+    
+                    /*else {
+    
+                        toastr.error("Erreur lors de la modification du panier");
+                    }*/
+    
+                    loader(false);
+    
+                    if(!$("#ligne-promo").hasClass("d-none")) {
+    
+                        $("#bouton-code-promo").trigger("click");
+                    }
+
+                    //ori
+                    /*if(response.nombre_articles != false) {
     
                         //securite: cas ou le user modifie le front pour entrer une quantite superieure au stock
                         //le back renvoie la quantite reelle
@@ -167,7 +216,7 @@ $(document).ready(function() {
                     if(!$("#ligne-promo").hasClass("d-none")) {
     
                         $("#bouton-code-promo").trigger("click");
-                    }
+                    }*/
                 },
                 error: function(err) {
     
@@ -280,6 +329,14 @@ $(document).ready(function() {
         })
     })
 
+    function CurrencyFormatted(amount) {
+        return amount.toLocaleString('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    //debut useless zone
     function pseudoArrondi(nombre) {
 
         nombre = Math.trunc(nombre * 100);
@@ -287,7 +344,7 @@ $(document).ready(function() {
         return nombre;
     }
 
-    function convertionNombreTextePourCalcul(texte) {
+    function convertionNombreTextePourCalcul(texte) { //utile !!!
 
         texte = texte.replace(",", ".");
         texte = texte.replace("€", "");
@@ -316,16 +373,12 @@ $(document).ready(function() {
 
         return (entier + ',' + decimale);
     }
+    //fin useless zone
 
     function loader(show) {
-
         if(show) {
-
             $("#loader").show();
-        }
-
-        else {
-            
+        } else {
             $("#loader").hide();
         }
     }

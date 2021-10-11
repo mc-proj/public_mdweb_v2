@@ -84,12 +84,10 @@
 
     <div class="container-fluid" id="containeur-principal">
         <h1>Mon panier</h1><hr>
-        {# {% if panier.getProduits()|length > 0 %} #}
-        {% if false %}
-            panier pas vide
-            {# <div id="affichage-sm">
-                {% for panier_produit in panier.getPaniersProduits() %}
-                    {% set produit = panier_produit.getProduitsId() %}
+        {% if panier.getProduits()|length > 0 %}
+            <div id="affichage-sm">
+                {% for panier_produit in panier.getProduits() %}
+                    {% set produit = panier_produit.getProduit() %}
                     {% if loop.index is divisible by(2) %}
                         {% set fond = "fond-gris" %}
                     {% else %}
@@ -105,14 +103,7 @@
                         <div class="col-12 case-reduite {{ fond }}">
                             <span>Produit:</span>
                             <span class="span-nom">
-                                {% set categorie = produit.getCategories()|first %}
-                                {% if categorie.getCategory()|length == 0 %}
-                                    <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': produit.getNom()}) }}" class="lien-produit-panier">
-                                {% else %}
-                                    {% set sous_categorie = categorie.getNom() %}
-                                    {% set categorie = categorie.getCategory()|first %}
-                                    <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': sous_categorie, 'produit': produit.getNom() }) }}" class="lien-article">
-                                {% endif %}
+                                <a href="{{ path('vue_produit', {'nom_produit': produit.nom()}) }}" class="lien-article">
                                     {{ produit.getNom() }}</a>
                             </span>
                         </div>
@@ -120,42 +111,65 @@
                         <div class="col-12 case-reduite {{ fond }}">
                             <span>Prix:</span>
                             <span>
-                                {% if produit.getEtatTva() %}
-                                    {% set tva = produit.getTauxTvaId().getTaux() %}
+                                {% if produit.getTvaActive() %}
+                                    {% set tva = produit.getTauxTva().getTaux() %}
                                 {% else %}
                                     {% set tva = 0 %}
                                 {% endif %}
 
-                                <span>&euro;</span>
                                 {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
                                     {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
-                                    {{ prix|number_format(2, ',', ' ') }}
+                                    {{ prix|format_currency('EUR') }}
                                 {% else %}
                                     {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
-                                    {{ prix|number_format(2, ',', ' ') }}
+                                    {{ prix|format_currency('EUR') }}
                                 {% endif %}
                             </span>
                         </div>
 
+                        {% set quantite_panier = app.session.get('quantites_session') %}
+                        {% if quantite_panier[produit.id] is defined %}
+                            {% set quantite_panier = quantite_panier[produit.id] %}
+                        {% else %}
+                            {% set quantite_panier = 0 %}
+                        {% endif %}
+                        {# {% set indisponible = false %}
+
+                        {% if produit.getCommandableSansStock() == false and (quantite_panier >= produit.getQuantiteStock() or produit.getQuantiteStock() == 0) %}
+                            {% set indisponible = true %}
+                        {% endif %} #}
+
                         <div class="col-12 case-reduite {{ fond }}">
                             <span>Quantité:</span>
                             <span class="span-quantite">
-                                <input class="form-control quantite-reduite" id="quantite_reduite_{{ produit.id }}" data-cible="#quantite_article_{{ produit.id }}" type="number" value="{{ panier_produit.getQuantite() }}" step="1" min="0"
-                                {% if produit.getCommandeSansStock() %}
+                                <input class="form-control" id="quantite_reduite_{{ produit.id }}" data-cible="#quantite_article_{{ produit.id }}" type="number" step="1" min="1"
+
+                                {# {% if indisponible == true %}
+                                    disabled
+                                {% endif %} #}
+
+                                {% if produit.getCommandableSansStock() %}
                                     max="99"
                                 {% else %}
-                                    max="{{ produit.getQuantiteStock() }}" 
+                                    max="{{ produit.getQuantiteStock() - quantite_panier }}"
                                 {% endif %}
-                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+
+                                {# {% if indisponible %}
+                                    value="0"
+                                {% else %}
+                                    value="{{ quantite_panier }}"
+                                {% endif %} #}
+                                value="{{ quantite_panier }}"
+                                
+                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
                             </span>
                         </div>
 
                         <div class="col-12 case-reduite {{ fond }}">
                             <span>Sous-total:</span>
                             <span>
-                                <span>&euro;</span>
                                 <span id="prix_total_article_reduit_{{ produit.id }}">
-                                    {{ (prix|number_format(2) * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
+                                    {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }}
                                 </span>
                             </span>
                         </div>
@@ -171,8 +185,8 @@
                     <div class="col-2">Sous-total</div>
                 </div>
 
-                {% for panier_produit in panier.getPaniersProduits() %}
-                    {% set produit = panier_produit.getProduitsId() %}
+                {% for panier_produit in panier.getProduits() %}
+                    {% set produit = panier_produit.getProduit() %}
                     <div class="row" id="ligne_article_{{ produit.id }}">
                         <div class="col-1 case-article">
                             <span class="span-poubelle">
@@ -186,48 +200,65 @@
                         </div>
 
                         <div class="col-4 case-article">
-                            {% set categorie = produit.getCategories()|first %}
-                            {% if categorie.getCategory()|length == 0 %}
-                                <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': produit.getNom()}) }}" class="lien-produit-panier">
-                            {% else %}
-                                {% set sous_categorie = categorie.getNom() %}
-                                {% set categorie = categorie.getCategory()|first %}
-                                <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': sous_categorie, 'produit': produit.getNom() }) }}" class="lien-article">
-
-                            {% endif %}
+                            <a href="{{ path('vue_produit', {'nom_produit': produit.nom()}) }}" class="lien-article">
                                 {{ produit.getNom() }}</a>
                         </div>
 
                         <div class="col-2 case-article" id="prix_unitaire_{{ produit.id }}">
-                            {% if produit.getEtatTva() %}
-                                {% set tva = produit.getTauxTvaId().getTaux() %}
+                            {% if produit.getTvaActive() %}
+                                {% set tva = produit.getTauxTva().getTaux() %}
                             {% else %}
                                 {% set tva = 0 %}
                             {% endif %}
 
-                            <span>&euro;</span>
                             {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
                                 {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
-                                {{ prix|number_format(2, ',', ' ') }}
+                                {{ prix|format_currency('EUR') }}
                             {% else %}
                                 {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
-                                {{ prix|number_format(2, ',', ' ') }}
+                                {{ prix|format_currency('EUR') }}
                             {% endif %}
                         </div>
 
+                        {% set quantite_panier = app.session.get('quantites_session') %}
+                        {% if quantite_panier[produit.id] is defined %}
+                            {% set quantite_panier = quantite_panier[produit.id] %}
+                        {% else %}
+                            {% set quantite_panier = 0 %}
+                        {% endif %}
+                        {# {% set indisponible = false %}
+
+                        {% if produit.getCommandableSansStock() == false and (quantite_panier >= produit.getQuantiteStock() or produit.getQuantiteStock() == 0) %}
+                            {% set indisponible = true %}
+                        {% endif %} #}
+
                         <div class="col-md-2 col-3 case-article">
-                            <input class="form-control quantite" id="quantite_article_{{ produit.id }}" type="number" value="{{ panier_produit.getQuantite() }}" step="1" min="0"
-                                {% if produit.getCommandeSansStock() %}
-                                    max="99"
-                                {% else %}
-                                    max="{{ produit.getQuantiteStock() }}" 
-                                {% endif %}
-                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                            <input class="form-control quantite" id="quantite_article_{{ produit.id }}" type="number" step="1" min="1"
+
+                            {# {% if indisponible == true %}
+                                disabled
+                            {% endif %} #}
+
+                            {% if produit.getCommandableSansStock() %}
+                                max="99"
+                            {% else %}
+                                max="{{ produit.getQuantiteStock() - quantite_panier }}"
+                            {% endif %}
+
+                            {# {% if indisponible %}
+                                value="0"
+                            {% else %}
+                                value="{{ quantite_panier }}"
+                            {% endif %} #}
+                            value="{{ quantite_panier }}"
+
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
                         </div>
 
                         <div class="col-2 case-article total">
-                            <span>&euro;</span>
-                            <span id="prix_total_article_{{ produit.id }}">{{ (prix|number_format(2) * panier_produit.getQuantite())|number_format(2, ',', ' ') }}</span>
+                            <span id="prix_total_article_{{ produit.id }}">
+                                {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }}
+                            </span>
                         </div>
                     </div><hr>
                 {% endfor %}
@@ -271,7 +302,9 @@
 
                             <tr>
                                 <td>Sous total HT</td>
-                                <td>&euro;<span id="prix_ht">{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td>
+                                {# <td>&euro;<span id="prix_ht">{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td> #}
+                                {# <td><span id="prix_ht">{{ (panier.getMontantHt()/100)|format_currency('EUR')  }}</span></td> #}
+                                <td id="prix_ht">{{ (panier.getMontantHt()/100)|format_currency('EUR')  }}</td>
                             </tr>
 
                             <tr>
@@ -281,7 +314,9 @@
 
                             <tr>
                                 <td>TVA</td>
-                                <td>&euro;<span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td>
+                                {# <td>&euro;<span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td> #}
+                                {# <td><span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|format_currency('EUR')  }}</span></td> #}
+                                <td id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|format_currency('EUR')  }}</td>
                             </tr>
 
                             <tr class="d-none" id="tr-total-promo">
@@ -291,18 +326,22 @@
 
                             <tr>
                                 <td>Sous total TTC</td>
-                                <td>&euro;<span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</span></td>
+                                {# <td>&euro;<span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</span></td> #}
+                                {# <td><span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|format_currency('EUR')  }}</span></td> #}
+                                <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|format_currency('EUR')  }}</td>
                             </tr>
 
                             <tr>
                                 <td colspan="2">
-                                    <a href="{{ path('panier_paiement') }}" id="bouton-valide-commande" class="btn btn-danger">VALIDER LA COMMANDE</a>
+                                {# @TODO route pas encore cree #}
+                                <button class="btn btn-warning">VALIDER (provi)</button>
+                                    {# <a href="{{ path('panier_paiement') }}" id="bouton-valide-commande" class="btn btn-danger">VALIDER LA COMMANDE</a> #}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </div> #}
+            </div>
         
         {% else %}
             <div class="row" id="ligne-panier-vide">
