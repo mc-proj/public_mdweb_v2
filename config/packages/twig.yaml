@@ -8,6 +8,7 @@ twig:
 
     globals:
         gg_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
+        quantite_max_commande: '%env(QUANTITE_MAX_COMMANDE)%'
 
 when@test:
     twig:

@@ -94,6 +94,19 @@ $(document).ready(function() {
         $(cible).trigger("change");
     })
 
+    //
+    /*$("#test").on("click", function() {
+        test42();
+    })
+
+    function test42() {
+
+        $("#ligne_article_" + 130).css("background-color", "pink");
+    }*/
+    //
+
+    // console.log(test_app);
+
     $(".quantite").on("change", function() {
 
         loader(true);
@@ -116,9 +129,10 @@ $(document).ready(function() {
         let id_en_cours = $(this).attr("id");
         id_en_cours = id_en_cours.split("quantite_article_");
         let id_produit = id_en_cours[1];
-        $("#quantite_reduite_" + id_produit).val($(this).val());
+        let quantite_editee = $(this).val();
+        $("#quantite_reduite_" + id_produit).val(quantite_editee);
 
-        if($(this).val() === 0) {
+        if(quantite_editee === 0) {
             $("#poubelle_" + id_produit).trigger("click");
         }
 
@@ -131,16 +145,75 @@ $(document).ready(function() {
                 data: {
     
                     id_produit: id_produit,
-                    quantite: $(this).val(),
+                    quantite: quantite_editee,
                     mode: "edition"
                 },
                 success: function(response) {
     
                     response = JSON.parse(response);
 
-                    console.log(response);
+                    //console.log(response);
                     //Object { produit_dispo_sans_stock: false, quantite_produit_stock: 50, quantite_finale_produit: "2", nombre_articles_panier: 7, total_ht: 50102, total_ttc: 52856 }
-    
+                    //ajout response.edite_supprime (detection qte d'un article passe a 0 --> suppression de l'artcle)
+                    // if edite supprime true && nb articles === 0 --> vidangeVisuellePanier();
+
+                    //si edite supprime et nb articles > 0
+                    //suppr ligne article a 0
+                    // id="ligne_article_" + id article et <hr> qui le suis a suppr ?
+
+                    /*
+                    $("#ligne_article_130").next("hr").remove();
+                    $("#ligne_article_130").remove();
+                    */
+
+                   /*
+                    apres modif qte
+                        verifier qte en session a ete changee  --> OK mis a jour en back
+                        verifier attr des inputs (std et reduit) --> max
+
+                                {% if produit.getCommandableSansStock() %}   ---- if response.produit_dispo_sans_stock
+                                    max="99"
+                                {% else %}
+                                    max="{{ produit.getQuantiteStock() - quantite_panier }}"
+
+                                    -->response.quantite_produit_stock - response.quantite_finale_produit
+                                {% endif %}
+                   */
+
+                    //cas ou la quantite a été corrigée par les securites en back
+                    if(response.quantite_finale_produit !== quantite_editee) {
+                        $("#quantite_article_" + id_produit).val(response.quantite_finale_produit);
+                        $("#quantite_reduite_" + id_produit).val(response.quantite_finale_produit);
+                    }
+
+                    if(!response.produit_dispo_sans_stock) {
+                        $("#quantite_article_" + id_produit).attr("max", response.quantite_produit_stock - response.quantite_finale_produit);
+                        $("#quantite_reduite_" + id_produit).attr("max", response.quantite_produit_stock - response.quantite_finale_produit);
+                    }
+
+                    //la quantite pour ce produit est de 0 --> suppression visuelle du panier
+                    if(response.edite_supprime) {
+                        if(response.nombre_articles_panier === 0) { //panier vide
+                            vidangeVisuellePanier();
+                        } else {
+                            $("#ligne_article_" + id_produit).next("hr").remove();
+                            $("#ligne_article_" + id_produit).remove();
+                        }
+                    } else {
+                        let prix_unitaire = convertionNombreTextePourCalcul($("#prix_unitaire_" + id_produit).text());
+                        let total = response.quantite_finale_produit * prix_unitaire; //qte article remplacee par celle renvoyee par ctrleur (secu)
+                        total = CurrencyFormatted(total);
+                        $("#prix_total_article_" + id_produit).text(total);
+                        $("#prix_total_article_reduit_" + id_produit).text(total);
+                    }
+
+                    $("#compteur-panier").text(response.nombre_articles_panier);
+                    $("#prix_ht").text(CurrencyFormatted(response.total_ht/100));
+                    $("#prix_ttc").text(CurrencyFormatted(response.total_ttc/100));
+                    $("#prix_tva").text(CurrencyFormatted(response.total_ttc/100 - response.total_ht/100));
+                    
+                    
+                    
                     //if(response.nombre_articles != false) {  //secu useless ?
     
                         //securite: cas ou le user modifie le front pour entrer une quantite superieure au stock
@@ -155,21 +228,16 @@ $(document).ready(function() {
                         //CurrencyFormatted
                         //produit 7 -> id 128
     
-                        let prix_unitaire = convertionNombreTextePourCalcul($("#prix_unitaire_" + id_produit).text());  //€68.50
-                        //let total = $("#quantite_article_" + id_produit).val() * prix_unitaire;
+                        /*let prix_unitaire = convertionNombreTextePourCalcul($("#prix_unitaire_" + id_produit).text());
                         let total = response.quantite_finale_produit * prix_unitaire; //qte article remplacee par celle renvoyee par ctrleur (secu)
-                        //total = convertionNombrePourAffichage(total);  
                         total = CurrencyFormatted(total);
                         $("#prix_total_article_" + id_produit).text(total);
                         $("#prix_total_article_reduit_" + id_produit).text(total);
-                        $("#compteur-panier").text(response.nombre_articles_panier);
-                        /*$("#prix_ht").text(formatteNombre(response.total_ht/100));
-                        $("#prix_ttc").text(formatteNombre(response.total_ttc/100));
-                        $("#prix_tva").text(formatteNombre(response.total_ttc/100 - response.total_ht/100));*/
 
+                        $("#compteur-panier").text(response.nombre_articles_panier);
                         $("#prix_ht").text(CurrencyFormatted(response.total_ht/100));
                         $("#prix_ttc").text(CurrencyFormatted(response.total_ttc/100));
-                        $("#prix_tva").text(CurrencyFormatted(response.total_ttc/100 - response.total_ht/100));
+                        $("#prix_tva").text(CurrencyFormatted(response.total_ttc/100 - response.total_ht/100));*/
                     //}
     
                     /*else {
@@ -328,6 +396,17 @@ $(document).ready(function() {
             }
         })
     })
+
+    function vidangeVisuellePanier() {
+        let contenu = "<h1>Mon panier</h1><hr>";
+        contenu += "<div class='row' id='ligne-panier-vide'>";
+        contenu += "<div class='col-12' id='case-panier-vide'>";
+        contenu += "Votre panier est actuellement vide";
+        contenu += "</div></div>";
+        contenu += "<a href='/produits' class='btn' id='bouton-retour-boutique'>RETOUR A LA BOUTIQUE</a>";
+        $("#containeur-principal").empty();
+        $("#containeur-principal").append(contenu);
+    }
 
     function CurrencyFormatted(amount) {
         return amount.toLocaleString('fr-FR', {

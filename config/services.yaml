@@ -9,6 +9,7 @@ parameters:
     app.nb_max_articles_affiches: '%env(NOMBRE_MAX_ARTICLES_AFFICHES)%'
     app.nb_articles_mis_en_avant: '%env(NOMBRE_ARTICLES_MIS_EN_AVANT)%'
     app.nb_articles_recents: '%env(NOMBRE_ARTICLES_RECENTS)%'
+    app.quantite_max_commande: '%env(QUANTITE_MAX_COMMANDE)%'
 
     #perso
     #stripe_pk: 'pk_test_51HtbJdIfRUAUkm1D3LrKGG5kkBEf66jaT4DdAfD8eqFtoJfHwfpBcnoW0tOhUfDmBKoXt0q0TeiyQOn5Aj1NuEfM00kCu9qIzU'

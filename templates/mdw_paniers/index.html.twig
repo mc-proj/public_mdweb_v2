@@ -82,6 +82,8 @@
         </div>
     {% endif %} #}
 
+    {# <button class="btn btn-warning" id="test">vidange</button> #}
+
     <div class="container-fluid" id="containeur-principal">
         <h1>Mon panier</h1><hr>
         {% if panier.getProduits()|length > 0 %}
@@ -356,6 +358,9 @@
 
 {% block javascripts %}
     {{ parent() }}
+    {# <script>
+        let test_app = {{quantite_max_commande}}
+    </script> #}
     <script src="{{ asset('js/panier/index.script.js') }}"></script>
 {% endblock %}
 
