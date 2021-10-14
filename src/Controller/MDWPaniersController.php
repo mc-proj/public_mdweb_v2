@@ -58,20 +58,22 @@ class MDWPaniersController extends AbstractController
 
     #[Route('/modifie-quantite', name: 'modifie_panier', methods: 'POST')]
     public function editeQuantite(Request $request) {  //modifie les quantites dans un panier, pas le stock des produits (se fait à la validation du panier)
-        $quantite = $request->request->get("quantite");
+        //si user modifie front, texte sera changé en '' (puis en 0), nombre decimal sera tronque par la convertion
+        $quantite = intval($request->request->get("quantite"));
         $id_produit = $request->request->get("id_produit");
         $mode = $request->request->get("mode");
         $retour = null;
         $produit = $this->produitsRepository->findOneBy(["id" => $id_produit]);
         $nombre_articles_panier = 0;
         $edite_supprime = false;
+        $quantite_max_article = $this->getParameter('app.quantite_max_commande');
         
         //secu modification front par user
         if($quantite == '' || $quantite < 1) {
             $quantite = 0;
         }
 
-        if($produit !== null) {
+        if($produit !== null && gettype($quantite) === "integer") { //a priori le gettype est useless mais secu en plus
             $quantite_finale = 0;
             $quantite_ajout = 0; //peux avoir une valeur negative dans le cas d'un retrait
             $presence_produit = false;
@@ -87,59 +89,42 @@ class MDWPaniersController extends AbstractController
                     $presence_produit = true;
                     $suppression = false;
 
-                    //@TODO: finir ce qui suit
+                    if(($mode === "ajout" || $mode === "edition") && $produit->getCommandableSansStock()) {
+                        if(($panier_produit->getQuantite() + $quantite) > $quantite_max_article) {
+                            $quantite = $quantite_max_article - $panier_produit->getQuantite();
+                        }
+                    }
 
-                    //mode retrait est utilisé ? useless ?
-
-                    /*notes hypo  <---- REPRISE
-                    si mode retrait useless  --> if $mode !== suppression
-                    si ($mode === "ajout" || $mode === "edition") && $produit->getCommandableSansStock()
-                        if (qte_produit_ds_panier + ajout) > app_qte_max
-                            $quantite = app_qte_max
-                    */
-
-                    //utiliser la var globale comme limite (utiliser cette meme limite pr le front)  <---- REPRISE
-                    /*if($produit->getCommandableSansStock() && $quantite > 99) {  //limite a 99 correspond à la limite definie en front
-                        //$quantite = 99;
-
-                        //mettre secu max cumule ds panier
-                    }*/
-
-                    //$mode possibles => "ajout", "retrait", "suppression, "edition"    
-                    
-
-                    //@TODO: prendre en compte ajout superieur au stock avec commande sans stock dispo
-
-                    //test begin
                     if($mode === "ajout") {
-                        //si qte panier + qte ajout <= qte en stock ==> simple incrementation qte panier
-                        if(($panier_produit->getQuantite() + $quantite) <= $produit->getQuantiteStock()) {  //|| produit commandable sans stock  .getCommandableSansStock()  &&qte < 100 ? (max a 99 en front)
+                        $limite = $produit->getQuantiteStock();
+
+                        if($produit->getCommandableSansStock()) {
+                            $limite = $quantite_max_article;
+                        }
+                        
+                        if(($panier_produit->getQuantite() + $quantite) <= $limite) {
                             $quantite_finale = $panier_produit->getQuantite() + $quantite;
                         } else {
-                            //on ajoute le met tt le stock ds panier (on veux plus que ce qui est dispo en stock a ce niveau)
-                            $quantite_finale = $produit->getQuantiteStock();
+                            $quantite_finale = $limite;
                         }
-                    } else if($mode ==="edition") {  //ajout de ce mode --- a tester
-                        //$quantite_finale = $quantite;
-
+                    } else if($mode ==="edition") { 
                         if($quantite === 0) {
                             $suppression = true;
                             $edite_supprime = true;
                         } else {
-                            if($quantite <= $produit->getQuantiteStock()) {
+                            if(($quantite <= $produit->getQuantiteStock()) || $produit->getCommandableSansStock()) {
                                 $quantite_finale = $quantite;
                             } else {
                                 $quantite_finale = $produit->getQuantiteStock();
                             }
                         }
-                    } else if($mode === "retrait") {   //useless ?
+                    } /*else if($mode === "retrait") {   //@TODO: useless ? si oui, voir pour un switch / case
                         if(($panier_produit->getQuantite() - $quantite) > 0) {
                             $quantite_finale = $panier_produit->getQuantite() - $quantite;
                         } else {
                             $suppression = true;
                         }
-                    }
-                    //test end
+                    }*/
                     $quantite_ajout = $quantite_finale - $panier_produit->getQuantite();
 
                     if($mode === "suppression" || $suppression) {
@@ -159,8 +144,7 @@ class MDWPaniersController extends AbstractController
                 $panier_produit->setPanier($panier);
                 $panier_produit->setProduit($produit);
 
-                //la qte a ajouter est dispo en stock
-                if($quantite <= $produit->getQuantiteStock()) {
+                if(($quantite <= $produit->getQuantiteStock()) || $produit->getCommandableSansStock()) {
                     $quantite_finale = $quantite;
                 } else {
                     $quantite_finale = $produit->getQuantiteStock();
@@ -189,7 +173,7 @@ class MDWPaniersController extends AbstractController
                 "edite_supprime" => $edite_supprime,
             ];
         } else {
-            $retour = ["erreur" => "Erreur: vous tentez une modification sur un produit inconnu"];
+            $retour = ["erreur" => "Erreur: opération incorrecte"];
         }
 
         $response = json_encode($retour);

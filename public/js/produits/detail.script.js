@@ -108,14 +108,17 @@ $(document).ready(function() {
 
     $("#ajout-panier").on("click", function() {
         loader(true);
-        let entree  = $("#quantite-ajout-panier").val();
+        
+        //full useless ? -- YEP: secu ajoutee cotee back
+        /*let entree  = $("#quantite-ajout-panier").val();
         entree = parseInt(entree);
         let max = $("#quantite-ajout-panier").attr("max");
         max = parseInt(max);
 
         if(entree > max) {
             $("#quantite-ajout-panier").val($("#quantite-ajout-panier").attr("max"));
-        }
+        }*/
+        let quantite_editee = $("#quantite-ajout-panier").val();
         
         $.ajax({
             type: "POST",
@@ -123,7 +126,7 @@ $(document).ready(function() {
             data: {
 
                 id_produit: id_produit,
-                quantite: $("#quantite-ajout-panier").val(),
+                quantite: quantite_editee,
                 mode: "ajout"
             },
             success: function(response) {
@@ -141,7 +144,7 @@ $(document).ready(function() {
                         $("#quantite-ajout-panier").val(0);
                         $("#quantite-ajout-panier").attr("disabled", true);
                         $("#ajout-panier").attr("disabled", true);
-                    
+
                         let message = "<div class='col-12 p-3'>"
                         message += "Ce produit n'est actuellement plus disponible";
                         message += "</div>";
@@ -149,7 +152,21 @@ $(document).ready(function() {
                     } else {
                         $("#quantite-ajout-panier").val(1);
                         toastr.success("Produit ajouté au panier");
-                        $("#compteur-panier").html(response.nombre_articles_panier);
+                        $("#compteur-panier").html(response.nombre_articles_panier);  //
+
+                        //BONUS: message si response.quantite_finale_produit === 0 (possible si secu cote back activee ou user rentre 0 via modif front)
+                        //meme logique pr panier/index
+
+                        //mise a jour attr input (max)
+                        /* code from panier/index
+
+                        if(!response.produit_dispo_sans_stock) {  
+                            $("#quantite_article_" + id_produit).attr("max", response.quantite_produit_stock - response.quantite_finale_produit);
+                            $("#quantite_reduite_" + id_produit).attr("max", response.quantite_produit_stock - response.quantite_finale_produit);
+                        }
+                        */
+
+
                     }
 
                     
