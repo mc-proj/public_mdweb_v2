@@ -111,7 +111,6 @@ $(document).ready(function() {
 
         loader(true);
 
-
         /*  normallmeent useless now
         //controle en front qu'on n'entre pas une quantite superieure à ce qui present en stock
         //dans le cas ou le produit peut etre commande sans stock, limite a 99 geree dans la vue

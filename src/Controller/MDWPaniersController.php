@@ -89,18 +89,26 @@ class MDWPaniersController extends AbstractController
                     $presence_produit = true;
                     $suppression = false;
 
-                    if(($mode === "ajout" || $mode === "edition") && $produit->getCommandableSansStock()) {
+                    /*if(($mode === "ajout" || $mode === "edition") && $produit->getCommandableSansStock()) {
                         if(($panier_produit->getQuantite() + $quantite) > $quantite_max_article) {
-                            $quantite = $quantite_max_article - $panier_produit->getQuantite();
+                            //$quantite = $quantite_max_article - $panier_produit->getQuantite();
+                            $quantite = $quantite_max_article;
                         }
+                    }*/
+
+                    $limite = $produit->getQuantiteStock();
+
+                    if($produit->getCommandableSansStock()) {
+                        $limite = $quantite_max_article;
                     }
 
                     if($mode === "ajout") {
-                        $limite = $produit->getQuantiteStock();
+                        //deplace
+                        /*$limite = $produit->getQuantiteStock();
 
                         if($produit->getCommandableSansStock()) {
                             $limite = $quantite_max_article;
-                        }
+                        }*/
                         
                         if(($panier_produit->getQuantite() + $quantite) <= $limite) {
                             $quantite_finale = $panier_produit->getQuantite() + $quantite;
@@ -112,11 +120,17 @@ class MDWPaniersController extends AbstractController
                             $suppression = true;
                             $edite_supprime = true;
                         } else {
-                            if(($quantite <= $produit->getQuantiteStock()) || $produit->getCommandableSansStock()) {
+                            if($quantite <= $limite) {
+                                $quantite_finale = $quantite;
+                            } else {
+                                $quantite_finale = $limite;
+                            }
+
+                            /*if(($quantite <= $produit->getQuantiteStock()) || $produit->getCommandableSansStock()) {
                                 $quantite_finale = $quantite;
                             } else {
                                 $quantite_finale = $produit->getQuantiteStock();
-                            }
+                            }*/
                         }
                     } /*else if($mode === "retrait") {   //@TODO: useless ? si oui, voir pour un switch / case
                         if(($panier_produit->getQuantite() - $quantite) > 0) {
