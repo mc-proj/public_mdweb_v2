@@ -42,7 +42,67 @@ class MDWPaniersController extends AbstractController
     public function index(): Response
     {
         $panier = $this->getPanier();
+
+        //pur test begin -- test en cours: simple edition qte
+        foreach($panier->getProduits() as $liaison) {
+
+            $produit = $liaison->getProduit();
+            if($produit->getId() === 130) {
+                //dd($liaison->getQuantite());
+                $liaison->setQuantite(15);
+                $this->entityManager->persist($liaison);
+                
+            } else if($produit->getId() === 129) {
+                $liaison->setQuantite(60);
+                $this->entityManager->persist($liaison);
+            }
+ 
+        }
+        $this->entityManager->flush();
+
+        /*array:2 [▼
+        "editions" => array:1 [▼
+            130 => "produit_9"
+        ]
+        "suppressions" => []
+        ]
+
+        */
+        //pur test end
+        
+
         //@TODO: controlle des quantites produits + modification qtes + flashbag si necessaire
+        $modifications = $this->controleQuantites();
+        //dd($modifications);
+
+        /*
+        array:2 [▼
+        "editions" => []  // forme id => nom
+        "suppressions" => []  // forme id => nom
+        ]
+        */
+
+
+
+
+
+        /*
+        fct pr comparer qtes commandees ac qte dispos
+            -> au besoin modif des qtes ds panier
+            -> retour ids et noms des produits aux qtes modifiees
+            -> cas simple diminution qte : sur vue flashBag "Les produits suivants ne sont plus disponibles dans les quantites demandees : {{ liste noms }} "
+            -> cas produit plus dispo : sur vue flashBag "Désolé, les produits suivants ne sont plus disponibles et ont ete retires de votre panier (Veuillez nous excuser pour la gene occasionnee ?) "
+            
+            -- sur liste des produits sur vue panier
+                -> qtes affichees sont celles du panier qui a ete modifie en amont (rien de special a faire a ce niveau)
+                -> si la qte a ete modifiee, changer couleur fond de la ligne
+
+                cas cmd sans stock devrait pouvoir se gerer 100% cote twig
+                -> ligne ac cas qte insuffisante mais commandable sans stock, changer couleur fond ligne 
+                                        + msg "(seuls) {{ X }} produits sont immediatements disponibles. Vous recevrez qte_commandee - X ulterieurement"
+            
+
+        */
 
         //test begin
         /*$session = $this->requestStack->getSession();
@@ -53,6 +113,9 @@ class MDWPaniersController extends AbstractController
         return $this->render('mdw_paniers/index.html.twig', [
             //'controller_name' => 'MDWPaniersController',
             'panier' => $panier, //provi
+            //'modifications' => $modifications
+            'editions' => $modifications['editions'],
+            'suppressions' => $modifications['suppressions'],
         ]);
     }
 
@@ -173,6 +236,7 @@ class MDWPaniersController extends AbstractController
             $tarifs = $produit->getTarifEffectif();
             $panier->setMontantHt($panier->getMontantHt() + $quantite_ajout * $tarifs['ht']);
             $panier->setMontantTtc($panier->getMontantTtc() + $quantite_ajout * $tarifs['ttc']);
+            $panier->setDateModification(new DateTime());
             $this->entityManager->persist($panier);
             $this->entityManager->flush();
             $this->quantitesEnSession($id_produit, $quantite_finale);
@@ -249,8 +313,64 @@ class MDWPaniersController extends AbstractController
             $quantites['nombre_articles_panier'] = $nombre_articles_panier;
             $session->set('quantites_session', $quantites);
         }
+    }
 
-        
+    private function controleQuantites() {
+        $editions = [];
+        $suppressions = [];
+        $panier = $this->getPanier();
+
+        //!!! re-calcul du cout du panier
+        // modifier panier => montant_ht, montant_ttc, date_modification
+        //$panier->setDateModification(new DateTime());
+
+        foreach($panier->getProduits() as $panier_produit) {
+            $produit = $panier_produit->getProduit();
+            $tarifs = $produit->getTarifEffectif(); //ajout pr recalcul total panier
+
+            if(!$produit->getCommandableSansStock()) {
+                if($produit->getQuantiteStock() === 0) {
+                    //array_push($suppressions, [$produit->getId() => $produit->getNom()]);
+
+                    //recalcul prix begin part 1
+                    //$qte = -$panier_produit->getQuantite();
+                    $panier->setMontantHt($panier->getMontantHt() - ($panier_produit->getQuantite() * $tarifs['ht']));
+                    $panier->setMontantTtc($panier->getMontantTtc() - ($panier_produit->getQuantite() * $tarifs['ttc']));
+                    //$this->entityManager->persist($panier);
+                    //recalcul prix end part 1
+
+                    
+
+                    $suppressions[$produit->getId()] = $produit->getNom();
+
+
+                    $this->quantitesEnSession($produit->getId(), 0);
+                    $panier->removeProduit($panier_produit);
+                } else if($produit->getQuantiteStock() < $panier_produit->getQuantite()) {
+                    //array_push($editions, [$produit->getId() => $produit->getNom()]);
+
+                    //recalcul prix begin part 2
+                    $quantite_retrait = $panier_produit->getQuantite() - $produit->getQuantiteStock();
+                    $panier->setMontantHt($panier->getMontantHt() - ($quantite_retrait * $tarifs['ht']));
+                    $panier->setMontantTtc($panier->getMontantTtc() - ($quantite_retrait * $tarifs['ttc']));
+                    //$this->entityManager->persist($panier);
+                    //recalcul prix end part 2
+
+                    $editions[$produit->getId()] = $produit->getNom();
+
+                    $panier_produit->setQuantite($produit->getQuantiteStock());
+                    $this->entityManager->persist($panier_produit);
+                    $this->quantitesEnSession($produit->getId(), $produit->getQuantiteStock());
+                }
+            }
+        }
+
+        $panier->setDateModification(new DateTime());
+        $this->entityManager->persist($panier);
+        $this->entityManager->flush();
+        return ["editions" => $editions,
+                "suppressions" => $suppressions
+        ];
     }
 
     private function getPanier() {

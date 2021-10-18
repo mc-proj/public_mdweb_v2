@@ -11,6 +11,23 @@
 {% block body %}
     <div id="loader"></div>
 
+    {% if editions is not empty %}
+        <div class="alert alert-info flash-custom">
+            Le stock est insuffisant pour certains articles de votre panier.<br>
+            Leur quantité a été modifiée.
+        </div>
+    {% endif %}
+
+    {% if suppressions is not empty %}
+        <div class="alert alert-warning flash-custom">
+            Les produits suivants ne sont plus disponibles et ont étés retirés de votre panier :<br>
+            {% for nom_produit in suppressions %}
+                {{ nom_produit }}
+                {% if not loop.last %},&nbsp;{% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {# {% for message in app.flashes("panier vide") %}
         <div class="alert alert-danger" id="msg-panier-vide">
             {{ message }}
@@ -121,10 +138,12 @@
 
                                 {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
                                     {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
-                                    {{ prix|format_currency('EUR') }}
+                                    {# {{ prix|format_currency('EUR') }} #}
+                                    &euro;{{ prix|number_format(2, ',', ' ') }}
                                 {% else %}
                                     {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
-                                    {{ prix|format_currency('EUR') }}
+                                    {# {{ prix|format_currency('EUR') }} #}
+                                    &euro;{{ prix|number_format(2, ',', ' ') }}
                                 {% endif %}
                             </span>
                         </div>
@@ -172,7 +191,8 @@
                             <span>Sous-total:</span>
                             <span>
                                 <span id="prix_total_article_reduit_{{ produit.id }}">
-                                    {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }}
+                                    {# {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }} #}
+                                    &euro;{{ (prix * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
                                 </span>
                             </span>
                         </div>
@@ -216,13 +236,16 @@
 
                             {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
                                 {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
-                                {{ prix|format_currency('EUR') }}
+                                {# {{ prix|format_currency('EUR') }} #}
+                                &euro;{{ prix|number_format(2, ',', ' ') }}
                             {% else %}
                                 {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
-                                {{ prix|format_currency('EUR') }}
+                                {# {{ prix|format_currency('EUR') }} #}
+                                &euro;{{ prix|number_format(2, ',', ' ') }}
                             {% endif %}
                         </div>
 
+                        
                         {% set quantite_panier = app.session.get('quantites_session') %}
                         {% if quantite_panier[produit.id] is defined %}
                             {% set quantite_panier = quantite_panier[produit.id] %}
@@ -235,7 +258,13 @@
                             {% set indisponible = true %}
                         {% endif %} #}
 
-                        <div class="col-md-2 col-3 case-article">
+                        {# <div class="col-md-2 col-3 case-article"> #}
+                        {% if editions[produit.id] is defined %}
+                            <div class="col-md-2 col-3 case-article quantite-editee">
+                        {% else %}
+                            <div class="col-md-2 col-3 case-article">
+                        {% endif %}
+
                             <input class="form-control quantite" id="quantite_article_{{ produit.id }}" type="number" step="1" min="1"
 
                             {# {% if indisponible == true %}
@@ -257,11 +286,28 @@
                             value="{{ quantite_panier }}"
 
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
+
+                            {# <div>{{ editions["{{produit.id}}"] }}</div> #}
+                            {# {% if produit.id is same as 130 %}
+                                <div>{{ editions[produit.id] }}</div>
+                            {% endif %} #}
+
+
+                            {% if editions[produit.id] is defined %}
+                                {# <div>{{ editions[produit.id] }}</div> #}
+                                <div class="message-quantite-editee">quantité editée</div>
+                            {% endif %}
+
+
+
+
+
                         </div>
 
                         <div class="col-2 case-article total">
                             <span id="prix_total_article_{{ produit.id }}">
-                                {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }}
+                                {# {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }} #}
+                                {{ (prix * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
                             </span>
                         </div>
                     </div><hr>
@@ -313,13 +359,6 @@
 
                                 {# <td id="prix_ht">{{ (panier.getMontantHt()/100)|format_currency('EUR', locale='fr')  }}</td> #} {# marche pas alors que viens de la doc #}
 
-                                {# {% set test = (panier.getMontantHt()/100)|number_format(2, ',', ' ') %} #}
-                                {# <td>{{ test }}</td> #}
-                                {# <td id="prix_ht">{{ test|format_currency('EUR') }}</td> #} {# nope, veux un float #}
-
-                                {# {% set test = (panier.getMontantHt()/100)|format_currency('EUR') %}
-                                <td id="prix_ht">{{ test|number_format(2, ',', ' ') }}</td> #} {# nope, donne 0,00 meme si test !== 0 #}
-
                                 <td id="prix_ht">&euro;{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> {# a defaut de mieux :-/ #}
 
                                 
@@ -334,7 +373,9 @@
                                 <td>TVA</td>
                                 {# <td>&euro;<span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td> #}
                                 {# <td><span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|format_currency('EUR')  }}</span></td> #}
-                                <td id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|format_currency('EUR')  }}</td>
+
+                                {# <td id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|format_currency('EUR')  }}</td> #}
+                                <td id="prix_tva">&euro;{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td>
                             </tr>
 
                             <tr class="d-none" id="tr-total-promo">
@@ -346,7 +387,9 @@
                                 <td>Sous total TTC</td>
                                 {# <td>&euro;<span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</span></td> #}
                                 {# <td><span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|format_currency('EUR')  }}</span></td> #}
-                                <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|format_currency('EUR')  }}</td>
+                                
+                                {# <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|format_currency('EUR')  }}</td> #}
+                                <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td>
                             </tr>
 
                             <tr>
