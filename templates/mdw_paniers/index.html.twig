@@ -14,7 +14,7 @@
     {% if editions is not empty %}
         <div class="alert alert-info flash-custom">
             Le stock est insuffisant pour certains articles de votre panier.<br>
-            Leur quantité a été modifiée.
+            Les quantités pour ces articles ont été modifiées.
         </div>
     {% endif %}
 
@@ -163,7 +163,7 @@
                         <div class="col-12 case-reduite {{ fond }}">
                             <span>Quantité:</span>
                             <span class="span-quantite">
-                                <input class="form-control" id="quantite_reduite_{{ produit.id }}" data-cible="#quantite_article_{{ produit.id }}" type="number" step="1" min="1"
+                                <input class="form-control quantite-reduite" id="quantite_reduite_{{ produit.id }}" data-cible="#quantite_article_{{ produit.id }}" type="number" step="1" min="1"
 
                                 {# {% if indisponible == true %}
                                     disabled
@@ -197,6 +197,23 @@
                             </span>
                         </div>
                     </div>
+
+                    {#  #}
+                    {% if produit.getCommandableSansStock() and quantite_panier > produit.getQuantiteStock() %}
+                        <div class="row message-quantite stock_{{ produit.id }}">
+                            <div class="col-12">
+                                {{ produit.getQuantiteStock() }} sont disponibles en stock<br>
+                                {{ quantite_panier - produit.getQuantiteStock() }} seront livrés ultérieurement
+                            </div>
+                        </div>
+                    {% elseif editions[produit.id] is defined %}
+                        <div class="row message-quantite">
+                            <div class="col-12">
+                                quantité editée
+                            </div>
+                        </div>
+                    {% endif %}
+                    {#  #}
                 {% endfor %}
             </div>
 
@@ -258,12 +275,14 @@
                             {% set indisponible = true %}
                         {% endif %} #}
 
-                        {# <div class="col-md-2 col-3 case-article"> #}
-                        {% if editions[produit.id] is defined %}
+                        <div class="col-md-2 col-3 case-article">
+                        {# {% if editions[produit.id] is defined %}
                             <div class="col-md-2 col-3 case-article quantite-editee">
+                        {% elseif produit.getCommandableSansStock() and quantite_panier > produit.getQuantiteStock() %}
+                            <div class="col-md-2 col-3 case-article hors-stock">
                         {% else %}
                             <div class="col-md-2 col-3 case-article">
-                        {% endif %}
+                        {% endif %} #}
 
                             <input class="form-control quantite" id="quantite_article_{{ produit.id }}" type="number" step="1" min="1"
 
@@ -293,10 +312,25 @@
                             {% endif %} #}
 
 
-                            {% if editions[produit.id] is defined %}
-                                {# <div>{{ editions[produit.id] }}</div> #}
+                            {# {% if editions[produit.id] is defined %}
                                 <div class="message-quantite-editee">quantité editée</div>
-                            {% endif %}
+                            {% elseif produit.getCommandableSansStock() and quantite_panier > produit.getQuantiteStock() %}
+                                <div class="message-sans-stock">
+                                    {{ produit.getQuantiteStock() }} sont disponibles en stock<br>
+                                    {{ quantite_panier - produit.getQuantiteStock() }} seront livrés ultérieurement
+                                </div>
+                            {% endif %} #}
+
+
+                            {# 
+                            {% if produit.getCommandableSansStock() && quantite_panier > produit.getQuantiteStock() %}
+                                changer couleur fond + msg tt n'est pas dispo
+                                produit.getQuantiteStock() livrables de suite
+                                produit.getQuantiteStock() - quantite_panier livres plus tard
+
+
+                                editions[produit.id] n'est pas renseigne pr produit commandable sans stock
+                             #}
 
 
 
@@ -307,10 +341,30 @@
                         <div class="col-2 case-article total">
                             <span id="prix_total_article_{{ produit.id }}">
                                 {# {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }} #}
-                                {{ (prix * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
+                                &euro;{{ (prix * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
                             </span>
                         </div>
-                    </div><hr>
+                    </div>
+                    
+                    {#  #}
+                    {% if produit.getCommandableSansStock() and quantite_panier > produit.getQuantiteStock() %}
+                        <div class="row message-quantite stock_{{ produit.id }}">
+                            <div class="col-12">
+                                {{ produit.getQuantiteStock() }} sont disponibles en stock<br>
+                                {{ quantite_panier - produit.getQuantiteStock() }} seront livrés ultérieurement
+                            </div>
+                        </div>
+                    {% elseif editions[produit.id] is defined %}
+                        <div class="row message-quantite">
+                            <div class="col-12">
+                                quantité editée
+                            </div>
+                        </div>
+                    {% endif %}
+                    {#  #}
+                    
+                    
+                    <hr>
                 {% endfor %}
             </div>
 

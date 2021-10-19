@@ -37,32 +37,49 @@ $(document).ready(function() {
         event.stopPropagation();
         loader(true);
         let id_produit = $(this).data("id");
-        let quantite = $(this).data("quantite");
+        //let quantite_editee = $(this).data("quantite");
         let cible_hr = $(this).closest('.row').next();
+
+        //debut test
+        let cible_message = cible_hr.closest('.row');
+        /*if(cible_message.hasClass('message-quantite')) {
+            console.log("message present");
+            cible3.remove();
+        }
+        cible_hr.remove();
+        loader(false);*/
+        //fin test
+
+        //retrait produit std -> no pb
+        //retrait produit spe stock ac stosk dispo --> no pb
+        //retrait produit spe stock sans stosk dispo --> pb: le hr de fin de la ligne suppr est tjrs la
+        //@TODO: gerer message "quantite editee" + suppr du panier
 
         $.ajax({
             type: "POST",
-            url: "/panier/retrait",
+            url: "/paniers/modifie-quantite",
             data: {
 
                 id_produit: id_produit,
-                quantite: quantite,
+                //quantite: quantite_editee,
+                mode: "suppression"
             },
             success: function(response) {
 
                 response = JSON.parse(response);
 
-                if(response.nombre_articles < 1) {
-
+                if(response.nombre_articles_panier < 1) {
                     location.reload();
-                }
+                } else {
+                    $("#compteur-panier").text(response.nombre_articles_panier);
+                    $("#prix_ht").text(CurrencyFormatted(response.total_ht/100));
+                    $("#prix_ttc").text(CurrencyFormatted(response.total_ttc/100));
+                    $("#prix_tva").text(CurrencyFormatted(response.total_ttc/100 - response.total_ht/100));
 
-                else {
+                    if(cible_message.hasClass('message-quantite')) {
+                        cible_message.remove();
+                    }
 
-                    $("#compteur-panier").text(response.nombre_articles);
-                    $("#prix_ht").text(formatteNombre(response.total_ht/100));
-                    $("#prix_ttc").text(formatteNombre(response.total_ttc/100));
-                    $("#prix_tva").text(formatteNombre(response.total_ttc/100 - response.total_ht/100));
                     cible_hr.remove();
                     $("#ligne_article_" + id_produit).remove();
                     $("#rang_reduit_" + id_produit).remove();
@@ -76,7 +93,6 @@ $(document).ready(function() {
                 }                
             },
             error: function(err) {
-
                 loader(false);
                 //console.log(err);
                 toastr.error("Erreur retrait produit du panier");
@@ -188,6 +204,24 @@ $(document).ready(function() {
                     if(!response.produit_dispo_sans_stock) {
                         $("#quantite_article_" + id_produit).attr("max", response.quantite_produit_stock - response.quantite_finale_produit);
                         $("#quantite_reduite_" + id_produit).attr("max", response.quantite_produit_stock - response.quantite_finale_produit);
+                    } else  {
+                        $(".stock_" + id_produit).remove();
+
+                        if(response.quantite_finale_produit > response.quantite_produit_stock) {
+                            let message_quantite = "<div class='row message-quantite stock_" + id_produit + "'>";
+                            message_quantite += "<div class='col-12'>";
+                            message_quantite += response.quantite_produit_stock + " sont disponibles en stock<br>";
+                            message_quantite += (response.quantite_finale_produit - response.quantite_produit_stock) + " seront livrés ultérieurement";
+                            message_quantite += "</div></div>";
+
+                            //pb: ajoute en dernier enfant du parent - si produit de base n'est pas le dernier de la liste -> ne correspond pas
+                            // need ajout a la suite de l'article concerne
+                            // $("#ligne_article_" + id_produit).parent().append(message_quantite);
+                            // $("#rang_reduit_" + id_produit).parent().append(message_quantite);
+
+                            $("#ligne_article_" + id_produit).after(message_quantite);
+                            $("#rang_reduit_" + id_produit).after(message_quantite);
+                        }
                     }
 
                     //la quantite pour ce produit est de 0 --> suppression visuelle du panier
@@ -197,6 +231,8 @@ $(document).ready(function() {
                         } else {
                             $("#ligne_article_" + id_produit).next("hr").remove();
                             $("#ligne_article_" + id_produit).remove();
+
+                            //$("#rang_reduit_" + id_produit)
                         }
                     } else {
                         let prix_unitaire = convertionNombreTextePourCalcul($("#prix_unitaire_" + id_produit).text());

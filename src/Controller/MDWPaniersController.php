@@ -43,31 +43,29 @@ class MDWPaniersController extends AbstractController
     {
         $panier = $this->getPanier();
 
-        //pur test begin -- test en cours: simple edition qte
-        foreach($panier->getProduits() as $liaison) {
-
+        //pur test begin -- test en cours: simple edition qte  -- need presence des produits 129 et 130 ds panier (produits 8 et 9)
+        //sert just a trigger le controle qtes
+        /*foreach($panier->getProduits() as $liaison) {
             $produit = $liaison->getProduit();
             if($produit->getId() === 130) {
-                //dd($liaison->getQuantite());
-                $liaison->setQuantite(15);
+                $liaison->setQuantite(80);
                 $this->entityManager->persist($liaison);
-                
+                $tarifs = $produit->getTarifEffectif();
+                $panier->setMontantHt($panier->getMontantHt() + 80 * $tarifs['ht']);
+                $panier->setMontantTtc($panier->getMontantTtc() + 80 * $tarifs['ttc']);
+                $panier->setDateModification(new DateTime());
+                $this->entityManager->persist($panier);
             } else if($produit->getId() === 129) {
-                $liaison->setQuantite(60);
+                $liaison->setQuantite(70);
                 $this->entityManager->persist($liaison);
+                $tarifs = $produit->getTarifEffectif();
+                $panier->setMontantHt(70 * $tarifs['ht']);
+                $panier->setMontantTtc(70 * $tarifs['ttc']);
+                $panier->setDateModification(new DateTime());
+                $this->entityManager->persist($panier);
             }
- 
-        }
-        $this->entityManager->flush();
-
-        /*array:2 [▼
-        "editions" => array:1 [▼
-            130 => "produit_9"
-        ]
-        "suppressions" => []
-        ]
-
-        */
+            $this->entityManager->flush();
+        }*/
         //pur test end
         
 
@@ -132,7 +130,7 @@ class MDWPaniersController extends AbstractController
         $quantite_max_article = $this->getParameter('app.quantite_max_commande');
         
         //secu modification front par user
-        if($quantite == '' || $quantite < 1) {
+        if($quantite == '' || $quantite < 1 || $mode === "suppression") {
             $quantite = 0;
         }
 
@@ -188,14 +186,8 @@ class MDWPaniersController extends AbstractController
                             } else {
                                 $quantite_finale = $limite;
                             }
-
-                            /*if(($quantite <= $produit->getQuantiteStock()) || $produit->getCommandableSansStock()) {
-                                $quantite_finale = $quantite;
-                            } else {
-                                $quantite_finale = $produit->getQuantiteStock();
-                            }*/
                         }
-                    } /*else if($mode === "retrait") {   //@TODO: useless ? si oui, voir pour un switch / case
+                    } /*else if($mode === "retrait") {  //useless ?
                         if(($panier_produit->getQuantite() - $quantite) > 0) {
                             $quantite_finale = $panier_produit->getQuantite() - $quantite;
                         } else {
@@ -207,6 +199,7 @@ class MDWPaniersController extends AbstractController
                     if($mode === "suppression" || $suppression) {
                         $quantite_ajout = -$panier_produit->getQuantite();
                         $panier->removeProduit($panier_produit);
+                        $this->entityManager->persist($panier);
                         $quantite_finale = 0;
                     } else {
                         $panier_produit->setQuantite($quantite_finale);
@@ -351,6 +344,39 @@ class MDWPaniersController extends AbstractController
 
                     //recalcul prix begin part 2
                     $quantite_retrait = $panier_produit->getQuantite() - $produit->getQuantiteStock();
+
+                    //-------------
+                    /*
+                    //id 129 diff de 30 OK
+                    if($produit->getId() === 130) {
+                        $test = [$produit->getId(), $quantite_retrait];
+                        dd($test);  //id 130 diff de 20 OK
+                    }*/
+
+                    
+                    /*if($produit->getId() === 130) {
+                        dd($tarifs);
+                        /*
+                        array:2 [▼
+                        "ht" => 6282
+                        "ttc" => 6627.51
+                        ]
+                        *
+                    }*/
+
+                    //id 129
+                    /*array:2 [▼
+                    "ht" => 9135
+                    "ttc" => 9637.425
+                    ]*/
+
+                    //quantite_retrait ok, tarifs ok
+
+                    //-----------------
+                    
+
+
+
                     $panier->setMontantHt($panier->getMontantHt() - ($quantite_retrait * $tarifs['ht']));
                     $panier->setMontantTtc($panier->getMontantTtc() - ($quantite_retrait * $tarifs['ttc']));
                     //$this->entityManager->persist($panier);
