@@ -173,7 +173,8 @@
                                     {# max="99" #}
                                     max="{{quantite_max_commande}}"
                                 {% else %}
-                                    max="{{ produit.getQuantiteStock() - quantite_panier }}"
+                                    {# max="{{ produit.getQuantiteStock() - quantite_panier }}" #}
+                                    max="{{ produit.getQuantiteStock() }}"
                                 {% endif %}
 
                                 {# {% if indisponible %}
@@ -294,7 +295,8 @@
                                 {# max="99" #}
                                 max="{{quantite_max_commande}}"
                             {% else %}
-                                max="{{ produit.getQuantiteStock() - quantite_panier }}"
+                                {# max="{{ produit.getQuantiteStock() - quantite_panier }}" #}
+                                max="{{ produit.getQuantiteStock() }}"
                             {% endif %}
 
                             {# {% if indisponible %}

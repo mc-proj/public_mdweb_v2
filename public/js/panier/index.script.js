@@ -30,6 +30,30 @@ $(document).ready(function() {
         $(this).children().first().trigger("click");
     })
 
+    //
+    $(".test1").on("click", function() {
+        let un = $(this).attr('class');
+        console.log(un);
+    })
+
+    $(".test2").on("click", function() {
+        let deux = $(this).attr('class');
+        //console.log(deux);
+
+        //$(this).children().eq(0).css("background-color", "red");
+
+        let go = $(this).children().eq(0).text();
+        go = go.replace(/\s/g, ''); //suppr espaces
+        
+        if(go === "quantitéeditée") {
+            console.log("good")
+        } else {
+            console.log(go);
+        }
+
+    })
+    //
+
     $(".poubelle").on("click", function(event) {
 
         //l'evenement on click est declenche 2 fois pour un element place dans un span
@@ -42,18 +66,26 @@ $(document).ready(function() {
 
         //debut test
         let cible_message = cible_hr.closest('.row');
-        /*if(cible_message.hasClass('message-quantite')) {
-            console.log("message present");
-            cible3.remove();
+        /*let cible_message = cible_hr.closest('.row');
+        if(cible_message.hasClass('message-quantite')) {
+
+            //cible_message.next().css("background-color", "red"); //test
+
+            cible_message.next().remove();
+            cible_message.remove();
+        } else {
+            cible_hr.remove();
         }
-        cible_hr.remove();
+        
         loader(false);*/
         //fin test
 
         //retrait produit std -> no pb
         //retrait produit spe stock ac stosk dispo --> no pb
-        //retrait produit spe stock sans stosk dispo --> pb: le hr de fin de la ligne suppr est tjrs la
-        //@TODO: gerer message "quantite editee" + suppr du panier
+        //retrait produit spe stock sans stosk dispo --> pb: le hr de fin de la ligne suppr est tjrs la NOW OK
+        //@TODO: gerer message "quantite editee" + suppr du panier LOOKS GOOD
+            //remove .alert-info (msg flash)
+
 
         $.ajax({
             type: "POST",
@@ -77,10 +109,24 @@ $(document).ready(function() {
                     $("#prix_tva").text(CurrencyFormatted(response.total_ttc/100 - response.total_ht/100));
 
                     if(cible_message.hasClass('message-quantite')) {
+
+
+                        //si le produit supprime a un message "quantite editee", on supprime aussi le msg d'alert en debut de page
+                        let est_message_edition = cible_message.children().eq(0).text();
+                        est_message_edition = est_message_edition.replace(/\s/g, ''); //suppr espaces
+            
+                        if(est_message_edition === "quantitéeditée") {
+                            $(".alert-info").remove();
+                        }
+
+
+
+                        cible_message.next().remove();
                         cible_message.remove();
+                    } else {
+                        cible_hr.remove();
                     }
 
-                    cible_hr.remove();
                     $("#ligne_article_" + id_produit).remove();
                     $("#rang_reduit_" + id_produit).remove();
                     toastr.success("produit retiré du panier");
