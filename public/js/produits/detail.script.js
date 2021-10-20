@@ -7,14 +7,6 @@ $(document).ready(function() {
         $("#form_id_produit").val(id_produit);
     }
 
-    /*$(".message-flash").on("click", function() {
-        $(this).hide();
-    })
-
-    setTimeout(function() {
-        $(".message-flash").hide();
-    }, 3000);*/
-
     $(window).on("resize", function() {
         if($(window).width() < 992) {
             $("#container-principal").addClass("container-fluid");
@@ -108,35 +100,22 @@ $(document).ready(function() {
 
     $("#ajout-panier").on("click", function() {
         loader(true);
-        
-        //full useless ? -- YEP: secu ajoutee cotee back
-        /*let entree  = $("#quantite-ajout-panier").val();
-        entree = parseInt(entree);
-        let max = $("#quantite-ajout-panier").attr("max");
-        max = parseInt(max);
-
-        if(entree > max) {
-            $("#quantite-ajout-panier").val($("#quantite-ajout-panier").attr("max"));
-        }*/
         let quantite_editee = $("#quantite-ajout-panier").val();
         
         $.ajax({
             type: "POST",
             url: racine + "paniers/modifie-quantite",
             data: {
-
                 id_produit: id_produit,
                 quantite: quantite_editee,
                 mode: "ajout"
             },
             success: function(response) {
-
                 response = JSON.parse(response);
 
                 if(typeof(response.erreur) !== "undefined") { //cas ou le user est un bricoleur
                     toastr.error(response.erreur);
                 } else {
-
                     //si plus de stock et non commandable sans stock
                     if(!response.produit_dispo_sans_stock &&
                         (response.quantite_finale_produit >= response.quantite_produit_stock || response.quantite_produit_stock === 0)
@@ -152,56 +131,17 @@ $(document).ready(function() {
                     } else {
                         $("#quantite-ajout-panier").val(1);
                         toastr.success("Produit ajouté au panier");
-                        $("#compteur-panier").html(response.nombre_articles_panier);  //
-
-                        //BONUS: message si response.quantite_finale_produit === 0 (possible si secu cote back activee ou user rentre 0 via modif front)
-                        //meme logique pr panier/index
-
-                        //mise a jour attr input (max)
-                        /* code from panier/index
-
-                        if(!response.produit_dispo_sans_stock) {  
-                            $("#quantite_article_" + id_produit).attr("max", response.quantite_produit_stock - response.quantite_finale_produit);
-                            $("#quantite_reduite_" + id_produit).attr("max", response.quantite_produit_stock - response.quantite_finale_produit);
-                        }
-                        */
-
-
                     }
 
-                    
-                    /*
-                        $retour = [
-                "produit_dispo_sans_stock" => $produit->getCommandableSansStock(),
-                "quantite_produit_stock" => $produit->getQuantiteStock(),
-                "quantite_finale_produit" => $quantite_finale,
-                "nombre_articles_panier" => $nombre_articles_panier,
-                "total_ht" => $panier->getMontantHt(),
-                "total_ttc" => $panier->getMontantTtc()
-            ];
+                    if(!response.produit_dispo_sans_stock && !$("#quantite-ajout-panier").attr("disabled")) {
+                        $("#quantite-ajout-panier").attr("max", response.quantite_produit_stock - response.quantite_finale_produit);
+                    }
 
-            $retour = ["erreur" => "Erreur: vous tentez une modification sur un produit inconnu"];
-                    */
+                    $("#compteur-panier").text(response.nombre_articles_panier);
                 }
-                
-                /*if(response.nombre_articles != false) {
-
-                    //securite: cas ou le user modifie le front pour entrer une quantite negative ou superieure au stock
-                    //le back renvoie la quantite reelle
-                    if($("#quantite-ajout-panier").val() !== response.quantite_finale_produit) {
-                        $("#quantite-ajout-panier").val(response.quantite_finale_produit);
-                    }
-
-                    $("#compteur-panier").text(response.nombre_articles);
-                    toastr.success("Produit ajouté au panier");
-                } else {
-                    toastr.error("Erreur ajout produit au panier");
-                }*/
-
                 loader(false);
             },
             error: function(err) {
-
                 //console.log(err);
                 loader(false);
                 toastr.error("Erreur ajout produit au panier");

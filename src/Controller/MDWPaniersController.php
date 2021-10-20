@@ -5,16 +5,18 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\MDWPaniersRepository;
 use App\Controller\SecurityController;
 use App\Entity\MDWPaniers;
 use App\Entity\MDWPaniersProduits;
 use App\Repository\MDWProduitsRepository;
+use App\Repository\MDWPaniersRepository;
+use App\Repository\MDWCodesPromosRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Doctrine\ORM\EntityManagerInterface;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
 
 #[Route('/paniers')]
 
@@ -22,17 +24,20 @@ class MDWPaniersController extends AbstractController
 {
     private $paniersRepository;
     private $produitsRepository;
+    private $codesPromosRepository;
     private SecurityController $securityController;
     private $requestStack;
     private $entityManager;
 
     public function __construct(MDWPaniersRepository $paniersRepository,
                                 MDWProduitsRepository $produitsRepository,
+                                MDWCodesPromosRepository $codesPromosRepository, 
                                 SecurityController $securityController,
                                 RequestStack $requestStack,
                                 EntityManagerInterface $entityManager) {
         $this->paniersRepository = $paniersRepository;
         $this->produitsRepository = $produitsRepository;
+        $this->codesPromosRepository = $codesPromosRepository;
         $this->securityController = $securityController;
         $this->entityManager = $entityManager;
         $this->requestStack = $requestStack;
@@ -132,6 +137,10 @@ class MDWPaniersController extends AbstractController
         //secu modification front par user
         if($quantite == '' || $quantite < 1 || $mode === "suppression") {
             $quantite = 0;
+
+            if($mode === "ajout") {
+                $quantite++;
+            }
         }
 
         if($produit !== null && gettype($quantite) === "integer") { //a priori le gettype est useless mais secu en plus
@@ -275,6 +284,109 @@ class MDWPaniersController extends AbstractController
         return $response;
     }
 
+    #[Route('/vide_panier', name: 'vide_panier', methods: 'POST')]
+    public function videPanier() {
+        $session = $this->requestStack->getSession();
+        $session->set('quantites_session', null);
+        $panier = $this->getPanier();
+
+        foreach($panier->getProduits() as $panier_produit) {
+            $panier->removeProduit($panier_produit);
+            $this->entityManager->persist($panier);
+        }
+
+        $promo = $panier->getCodePromo();
+        if($promo !== null) {
+            $promo->removePanier($panier);
+            $this->entityManager->persist($promo);
+        }
+
+        $panier->setMontantHt(0);
+        $panier->setMontantTtc(0);
+        $panier->setDateModification(new DateTime());
+        $this->entityManager->persist($panier);
+        $this->entityManager->flush();
+        return new JsonResponse();
+    }
+
+    #[Route('/promo', name: 'promo_panier', methods: 'POST')]
+    public function PromoSurPanier(Request $request) {
+        $code_recu = $request->request->get("code");
+        $user = $this->getUtilisateur();
+
+        //parcours des codes promos deja utilises
+        foreach($user->getCodesPromos() as $code) {
+            if($code->getCode() === $code_recu) {
+                $retour = json_encode([
+                    "erreur" => "ce code promo a déjà été utilisé"
+                ]);
+                return new JsonResponse($retour);
+            }
+        }
+
+        $code_promo = $this->codesPromosRepository->findOneBy(["code" => $code_recu]);
+
+        if($code_promo === null) {
+            $retour = json_encode([
+                "erreur" => "code promo inconnu"
+            ]);
+            return new JsonResponse($retour);
+        } else {
+            $panier = $this->getPanier();
+
+            $this->annulePromo(); //remplace bloc com suivant
+            /*
+            //si une promo a deja ete appliquee, on l'annule
+            $ancienne_promo = $panier->getCodePromo();
+            if($ancienne_promo !== null) {
+                $ancienne_promo->removePanier($panier);
+                //suppression de la liaison entre le panier et l'ancien code promo
+                $this->entityManager->persist($ancienne_promo);
+                $this->entityManager->flush();
+            }*/
+
+            //minimum achat trop faible
+            if($panier->getMontantTtc() < $code_promo->getMinimumAchat()) {
+                $retour = json_encode([
+                    "erreur" => "Vous ne remplissez pas les conditions : " . $code_promo->getDescription()
+                ]);
+                return new JsonResponse($retour);
+            }
+
+            $panier->setCodePromo($code_promo);
+            $reduction = $code_promo->getValeur();
+
+            if($code_promo->getTypePromo() === "proportionnelle") {
+                $reduction = $panier->getMontantTtc() * ($reduction/10000);
+            }
+
+            $this->entityManager->persist($panier);
+            $this->entityManager->flush();
+
+            $retour = json_encode([
+                "description" => $code_promo->getDescription(),
+                "reduction" => $reduction,
+            ]);
+            return new JsonResponse($retour);
+        }
+    }
+
+    #[Route('/reset_promo', name: 'reset_promo', methods: 'POST')]
+    public function postResetPromo() {
+        $this->annulePromo();
+        return new JsonResponse();
+    }
+
+    private function annulePromo() {
+        $panier = $this->getPanier();
+        $promo = $panier->getCodePromo();
+        if($promo !== null) {
+            $promo->removePanier($panier);
+            $this->entityManager->persist($promo);
+            $this->entityManager->flush();
+        }
+    }
+
     private function quantitesEnSession($id_produit, $quantite) {
         /*$session = $this->requestStack->getSession();
         $quantites = $session->get('quantites_session');
@@ -399,7 +511,7 @@ class MDWPaniersController extends AbstractController
         ];
     }
 
-    private function getPanier() {
+    private function getUtilisateur() {
         $user = null;
 
         if($this->getUser() !== null) {
@@ -413,6 +525,24 @@ class MDWPaniersController extends AbstractController
             }
         }
 
+        return $user;
+    }
+
+    private function getPanier() {
+        /*$user = null;
+
+        if($this->getUser() !== null) {
+            $user = $this->getUser();
+        } else {
+            $session = $this->requestStack->getSession();
+            if($session->get("guest") !== null) {
+                $user = $session->get("guest");
+            } else {
+                $user = $this->securityController->guestCreator();
+            }
+        }*/
+
+        $user = $this->getUtilisateur();
         $panier = $this->paniersRepository->findOneBy(["user" => $user]);
 
         if($panier === null) {

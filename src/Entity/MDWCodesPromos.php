@@ -38,6 +38,7 @@ class MDWCodesPromos
      */
     #[Groups(['read:facture:MDWFacture'])]
     private $type_promo;
+    //valeurs attendues: "forfaitaire", "proportionnelle"
 
     /**
      * @ORM\Column(type="integer")
