@@ -72,16 +72,15 @@ $(document).ready(function() {
                         $("#ligne_article_" + id_produit).remove();
                         $("#rang_reduit_" + id_produit).remove();
                         toastr.success("produit retiré du panier");
-                        loader(false);
+
+                        secuPromo(response.infos_promo);
+                        /*loader(false);
     
-                        /*if(!$("#ligne-promo").hasClass("d-none")) {
-    
-                            $("#bouton-reset-promo").trigger("click");
-                        }*/
+
                         if(!$("#ligne-promo").hasClass("d-none")) {
         
                             $("#bouton-code-promo").trigger("click");
-                        }
+                        }*/
                     }
                 }              
             },
@@ -172,12 +171,15 @@ $(document).ready(function() {
                         $("#prix_ht").text(CurrencyFormatted(response.total_ht/100));
                         $("#prix_ttc").text(CurrencyFormatted(response.total_ttc/100));
                         $("#prix_tva").text(CurrencyFormatted(response.total_ttc/100 - response.total_ht/100));
-                        loader(false);
+
+
+                        secuPromo(response.infos_promo);
+                        /*loader(false);
         
                         if(!$("#ligne-promo").hasClass("d-none")) {
         
                             $("#bouton-code-promo").trigger("click");
-                        }
+                        }*/
                     } 
                 },
                 error: function(err) {
@@ -292,6 +294,22 @@ $(document).ready(function() {
             }
         })
     })
+
+    function secuPromo(infos) {
+        let erreur = infos["erreur"];
+        let base_ht = convertionNombreTextePourCalcul($("#prix_ht").text());
+        let tva = convertionNombreTextePourCalcul($("#prix_tva").text());
+        if(erreur !== "" && erreur !== "nocode") {
+            $("#description-promo").text(erreur);
+            $("#valeur-promo").text("");
+            $("#tr-total-promo").addClass("d-none");
+            $("#prix_ttc").text("€" + CurrencyFormatted(base_ht + tva));
+        } else if(erreur === "") {
+            let reduction = infos["reduction"];
+            $("#prix_ttc").text("€" + CurrencyFormatted(base_ht + tva - reduction/100));
+        }
+        loader(false);
+    }
 
     function vidangeVisuellePanier() {
         let contenu = "<h1>Mon panier</h1><hr>";

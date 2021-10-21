@@ -370,7 +370,8 @@
                 {% endfor %}
             </div>
 
-            <div class="row d-none" id='ligne-promo'>
+{# original #}
+            {# <div class="row d-none" id='ligne-promo'>
                 <div class="col-2">
                     <button class="btn" id="bouton-reset-promo">Annuler le code promo</button>
                 </div>
@@ -380,11 +381,39 @@
 
                 <div class="col-2" id="valeur-promo">
                 </div>
+            </div> #}
+
+            {# xp begin #}
+            {% if secu_promo['erreur'] is same as 'nocode'%}
+                <div class="row d-none" id='ligne-promo'>
+            {% else %}
+                <div class="row" id='ligne-promo'>
+            {% endif %}
+
+                <div class="col-2">
+                    <button class="btn" id="bouton-reset-promo">Annuler le code promo</button>
+                </div>
+
+                <div class="col-8" id='description-promo'>
+                    {% if secu_promo['erreur'] is not same as "" %}
+                        {{ secu_promo['erreur'] }}
+                    {% else %}
+                        {{ secu_promo['description'] }}
+                    {% endif %}
+                </div>
+
+                <div class="col-2" id="valeur-promo">
+                    {% if secu_promo['reduction'] is not same as "" %}
+                        -&nbsp;&euro;{{ (secu_promo['reduction']/100)|number_format(2, ',', ' ') }}
+                    {% endif %}
+                </div>
             </div>
+            {# xp end #}
 
             <div class="row" id="rang-code-promo">
                 <div class="col-md-3 col-6">
-                    <input type="text" class="form-control" id="input-code-promo" placeholder="Code promo">   
+                    {# <input type="text" class="form-control" id="input-code-promo" placeholder="Code promo">  #} {# original #}
+                    <input type="text" class="form-control" id="input-code-promo" placeholder="Code promo" value="{{ secu_promo['code'] }}">  
                 </div>
 
                 <div class="col-md-4 col-6 p-md-0 p-auto">
@@ -434,10 +463,28 @@
                                 <td id="prix_tva">&euro;{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td>
                             </tr>
 
-                            <tr class="d-none" id="tr-total-promo">
+                            {# original #}
+                            {# <tr class="d-none" id="tr-total-promo">
                                 <td>Code promo</td>
                                 <td id="td-total-promo"></td>
+                            </tr> #}
+
+                            {# test begin #}
+                            {% if secu_promo['reduction'] is same as "" %}
+                                <tr class="d-none" id="tr-total-promo">
+                                <td>Code promo</td>
+                                <td id="td-total-promo"></td>
+                            {% else %}
+                                <tr id="tr-total-promo">
+                                <td>Code promo</td>
+                                <td id="td-total-promo">
+                                    -&nbsp;&euro;{{ (secu_promo['reduction']/100)|number_format(2, ',', ' ') }}
+                                </td>
+                            {% endif %}
+                                
+                                
                             </tr>
+                            {# test end #}
 
                             <tr>
                                 <td>Sous total TTC</td>
@@ -445,7 +492,18 @@
                                 {# <td><span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|format_currency('EUR')  }}</span></td> #}
                                 
                                 {# <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|format_currency('EUR')  }}</td> #}
-                                <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td>
+
+
+                                {# base #}
+                                {# <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td> #}
+
+                                {% if secu_promo['reduction'] is same as "" %}
+                                    <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td>
+                                {% else %}
+                                    <td id="prix_ttc" data-prix="{{ (panier.getMontantTtc() - secu_promo['reduction'])/100 }}">
+                                        &euro;{{ ((panier.getMontantTtc() - secu_promo['reduction'])/100)|number_format(2, ',', ' ') }}
+                                    </td>
+                                {% endif %}
                             </tr>
 
                             <tr>

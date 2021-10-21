@@ -74,44 +74,9 @@ class MDWPaniersController extends AbstractController
         //pur test end
         
 
-        //@TODO: controlle des quantites produits + modification qtes + flashbag si necessaire
         $modifications = $this->controleQuantites();
-        //dd($modifications);
-
-        /*
-        array:2 [▼
-        "editions" => []  // forme id => nom
-        "suppressions" => []  // forme id => nom
-        ]
-        */
 
 
-
-
-
-        /*
-        fct pr comparer qtes commandees ac qte dispos
-            -> au besoin modif des qtes ds panier
-            -> retour ids et noms des produits aux qtes modifiees
-            -> cas simple diminution qte : sur vue flashBag "Les produits suivants ne sont plus disponibles dans les quantites demandees : {{ liste noms }} "
-            -> cas produit plus dispo : sur vue flashBag "Désolé, les produits suivants ne sont plus disponibles et ont ete retires de votre panier (Veuillez nous excuser pour la gene occasionnee ?) "
-            
-            -- sur liste des produits sur vue panier
-                -> qtes affichees sont celles du panier qui a ete modifie en amont (rien de special a faire a ce niveau)
-                -> si la qte a ete modifiee, changer couleur fond de la ligne
-
-                cas cmd sans stock devrait pouvoir se gerer 100% cote twig
-                -> ligne ac cas qte insuffisante mais commandable sans stock, changer couleur fond ligne 
-                                        + msg "(seuls) {{ X }} produits sont immediatements disponibles. Vous recevrez qte_commandee - X ulterieurement"
-            
-
-        */
-
-        //test begin
-        /*$session = $this->requestStack->getSession();
-        $quantites = $session->get('quantites_session');
-        dd($quantites);*/
-        //test end
 
         return $this->render('mdw_paniers/index.html.twig', [
             //'controller_name' => 'MDWPaniersController',
@@ -119,6 +84,7 @@ class MDWPaniersController extends AbstractController
             //'modifications' => $modifications
             'editions' => $modifications['editions'],
             'suppressions' => $modifications['suppressions'],
+            'secu_promo' => $this->controlePromoLiee(),
         ]);
     }
 
@@ -134,8 +100,8 @@ class MDWPaniersController extends AbstractController
         $edite_supprime = false;
         $quantite_max_article = $this->getParameter('app.quantite_max_commande');
         
-        //secu modification front par user
-        if($quantite == '' || $quantite < 1 || $mode === "suppression") {
+        //secu anti modification front par user
+        if($quantite === '' || $quantite < 1 || $mode === "suppression") {
             $quantite = 0;
 
             if($mode === "ajout") {
@@ -158,14 +124,6 @@ class MDWPaniersController extends AbstractController
                 if($panier_produit->getProduit()->getId() === intval($id_produit)) {
                     $presence_produit = true;
                     $suppression = false;
-
-                    /*if(($mode === "ajout" || $mode === "edition") && $produit->getCommandableSansStock()) {
-                        if(($panier_produit->getQuantite() + $quantite) > $quantite_max_article) {
-                            //$quantite = $quantite_max_article - $panier_produit->getQuantite();
-                            $quantite = $quantite_max_article;
-                        }
-                    }*/
-
                     $limite = $produit->getQuantiteStock();
 
                     if($produit->getCommandableSansStock()) {
@@ -173,13 +131,6 @@ class MDWPaniersController extends AbstractController
                     }
 
                     if($mode === "ajout") {
-                        //deplace
-                        /*$limite = $produit->getQuantiteStock();
-
-                        if($produit->getCommandableSansStock()) {
-                            $limite = $quantite_max_article;
-                        }*/
-                        
                         if(($panier_produit->getQuantite() + $quantite) <= $limite) {
                             $quantite_finale = $panier_produit->getQuantite() + $quantite;
                         } else {
@@ -196,13 +147,7 @@ class MDWPaniersController extends AbstractController
                                 $quantite_finale = $limite;
                             }
                         }
-                    } /*else if($mode === "retrait") {  //useless ?
-                        if(($panier_produit->getQuantite() - $quantite) > 0) {
-                            $quantite_finale = $panier_produit->getQuantite() - $quantite;
-                        } else {
-                            $suppression = true;
-                        }
-                    }*/
+                    }
                     $quantite_ajout = $quantite_finale - $panier_produit->getQuantite();
 
                     if($mode === "suppression" || $suppression) {
@@ -251,6 +196,7 @@ class MDWPaniersController extends AbstractController
                 "total_ht" => $panier->getMontantHt(),
                 "total_ttc" => $panier->getMontantTtc(),
                 "edite_supprime" => $edite_supprime,
+                'infos_promo' => $this->controlePromoLiee(),
             ];
         } else {
             $retour = ["erreur" => "Erreur: opération incorrecte"];
@@ -331,20 +277,21 @@ class MDWPaniersController extends AbstractController
                 "erreur" => "code promo inconnu"
             ]);
             return new JsonResponse($retour);
+        } else if($code_promo->getDateDebutValidite() > new DateTime() || $code_promo->getDateFinValidite() < new DateTime()) {
+            if($code_promo->getDateDebutValidite() > new DateTime()) {
+                $retour = json_encode([
+                    "erreur" => "ce code promo sera valide à partir du " . $code_promo->getDateDebutValidite()->format('d/m/Y')
+                ]);
+            } else {
+                $retour = json_encode([
+                    "erreur" => "ce code promo était valide jusqu'au " . $code_promo->getDateFinValidite()->format('d/m/Y')
+                ]);
+            }
+            return new JsonResponse($retour);
         } else {
             $panier = $this->getPanier();
 
-            $this->annulePromo(); //remplace bloc com suivant
-            /*
-            //si une promo a deja ete appliquee, on l'annule
-            $ancienne_promo = $panier->getCodePromo();
-            if($ancienne_promo !== null) {
-                $ancienne_promo->removePanier($panier);
-                //suppression de la liaison entre le panier et l'ancien code promo
-                $this->entityManager->persist($ancienne_promo);
-                $this->entityManager->flush();
-            }*/
-
+            $this->annulePromo();
             //minimum achat trop faible
             if($panier->getMontantTtc() < $code_promo->getMinimumAchat()) {
                 $retour = json_encode([
@@ -375,6 +322,51 @@ class MDWPaniersController extends AbstractController
     public function postResetPromo() {
         $this->annulePromo();
         return new JsonResponse();
+    }
+
+    private function controlePromoLiee() {
+        $panier = $this->getPanier();
+        $code_promo = $panier->getCodePromo();
+        $erreur = "";
+        $description = "";
+        $reduction = "";
+        $code = "";
+
+        if($code_promo !== null) {
+            $code = $code_promo->getCode();
+            $description = $code_promo->getDescription();
+            //gestion dates validite
+            if($code_promo->getDateDebutValidite() > new DateTime() || $code_promo->getDateFinValidite() < new DateTime()) {
+                if($code_promo->getDateDebutValidite() > new DateTime()) {
+                    $erreur = "ce code promo sera valide à partir du " . $code_promo->getDateDebutValidite()->format('d/m/Y');
+                } else {
+                    $erreur = "ce code promo était valide jusqu'au " . $code_promo->getDateFinValidite()->format('d/m/Y');
+                }
+            }
+            //gestion minimum d'achat
+            else if($panier->getMontantTtc() < $code_promo->getMinimumAchat()) {
+                $erreur = "Vous ne remplissez pas les conditions : " . $description;
+            }
+
+            if($erreur !== "") {
+                $this->annulePromo();
+            } else {
+                $reduction = $code_promo->getValeur();
+
+                if($code_promo->getTypePromo() === "proportionnelle") {
+                    $reduction = $panier->getMontantTtc() * ($reduction/10000);
+                }
+            }
+        } else {
+            $erreur = "nocode";
+        }
+
+        return [
+            "erreur" => $erreur,
+            "code" => $code,
+            "description" => $description,
+            "reduction" => $reduction,
+        ];
     }
 
     private function annulePromo() {
