@@ -54,7 +54,8 @@
                             <div class="card-body">
                                 <p class="nom-produit">{{ produit.nom }}</p>
                                 
-                                {% if produit.getTvaActive() %}
+                                {# original #}
+                                {# {% if produit.getTvaActive() %}
                                     {% set tva = produit.getTauxTva().getTaux() %}
                                 {% else %}
                                     {% set tva = 0 %}
@@ -74,7 +75,27 @@
                                     <p class="prix-produit">
                                         {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
                                     </p>
+                                {% endif %} #}
+
+                                {# test begin #}
+                                {% set tarifs = produit.getTarifsAffiches() %}
+                                {% if tarifs['tarif_promo'] is not same as null %}
+                                    <p class="prix-produit">
+                                        <del>
+                                            &euro;{{ (tarifs['tarif']/100)|number_format(2, ',', ' ')}}
+                                        </del>&nbsp;
+                                        <ins>
+                                            &euro;{{ (tarifs['tarif_promo']/100)|number_format(2, ',', ' ') }}
+                                        </ins><br>
+                                    </p>
+                                    <div class="prix-produit text-center">promotion valable jusqu'au {{ produit.getDateFinPromo()|date('d/m/Y') }}</div>
+                                {% else %}
+                                    <p class="prix-produit">
+                                         &euro;{{ (tarifs['tarif']/100)|number_format(2, ',', ' ')}}
+                                    </p>
                                 {% endif %}
+                                {# test end #}
+
                             </div>
                         </div>
                     </a>

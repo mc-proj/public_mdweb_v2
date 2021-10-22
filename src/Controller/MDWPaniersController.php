@@ -48,6 +48,32 @@ class MDWPaniersController extends AbstractController
     {
         $panier = $this->getPanier();
 
+        //test arrondi begin
+        /*$ht = 180;
+        $ttc = $ht + ($ht * 550/10000); //189.9
+        //round 0.1 a 0.4 inclus --> 0.0 || a partir de 0.5 => 1.0
+        $ttc = round($ttc);  //190.0 
+        dd($ttc);*/
+
+        /*
+        produit random (id 131) std 200  promo 180 HT
+        */
+
+        /*$produit = $this->produitsRepository->findOneBy(["id" => 131]);
+        $tarifs = $produit->getTarifEffectif();
+        dd($tarifs);*/
+
+        /*
+        array:2 [▼
+        "ht" => 180
+        "ttc" => 189.9
+        ]
+        */
+
+        //cote front, |number_format(2, ',', ' ') de twig utilise la meme logique
+        //arrondir pour les prix cote back
+        //test arrondi end
+
         //pur test begin -- test en cours: simple edition qte  -- need presence des produits 129 et 130 ds panier (produits 8 et 9)
         //sert just a trigger le controle qtes
         /*foreach($panier->getProduits() as $liaison) {
@@ -181,8 +207,15 @@ class MDWPaniersController extends AbstractController
             
             $nombre_articles_panier += $quantite_ajout; 
             $tarifs = $produit->getTarifEffectif();
-            $panier->setMontantHt($panier->getMontantHt() + $quantite_ajout * $tarifs['ht']);
-            $panier->setMontantTtc($panier->getMontantTtc() + $quantite_ajout * $tarifs['ttc']);
+            /*$panier->setMontantHt($panier->getMontantHt() + $quantite_ajout * $tarifs['ht']);
+            $panier->setMontantTtc($panier->getMontantTtc() + $quantite_ajout * $tarifs['ttc']);*/
+
+            $panier->setMontantHt($panier->getMontantHt() + $quantite_ajout * round($tarifs['ht']));
+            $panier->setMontantTtc($panier->getMontantTtc() + $quantite_ajout * round($tarifs['ttc']));
+
+
+
+
             $panier->setDateModification(new DateTime());
             $this->entityManager->persist($panier);
             $this->entityManager->flush();
@@ -431,8 +464,13 @@ class MDWPaniersController extends AbstractController
 
                     //recalcul prix begin part 1
                     //$qte = -$panier_produit->getQuantite();
-                    $panier->setMontantHt($panier->getMontantHt() - ($panier_produit->getQuantite() * $tarifs['ht']));
-                    $panier->setMontantTtc($panier->getMontantTtc() - ($panier_produit->getQuantite() * $tarifs['ttc']));
+                    /*$panier->setMontantHt($panier->getMontantHt() - ($panier_produit->getQuantite() * $tarifs['ht']));
+                    $panier->setMontantTtc($panier->getMontantTtc() - ($panier_produit->getQuantite() * $tarifs['ttc']));*/
+
+
+                    $panier->setMontantHt($panier->getMontantHt() - ($panier_produit->getQuantite() * round($tarifs['ht'])));
+                    $panier->setMontantTtc($panier->getMontantTtc() - ($panier_produit->getQuantite() * round($tarifs['ttc'])));
+
                     //$this->entityManager->persist($panier);
                     //recalcul prix end part 1
 
@@ -481,8 +519,12 @@ class MDWPaniersController extends AbstractController
 
 
 
-                    $panier->setMontantHt($panier->getMontantHt() - ($quantite_retrait * $tarifs['ht']));
-                    $panier->setMontantTtc($panier->getMontantTtc() - ($quantite_retrait * $tarifs['ttc']));
+                    /*$panier->setMontantHt($panier->getMontantHt() - ($quantite_retrait * $tarifs['ht']));
+                    $panier->setMontantTtc($panier->getMontantTtc() - ($quantite_retrait * $tarifs['ttc']));*/
+
+                    $panier->setMontantHt($panier->getMontantHt() - ($quantite_retrait * round($tarifs['ht'])));
+                    $panier->setMontantTtc($panier->getMontantTtc() - ($quantite_retrait * round($tarifs['ttc'])));
+
                     //$this->entityManager->persist($panier);
                     //recalcul prix end part 2
 

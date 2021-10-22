@@ -106,7 +106,7 @@
                             <h1>{{ produit.nom }}</h1>
                         </div>
 
-                        {% if produit.getTvaActive() %}
+                        {# {% if produit.getTvaActive() %}
                             {% set tva = produit.getTauxTva().getTaux() %}
                         {% else %}
                             {% set tva = 0 %}
@@ -124,7 +124,25 @@
                             {% else %}
                                     {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
                             {% endif %}
+                        </div> #}
+
+                        {# test begin #}
+
+                        {% set tarifs = produit.getTarifsAffiches() %}
+                        <div class="col-12" id="prix">
+                            {% if tarifs['tarif_promo'] is not same as null %}
+                                <del>
+                                    &euro;{{ (tarifs['tarif']/100)|number_format(2, ',', ' ')}}
+                                </del>
+                                &nbsp;<ins>
+                                    &euro;{{ (tarifs['tarif_promo']/100)|number_format(2, ',', ' ') }}
+                                </ins><br>
+                                <span class="prix-produit">promotion valable jusqu'au {{ produit.getDateFinPromo()|date('d/m/Y') }}</span>
+                            {% else %}
+                                &euro;{{ (tarifs['tarif']/100)|number_format(2, ',', ' ')}}
+                            {% endif %}
                         </div>
+                        {# test end #}
                     </div>
 
                     <div class="row rang-detail">
@@ -153,7 +171,6 @@
                             {% endif %}
 
                             {% if produit.getCommandableSansStock() %}
-                                {# max="99" #}
                                 max="{{quantite_max_commande}}"
                             {% else %}
                                 max="{{ produit.getQuantiteStock() - quantite_panier }}"
@@ -168,7 +185,6 @@
                         </div>
 
                         <div class="col-9">
-                            {# <button class="btn" id="ajout-panier">AJOUTER AU PANIER</button> #}
                             <button class="btn" id="ajout-panier"
                                 {% if indisponible == true %}
                                     disabled
@@ -184,18 +200,6 @@
                             </div>
                         {% endif %}
                     </div>
-
-                    {# voir pr gerer le cote dispo => plus dispo apres ajax #}
-
-                    {#  #}
-                    {# {% if indisponible == true %}
-                    <div class="row">
-                        <div class="col-12">
-                            Ce produit n'est actuellement plus disponible
-                        </div>
-                    </div>
-                    {% endif %} #}
-                    {#  #}
 
                     <div class="row">
                         <div class="col-12 texte-13-6">
@@ -347,7 +351,8 @@
 
                                     <div class="card-body">
                                         <p class="nom-produit">{{ produit_suggere.nom }}</p>
-                                        {% if produit.getTvaActive() %}
+                                        {# original #}
+                                        {# {% if produit.getTvaActive() %}
                                             {% set tva = produit.getTauxTva().getTaux() %}
                                         {% else %}
                                             {% set tva = 0 %}
@@ -370,7 +375,29 @@
                                             <p class="prix-produit">
                                                 {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
                                             </p>
+                                        {% endif %} #}
+
+                                        {# test begin #}
+                                        {% set tarifs = produit.getTarifsAffiches() %}
+                                        {% if tarifs['tarif_promo'] is not same as null %}  
+                                            <p class="prix-produit" id="paragraphe-promo">
+                                                <del>
+                                                    &euro;{{ (tarifs['tarif']/100)|number_format(2, ',', ' ')}}
+                                                </del>
+                                                <ins>
+                                                    &euro;{{ (tarifs['tarif_promo']/100)|number_format(2, ',', ' ') }}
+                                                </ins>
+                                            </p>
+
+                                            <div class="prix-produit text-center">
+                                                promotion valable jusqu'au {{ produit_suggere.getDateFinPromo()|date('d/m/Y') }}
+                                            </div>
+                                        {% else %}
+                                            <p class="prix-produit">
+                                                &euro;{{ (tarifs['tarif']/100)|number_format(2, ',', ' ')}}
+                                            </p>
                                         {% endif %}
+                                        {# test end #}
                                     </div>
                                 </div>
                             </a>

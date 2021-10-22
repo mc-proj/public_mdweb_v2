@@ -605,7 +605,8 @@ class MDWProduits
             $date_achat = new DateTime();
         }
 
-        if($this->getDateDebutPromo() <= $date_achat || $this->getDateFinPromo() >= $date_achat) {
+        //if($this->getDateDebutPromo() <= $date_achat || $this->getDateFinPromo() >= $date_achat) {
+        if($this->getDateDebutPromo() <= $date_achat && $this->getDateFinPromo() >= $date_achat) {
             $tarif_ht = $this->getTarifPromo();
         }
 
@@ -618,5 +619,27 @@ class MDWProduits
             'ttc' => $tarif_ttc
         ];
     }
-    //
+
+    //donne les tarifs promo et normal
+    public function getTarifsAffiches() {
+        $tarif = $this->getTarif();
+        $tarif_promo = null;
+
+        if($this->getDateDebutPromo() <= new DateTime() && $this->getDateFinPromo() >= new DateTime()) {
+            $tarif_promo = $this->getTarifPromo();
+        }
+
+        if($this->getTvaActive()) {
+            $tarif = $tarif + ($tarif * $this->getTauxTva()->getTaux()/10000);
+
+            if($tarif_promo !== null) {
+                $tarif_promo = $tarif_promo + ($tarif_promo * $this->getTauxTva()->getTaux()/10000);
+            }
+        }
+
+        return [
+            "tarif" => $tarif,
+            "tarif_promo" => $tarif_promo,
+        ];
+    }
 }

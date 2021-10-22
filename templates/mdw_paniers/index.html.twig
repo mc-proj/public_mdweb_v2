@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ asset('css/panier/index.style.css') }}">
 {% endblock %}
 
-
 {% block body %}
     <div id="loader"></div>
 
@@ -27,79 +26,6 @@
             {% endfor %}
         </div>
     {% endif %}
-
-    {# {% for message in app.flashes("panier vide") %}
-        <div class="alert alert-danger" id="msg-panier-vide">
-            {{ message }}
-        </div>
-    {% endfor %} #}
-
-    {# remplacer par un flashbag ? (plus court / simple) #}
-    {# {% if modifications is not same as ([]) %}
-        <div class="modal" tabindex="-1" id="modale-modifications">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Produits indisponibles</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    
-                    <div class="modal-body">
-                        <p>Les produits suivants de votre panier ne sont plus disponibles dans les quantites desirées. Votre panier a été modifié en consequence</p>
-
-                        <div class="container">
-                            <table class="table" id="table-modale">
-                                <thead class="thead-dark" style="border: 0">
-                                    <tr>
-                                        <th scope="col col-modale" colspan="2" style="border: 0">
-                                            Produit(s) concerné(s)
-                                        </th>
-
-                                        <th scope="col col-modale" style="border: 0">
-                                            Nouvelle quantité
-                                        </th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {% for infos in modifications %}
-                                        {% set produit_actuel = infos["produit"] %}
-                                        {% set images = produit_actuel.getImages() %}
-                                        <tr>
-                                            <td class="align-middle">
-                                                <img src="{{ asset('images/produits/') ~ images[0].getImage() }}" class="card-img-top image-modale" alt="image " ~ produit_actuel.getNom()>
-                                            </td>
-
-                                            <td class="align-middle">
-                                                {{ produit_actuel.getNom() }}
-                                            </td>
-
-                                            <td class="align-middle">
-                                                {% if infos.difference is not defined %}
-                                                    {{ infos["quantite"] }}
-                                                {% else %}
-                                                    {{ infos["quantite"] }} sont immédiatement disponibles,
-                                                    {{ infos["difference"] }} necessitent un délai supplémentaire pour etre livrés
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %} #}
-
-    {# <button class="btn btn-warning" id="test">vidange</button> #}
 
     <div class="container-fluid" id="containeur-principal">
         <h1>Mon panier</h1><hr>
@@ -130,7 +56,8 @@
                         <div class="col-12 case-reduite {{ fond }}">
                             <span>Prix:</span>
                             <span>
-                                {% if produit.getTvaActive() %}
+                                {# original #}
+                                {# {% if produit.getTvaActive() %}
                                     {% set tva = produit.getTauxTva().getTaux() %}
                                 {% else %}
                                     {% set tva = 0 %}
@@ -138,13 +65,20 @@
 
                                 {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
                                     {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
-                                    {# {{ prix|format_currency('EUR') }} #}
                                     &euro;{{ prix|number_format(2, ',', ' ') }}
                                 {% else %}
                                     {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
-                                    {# {{ prix|format_currency('EUR') }} #}
                                     &euro;{{ prix|number_format(2, ',', ' ') }}
+                                {% endif %} #}
+
+                                {# test begin #}
+                                {% set tarifs = produit.getTarifsAffiches() %}
+                                {% set prix = tarifs['tarif'] %}
+                                {% if tarifs['tarif_promo'] is not same as null %}
+                                    {% set prix = tarifs['tarif_promo'] %}
                                 {% endif %}
+                                &euro;{{ (prix/100)|number_format(2, ',', ' ') }}
+                                {# test end #}
                             </span>
                         </div>
 
@@ -154,36 +88,19 @@
                         {% else %}
                             {% set quantite_panier = 0 %}
                         {% endif %}
-                        {# {% set indisponible = false %}
-
-                        {% if produit.getCommandableSansStock() == false and (quantite_panier >= produit.getQuantiteStock() or produit.getQuantiteStock() == 0) %}
-                            {% set indisponible = true %}
-                        {% endif %} #}
 
                         <div class="col-12 case-reduite {{ fond }}">
                             <span>Quantité:</span>
                             <span class="span-quantite">
                                 <input class="form-control quantite-reduite" id="quantite_reduite_{{ produit.id }}" data-cible="#quantite_article_{{ produit.id }}" type="number" step="1" min="1"
 
-                                {# {% if indisponible == true %}
-                                    disabled
-                                {% endif %} #}
-
                                 {% if produit.getCommandableSansStock() %}
-                                    {# max="99" #}
                                     max="{{quantite_max_commande}}"
                                 {% else %}
-                                    {# max="{{ produit.getQuantiteStock() - quantite_panier }}" #}
                                     max="{{ produit.getQuantiteStock() }}"
                                 {% endif %}
 
-                                {# {% if indisponible %}
-                                    value="0"
-                                {% else %}
-                                    value="{{ quantite_panier }}"
-                                {% endif %} #}
                                 value="{{ quantite_panier }}"
-                                
                                 oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
                             </span>
                         </div>
@@ -193,13 +110,12 @@
                             <span>
                                 <span id="prix_total_article_reduit_{{ produit.id }}">
                                     {# {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }} #}
-                                    &euro;{{ (prix * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
+                                    &euro;{{ (prix/100 * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
                                 </span>
                             </span>
                         </div>
                     </div>
 
-                    {#  #}
                     {% if produit.getCommandableSansStock() and quantite_panier > produit.getQuantiteStock() %}
                         <div class="row message-quantite stock_{{ produit.id }}">
                             <div class="col-12">
@@ -214,7 +130,6 @@
                             </div>
                         </div>
                     {% endif %}
-                    {#  #}
                 {% endfor %}
             </div>
 
@@ -246,23 +161,40 @@
                         </div>
 
                         <div class="col-2 case-article" id="prix_unitaire_{{ produit.id }}">
-                            {% if produit.getTvaActive() %}
+                            {# {% if produit.getTvaActive() %}
                                 {% set tva = produit.getTauxTva().getTaux() %}
                             {% else %}
                                 {% set tva = 0 %}
-                            {% endif %}
+                            {% endif %} #}
 
-                            {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
+                            {# {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
                                 {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
-                                {# {{ prix|format_currency('EUR') }} #}
+                                # {{ prix|format_currency('EUR') }} #
                                 &euro;{{ prix|number_format(2, ',', ' ') }}
+
                             {% else %}
                                 {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
-                                {# {{ prix|format_currency('EUR') }} #}
+                                # {{ prix|format_currency('EUR') }} #
                                 &euro;{{ prix|number_format(2, ',', ' ') }}
-                            {% endif %}
-                        </div>
 
+
+                                # {% set test = produit.getTarifEffectif() %}
+                                <span style="color: blue">{{ (test['ttc'] / 100)|number_format(2, ',', ' ') }}</span> #
+                            {% endif %} #}
+
+                            {% set tarifs = produit.getTarifsAffiches() %}
+                            {% set prix = tarifs['tarif'] %}
+                            {% if tarifs['tarif_promo'] is not same as null %}
+                                {% set prix = tarifs['tarif_promo'] %}
+                            {% endif %}
+
+                            {# {% if produit.getTvaActive() %}
+                                {% set prix = produit.getTarifEffectif()['ttc'] / 100 %}
+                            {% else %}
+                                {% set prix = produit.getTarifEffectif()['ht'] / 100 %}
+                            {% endif %} #}
+                            &euro;{{ (prix/100)|number_format(2, ',', ' ') }}
+                        </div>
                         
                         {% set quantite_panier = app.session.get('quantites_session') %}
                         {% if quantite_panier[produit.id] is defined %}
@@ -270,85 +202,27 @@
                         {% else %}
                             {% set quantite_panier = 0 %}
                         {% endif %}
-                        {# {% set indisponible = false %}
-
-                        {% if produit.getCommandableSansStock() == false and (quantite_panier >= produit.getQuantiteStock() or produit.getQuantiteStock() == 0) %}
-                            {% set indisponible = true %}
-                        {% endif %} #}
 
                         <div class="col-md-2 col-3 case-article">
-                        {# {% if editions[produit.id] is defined %}
-                            <div class="col-md-2 col-3 case-article quantite-editee">
-                        {% elseif produit.getCommandableSansStock() and quantite_panier > produit.getQuantiteStock() %}
-                            <div class="col-md-2 col-3 case-article hors-stock">
-                        {% else %}
-                            <div class="col-md-2 col-3 case-article">
-                        {% endif %} #}
-
                             <input class="form-control quantite" id="quantite_article_{{ produit.id }}" type="number" step="1" min="1"
-
-                            {# {% if indisponible == true %}
-                                disabled
-                            {% endif %} #}
-
                             {% if produit.getCommandableSansStock() %}
-                                {# max="99" #}
                                 max="{{quantite_max_commande}}"
                             {% else %}
-                                {# max="{{ produit.getQuantiteStock() - quantite_panier }}" #}
                                 max="{{ produit.getQuantiteStock() }}"
                             {% endif %}
 
-                            {# {% if indisponible %}
-                                value="0"
-                            {% else %}
-                                value="{{ quantite_panier }}"
-                            {% endif %} #}
                             value="{{ quantite_panier }}"
-
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
-
-                            {# <div>{{ editions["{{produit.id}}"] }}</div> #}
-                            {# {% if produit.id is same as 130 %}
-                                <div>{{ editions[produit.id] }}</div>
-                            {% endif %} #}
-
-
-                            {# {% if editions[produit.id] is defined %}
-                                <div class="message-quantite-editee">quantité editée</div>
-                            {% elseif produit.getCommandableSansStock() and quantite_panier > produit.getQuantiteStock() %}
-                                <div class="message-sans-stock">
-                                    {{ produit.getQuantiteStock() }} sont disponibles en stock<br>
-                                    {{ quantite_panier - produit.getQuantiteStock() }} seront livrés ultérieurement
-                                </div>
-                            {% endif %} #}
-
-
-                            {# 
-                            {% if produit.getCommandableSansStock() && quantite_panier > produit.getQuantiteStock() %}
-                                changer couleur fond + msg tt n'est pas dispo
-                                produit.getQuantiteStock() livrables de suite
-                                produit.getQuantiteStock() - quantite_panier livres plus tard
-
-
-                                editions[produit.id] n'est pas renseigne pr produit commandable sans stock
-                             #}
-
-
-
-
-
                         </div>
 
                         <div class="col-2 case-article total">
                             <span id="prix_total_article_{{ produit.id }}">
                                 {# {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }} #}
-                                &euro;{{ (prix * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
+                                &euro;{{ (prix/100 * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
                             </span>
                         </div>
                     </div>
                     
-                    {#  #}
                     {% if produit.getCommandableSansStock() and quantite_panier > produit.getQuantiteStock() %}
                         <div class="row message-quantite stock_{{ produit.id }}">
                             <div class="col-12">
@@ -363,27 +237,10 @@
                             </div>
                         </div>
                     {% endif %}
-                    {#  #}
-                    
-                    
                     <hr>
                 {% endfor %}
             </div>
 
-{# original #}
-            {# <div class="row d-none" id='ligne-promo'>
-                <div class="col-2">
-                    <button class="btn" id="bouton-reset-promo">Annuler le code promo</button>
-                </div>
-
-                <div class="col-8" id='description-promo'>
-                </div>
-
-                <div class="col-2" id="valeur-promo">
-                </div>
-            </div> #}
-
-            {# xp begin #}
             {% if secu_promo['erreur'] is same as 'nocode'%}
                 <div class="row d-none" id='ligne-promo'>
             {% else %}
@@ -408,11 +265,9 @@
                     {% endif %}
                 </div>
             </div>
-            {# xp end #}
 
             <div class="row" id="rang-code-promo">
                 <div class="col-md-3 col-6">
-                    {# <input type="text" class="form-control" id="input-code-promo" placeholder="Code promo">  #} {# original #}
                     <input type="text" class="form-control" id="input-code-promo" placeholder="Code promo" value="{{ secu_promo['code'] }}">  
                 </div>
 
@@ -439,15 +294,12 @@
                                 <td>Sous total HT</td>
                                 {# <td>&euro;<span id="prix_ht">{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td> #}
                                 {# <td><span id="prix_ht">{{ (panier.getMontantHt()/100)|format_currency('EUR')  }}</span></td> #}
-
                                 {# <td id="prix_ht">{{ (panier.getMontantHt()/100)|format_currency('EUR')  }}</td> #} {# ORIGINAL #}
-
                                 {# <td id="prix_ht">{{ (panier.getMontantHt()/100)|format_currency('EUR', locale='fr')  }}</td> #} {# marche pas alors que viens de la doc #}
 
-                                <td id="prix_ht">&euro;{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> {# a defaut de mieux :-/ #}
-
-                                
-                            </tr>
+                                {# <td id="prix_ht">&euro;{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> #}
+                                <td>&euro;<span id="prix_ht">{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td>
+                           </tr>
 
                             <tr>
                                 <td>Expédition</td>
@@ -460,16 +312,11 @@
                                 {# <td><span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|format_currency('EUR')  }}</span></td> #}
 
                                 {# <td id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|format_currency('EUR')  }}</td> #}
-                                <td id="prix_tva">&euro;{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td>
+                                {# <td id="prix_tva">&euro;{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> #}
+                                <td>&euro;<span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td>
+
                             </tr>
 
-                            {# original #}
-                            {# <tr class="d-none" id="tr-total-promo">
-                                <td>Code promo</td>
-                                <td id="td-total-promo"></td>
-                            </tr> #}
-
-                            {# test begin #}
                             {% if secu_promo['reduction'] is same as "" %}
                                 <tr class="d-none" id="tr-total-promo">
                                 <td>Code promo</td>
@@ -480,11 +327,8 @@
                                 <td id="td-total-promo">
                                     -&nbsp;&euro;{{ (secu_promo['reduction']/100)|number_format(2, ',', ' ') }}
                                 </td>
-                            {% endif %}
-                                
-                                
+                            {% endif %}                              
                             </tr>
-                            {# test end #}
 
                             <tr>
                                 <td>Sous total TTC</td>
@@ -498,10 +342,16 @@
                                 {# <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td> #}
 
                                 {% if secu_promo['reduction'] is same as "" %}
-                                    <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td>
+                                    {# <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td> #}
+                                    <td>&euro;
+                                        <span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">
+                                            &euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}
+                                        </span></td>
                                 {% else %}
-                                    <td id="prix_ttc" data-prix="{{ (panier.getMontantTtc() - secu_promo['reduction'])/100 }}">
+                                    <td>&euro;
+                                    <span id="prix_ttc" data-prix="{{ (panier.getMontantTtc() - secu_promo['reduction'])/100 }}">
                                         &euro;{{ ((panier.getMontantTtc() - secu_promo['reduction'])/100)|number_format(2, ',', ' ') }}
+                                    </span>
                                     </td>
                                 {% endif %}
                             </tr>
@@ -531,9 +381,5 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {# <script>
-        let test_app = {{quantite_max_commande}}
-    </script> #}
     <script src="{{ asset('js/panier/index.script.js') }}"></script>
 {% endblock %}
-
