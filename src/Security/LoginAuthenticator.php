@@ -16,7 +16,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-//use App\Repository\MDWUsersRepository;
+use App\Repository\MDWUsersRepository;
 //use App\Repository\MDWPaniersRepository;
 //use App\Repository\MDWPaniersProduitsRepository;
 use App\Controller\MDWPaniersController;
@@ -34,13 +34,13 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
     private $panierProduitRepository;
 
     public function __construct(UrlGeneratorInterface $urlGenerator,
-                                //MDWUsersRepository $userRepository,
+                                MDWUsersRepository $userRepository,
                                 //MDWPaniersRepository $panierRepository,
                                 MDWPaniersController $panierController
                                 /*MDWPaniersProduitsRepository $panierProduitRepository*/)
     {
         $this->urlGenerator = $urlGenerator;
-        //$this->userRepository = $userRepository;
+        $this->userRepository = $userRepository;
         //$this->panierRepository = $panierRepository;
         //$this->panierProduitRepository = $panierProduitRepository;
         $this->panierController = $panierController;
@@ -53,7 +53,8 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
         //secu maison
         //cas visiteur -> creation d'un user en bdd avec ROLE_GUEST
         //secu pour empecher petit malin de bricoler un form pr se connecter via un compte guest
-        if($this->checkNotGuest($request->request->get('email'))) {
+        //if($this->checkIsGuest($request->request->get('email'))) {
+        if($this->checkIsGuest($email)) {
             return new RedirectResponse($this->urlGenerator->generate('accueil'));
         }
         //
@@ -88,8 +89,7 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
     }
 
-    private function checkNotGuest($email) {
-
+    private function checkIsGuest($email) {
         $user = $this->userRepository->findOneBy(['email' => $email]);
 
         if($user !== null && in_array('ROLE_GUEST', $user->getRoles())) {

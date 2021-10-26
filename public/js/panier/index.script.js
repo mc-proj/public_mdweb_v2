@@ -189,14 +189,14 @@ $(document).ready(function() {
                 response = JSON.parse(response);
 
                 $("#ligne-promo").removeClass("d-none");
+                let base_ht = convertionNombreTextePourCalcul($("#prix_ht").text());
+                let tva = convertionNombreTextePourCalcul($("#prix_tva").text());
 
                 if(typeof(response.erreur) !== "undefined") {
                     $("#description-promo").text(response.erreur);
                     $("#valeur-promo").text("");
                     $("#tr-total-promo").addClass("d-none");
-                    let base_ht = convertionNombreTextePourCalcul($("#prix_ht").text());
-                    let tva = convertionNombreTextePourCalcul($("#prix_tva").text());
-                    $("#prix_ttc").text("€" + CurrencyFormatted(base_ht + tva));
+                    $("#prix_ttc").text(CurrencyFormatted(base_ht + tva));
                     toastr.error("Erreur code promo");
                 } else {
                     $("#description-promo").text(response.description);
@@ -204,9 +204,8 @@ $(document).ready(function() {
                     $("#valeur-promo").text("- €" + CurrencyFormatted(reduction));
                     $("#tr-total-promo").removeClass("d-none");
                     $("#td-total-promo").text("- €" + CurrencyFormatted(reduction));
-                    let total_base = $("#prix_ttc").data("prix");
-                    let nouveau_total = CurrencyFormatted(total_base - reduction);
-                    $("#prix_ttc").text("€" + nouveau_total);
+                    let total_base = base_ht + tva;
+                    $("#prix_ttc").text(CurrencyFormatted(total_base - reduction));
                     toastr.success("Code promo appliqué");
                 }
 
@@ -233,7 +232,7 @@ $(document).ready(function() {
                 $("#input-code-promo").val("");
                 let base_ht = convertionNombreTextePourCalcul($("#prix_ht").text());
                 let tva = convertionNombreTextePourCalcul($("#prix_tva").text());
-                $("#prix_ttc").text("€" + CurrencyFormatted(base_ht + tva));
+                $("#prix_ttc").text(CurrencyFormatted(base_ht + tva));
                 loader(false);
             },
             error: function() {
@@ -267,10 +266,10 @@ $(document).ready(function() {
             $("#description-promo").text(erreur);
             $("#valeur-promo").text("");
             $("#tr-total-promo").addClass("d-none");
-            $("#prix_ttc").text("€" + CurrencyFormatted(base_ht + tva));
+            $("#prix_ttc").text(CurrencyFormatted(base_ht + tva));
         } else if(erreur === "") {
             let reduction = infos["reduction"];
-            $("#prix_ttc").text("€" + CurrencyFormatted(base_ht + tva - reduction/100));
+            $("#prix_ttc").text(CurrencyFormatted(base_ht + tva - reduction/100));
         }
         loader(false);
     }

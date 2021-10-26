@@ -277,14 +277,14 @@
                                 <td>Sous total TTC</td>
                                 {% if secu_promo['reduction'] is same as "" %}
                                     <td>&euro;
-                                        <span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">
+                                        <span id="prix_ttc" {#data-prix="{{ panier.getMontantTtc()/100 }}"#}>
                                             {{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}
                                         </span></td>
                                 {% else %}
                                     <td>&euro;
-                                    <span id="prix_ttc" data-prix="{{ (panier.getMontantTtc() - secu_promo['reduction'])/100 }}">
-                                        {{ ((panier.getMontantTtc() - secu_promo['reduction'])/100)|number_format(2, ',', ' ') }}
-                                    </span>
+                                        <span id="prix_ttc" {#data-prix="{{ (panier.getMontantTtc() - secu_promo['reduction'])/100 }}"#}>
+                                            {{ ((panier.getMontantTtc() - secu_promo['reduction'])/100)|number_format(2, ',', ' ') }}
+                                        </span>
                                     </td>
                                 {% endif %}
                             </tr>

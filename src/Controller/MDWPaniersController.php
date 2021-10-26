@@ -18,6 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 
+
+//use App\Repository\MDWUsersRepository;
+
 #[Route('/paniers')]
 
 class MDWPaniersController extends AbstractController
@@ -29,18 +32,23 @@ class MDWPaniersController extends AbstractController
     private $requestStack;
     private $entityManager;
 
+    //private $usersRepository;
+
     public function __construct(MDWPaniersRepository $paniersRepository,
                                 MDWProduitsRepository $produitsRepository,
                                 MDWCodesPromosRepository $codesPromosRepository, 
                                 SecurityController $securityController,
                                 RequestStack $requestStack,
-                                EntityManagerInterface $entityManager) {
+                                EntityManagerInterface $entityManager,
+                                /*MDWUsersRepository $usersRepository*/) {
         $this->paniersRepository = $paniersRepository;
         $this->produitsRepository = $produitsRepository;
         $this->codesPromosRepository = $codesPromosRepository;
         $this->securityController = $securityController;
         $this->entityManager = $entityManager;
         $this->requestStack = $requestStack;
+
+        //$this->usersRepository = $usersRepository;
     }
 
     #[Route('/', name: 'accueil_panier')]
@@ -48,16 +56,19 @@ class MDWPaniersController extends AbstractController
     {
         $panier = $this->getPanier();
 
-        //test arrondi begin
-        /*$ht = 180;
-        $ttc = $ht + ($ht * 550/10000); //189.9
-        //round 0.1 a 0.4 inclus --> 0.0 || a partir de 0.5 => 1.0
-        $ttc = round($ttc);  //190.0 
-        dd($ttc);*/
+        //test begin
+        //memo 492
+        /*$uu = $this->getUser();
+        $pivots = $uu->getCodesPromos();
+        
+        foreach($pivots as $pivot) {
+            $entite_code = $pivot->getCodePromo();
+            dd($entite_code->getCode());
+        }*/
 
-        /*
-        produit random (id 131) std 200  promo 180 HT
-        */
+
+        
+        //test end
 
         /*$produit = $this->produitsRepository->findOneBy(["id" => 131]);
         $tarifs = $produit->getTarifEffectif();
@@ -295,7 +306,7 @@ class MDWPaniersController extends AbstractController
 
         //parcours des codes promos deja utilises
         foreach($user->getCodesPromos() as $code) {
-            if($code->getCode() === $code_recu) {
+            if($code->getCodePromo() === $code_recu) {
                 $retour = json_encode([
                     "erreur" => "ce code promo a déjà été utilisé"
                 ]);
@@ -369,39 +380,81 @@ class MDWPaniersController extends AbstractController
     public function panierGuestVersPanierConnecte() {
         $session = $this->requestStack->getSession();
         $user_session = $session->get("guest");
+//here
         if($user_session !== null) {
-            /*
-            //recup user guest en bdd
-            $user_guest = $this->userRepository->findOneBy(["id" => $user_session->getId()]);
-            //recup panier guest en bdd
-            $panier_guest = $user_guest->getPanier();*/
 
             //recup panier guest en bdd
-            $panier_guest = $this->paniersRepository->findOneBy(["id" => $user_session->getId()]);
+            $panier_guest = $this->paniersRepository->findOneBy(["user" => $user_session]);
 
-            //$this->controlePromoLiee() ?
+            /* notes test
+            cas 1
+                ancien panier null
+                promo guest null
+                No bug
+
+            cas 2
+                ancien panier existe
+                promo guest null
+                
+                An exception occurred while executing 'UPDATE mdwpaniers SET user_id = ? WHERE id = ?' with params [14, 75]:
+                SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '14' for key 'UNIQ_B57CE0DFA76ED395'
+
+                apres message d'erreur, nispection ds bdd : aucun panier lie au user connecte (id 14)
+
+            cas 3
+                    ancien panier null
+                    promo guest test promo10 (deja utilise par user id 14)
+
+                    aucun message d'erreur sql ok
+                    code promo bien supprime du panier ok
+                    panier bien enregistre ac user id 14 ok
+
+
+            */
             
-            if($panier_guest !== null) {  //si on a bien un panier guest en bdd
 
-                $panier_guest->setUser($this->getUser()); //le panier guest est lie à l'id du user connecte
+            if($panier_guest !== null) {
+                //si panier guest n'est pas vide (aucun produit lie)
+                if($panier_guest->getProduits()->count() !== 0) {
+                    $ancien_panier = $this->paniersRepository->findOneBy(["user" => $this->getUser()]);
 
-                //ctrl code promo
-                $promo_guest = $panier_guest->getCodePromo(); //on recupere le code promo lie au panier guest
+                    //dd($ancien_panier);
+                
+                    //si l'utilisateur qui se connecte a deja un panier enregistre, on le supprime
+                    if($ancien_panier !== null) {
+                        $this->entityManager->remove($ancien_panier);
+                        $this->entityManager->flush();
+                    }
 
-                if($promo_guest !== null) {
-                    $promos_users = $this->getUser()->getCodesPromos(); //on recupere les liaisons pivots (codePromo_user) lies au user connecte
+                    //ctrl code promo begin
+                    $promo_guest = $panier_guest->getCodePromo(); //on recupere le code promo lie au panier guest
+                    //dd($promo_guest);
 
-                    foreach($promos_users as $promo_user) { //parcours des liaisons pivots
-                        if($promo_user->getCode() === $promo_guest) { //si le code promo rattache au pivot en cours est le meme que le code promo du panier guest
-                            $panier_guest->setCodePromo(null); //alors ce code a deja ete utilise par le user connecte, on dissocie le code promo du panier
+                    if($promo_guest !== null) {
+                        //on recupere les liaisons pivots (codePromo_user) lies au user connecte
+                        $promos_users = $this->getUser()->getCodesPromos();
+
+                        foreach($promos_users as $promo_user) { //parcours des liaisons pivots
+                            if($promo_user->getCodePromo() === $promo_guest) { //si le code promo rattache au pivot en cours est le meme que le code promo du panier guest
+                                $panier_guest->setCodePromo(null); //alors ce code a deja ete utilise par le user connecte, on dissocie le code promo du panier
+                            }
                         }
                     }
+
+                    //ctrl code promo end
+                    $panier_guest->setUser($this->getUser());
+                    //dd($panier_guest);
+                    $session->set("guest", null);
+                    $this->entityManager->persist($panier_guest);
+                    $this->entityManager->flush();
+                } else {
+                    dd("panier guest vide");  //provi
                 }
-                
-                $session->set("guest", null);
-                $this->entityManager->persist($panier_guest);
-                $this->entityManager->flush();
             }
+
+        
+        } else {
+            dd("guest est null");  //provi
         }
     }
 
@@ -430,10 +483,9 @@ class MDWPaniersController extends AbstractController
             } else if($this->getUser() !== null) {  //si user connecte
 
                 $promos_users = $this->getUser()->getCodesPromos(); //recuperation des entites pivots codePromo_users lies au user
-                $codes = $promos_users->getCodePromo(); //recuperation des codes promos lies au user
 
-                foreach($codes as $code) { 
-                    if($code === $code_promo) {
+                foreach($promos_users as $promo_user) { //parcours des liaisons pivots
+                    if($promo_user->getCodePromo() === $code_promo) {
                         $erreur = "Vous avez déjà utilisé ce code promo";  
                     }
                 }

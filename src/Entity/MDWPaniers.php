@@ -49,13 +49,18 @@ class MDWPaniers
      */
     private $adresse_livraison;
 
+    //M\OneToMany(targetEntity=MDWPaniersProduits::class, mappedBy="panier", orphanRemoval=true)
+
     /**
-     * @ORM\OneToMany(targetEntity=MDWPaniersProduits::class, mappedBy="panier", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=MDWPaniersProduits::class, mappedBy="panier", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $produits;
 
+    //M\OneToOne(targetEntity=MDWUsers::class, inversedBy="panier", cascade={"persist", "remove"})
+
+
     /**
-     * @ORM\OneToOne(targetEntity=MDWUsers::class, inversedBy="panier", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=MDWUsers::class, inversedBy="panier")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
