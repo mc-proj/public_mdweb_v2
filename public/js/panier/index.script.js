@@ -35,7 +35,7 @@ $(document).ready(function() {
 
         $.ajax({
             type: "POST",
-            url: "/paniers/modifie-quantite",
+            url: racine + "paniers/modifie-quantite",
             data: {
                 id_produit: id_produit,
                 mode: "suppression"
@@ -57,7 +57,7 @@ $(document).ready(function() {
                         if(cible_message.hasClass('message-quantite')) {
                             //si le produit supprime a un message "quantite editee", on supprime aussi le msg d'alert en debut de page
                             let est_message_edition = cible_message.children().eq(0).text();
-                            est_message_edition = est_message_edition.replace(/\s/g, ''); //suppr espaces
+                            est_message_edition = est_message_edition.replace(/\s/g, ''); //supprime espaces
                 
                             if(est_message_edition === "quantitéeditée") {
                                 $(".alert-info").remove();
@@ -72,15 +72,7 @@ $(document).ready(function() {
                         $("#ligne_article_" + id_produit).remove();
                         $("#rang_reduit_" + id_produit).remove();
                         toastr.success("produit retiré du panier");
-
                         secuPromo(response.infos_promo);
-                        /*loader(false);
-    
-
-                        if(!$("#ligne-promo").hasClass("d-none")) {
-        
-                            $("#bouton-code-promo").trigger("click");
-                        }*/
                     }
                 }              
             },
@@ -116,7 +108,7 @@ $(document).ready(function() {
         } else {
             $.ajax({
                 type: "POST",
-                url: "/paniers/modifie-quantite",
+                url: racine + "paniers/modifie-quantite",
                 data: {
                     id_produit: id_produit,
                     quantite: quantite_editee,
@@ -171,15 +163,7 @@ $(document).ready(function() {
                         $("#prix_ht").text(CurrencyFormatted(response.total_ht/100));
                         $("#prix_ttc").text(CurrencyFormatted(response.total_ttc/100));
                         $("#prix_tva").text(CurrencyFormatted(response.total_ttc/100 - response.total_ht/100));
-
-
                         secuPromo(response.infos_promo);
-                        /*loader(false);
-        
-                        if(!$("#ligne-promo").hasClass("d-none")) {
-        
-                            $("#bouton-code-promo").trigger("click");
-                        }*/
                     } 
                 },
                 error: function(err) {
@@ -236,9 +220,7 @@ $(document).ready(function() {
         })
     })
 
-    //@TODO: gerer codes promo (+cote vide panier)
     $("#bouton-reset-promo").on("click", function() {
-
         loader(true);
 
         $.ajax({
@@ -246,33 +228,15 @@ $(document).ready(function() {
             type: "POST",
             url: racine + "paniers/reset_promo",
             success: function() {
-
                 $("#tr-total-promo").addClass("d-none");
                 $("#ligne-promo").addClass("d-none");
-
-                //test begin
                 $("#input-code-promo").val("");
                 let base_ht = convertionNombreTextePourCalcul($("#prix_ht").text());
                 let tva = convertionNombreTextePourCalcul($("#prix_tva").text());
                 $("#prix_ttc").text("€" + CurrencyFormatted(base_ht + tva));
-                //test end
-
-               
-                //original
-               /* let total_base = convertionNombreTextePourCalcul($("#prix_ttc").text());
-                let reduction = $("#td-total-promo").text();
-                reduction = reduction.split("- €");
-                reduction = reduction[1];
-                reduction = convertionNombreTextePourCalcul(reduction);
-                total_base = total_base + reduction;
-                total_base = pseudoArrondi(total_base);
-                $("#prix_ttc").text(total_base);*/
-
-
                 loader(false);
             },
             error: function() {
-
                 loader(false);
                 toastr.error("Erreur: la suppression du code promo a echoué");
             }
@@ -284,7 +248,7 @@ $(document).ready(function() {
 
         $.ajax({
             type: "POST",
-            url: "/paniers/vide_panier",
+            url: racine + "paniers/vide_panier",
             success: function() {
                 location.reload();
             },

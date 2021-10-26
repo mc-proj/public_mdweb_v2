@@ -357,6 +357,54 @@ class MDWPaniersController extends AbstractController
         return new JsonResponse();
     }
 
+    #[Route('/paiement', name: 'panier_paiement')]
+    public function panierPaiement() {
+        if($this->getUser() === null) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        dd("that's all folks (for now)");
+    }
+
+    public function panierGuestVersPanierConnecte() {
+        $session = $this->requestStack->getSession();
+        $user_session = $session->get("guest");
+        if($user_session !== null) {
+            /*
+            //recup user guest en bdd
+            $user_guest = $this->userRepository->findOneBy(["id" => $user_session->getId()]);
+            //recup panier guest en bdd
+            $panier_guest = $user_guest->getPanier();*/
+
+            //recup panier guest en bdd
+            $panier_guest = $this->paniersRepository->findOneBy(["id" => $user_session->getId()]);
+
+            //$this->controlePromoLiee() ?
+            
+            if($panier_guest !== null) {  //si on a bien un panier guest en bdd
+
+                $panier_guest->setUser($this->getUser()); //le panier guest est lie à l'id du user connecte
+
+                //ctrl code promo
+                $promo_guest = $panier_guest->getCodePromo(); //on recupere le code promo lie au panier guest
+
+                if($promo_guest !== null) {
+                    $promos_users = $this->getUser()->getCodesPromos(); //on recupere les liaisons pivots (codePromo_user) lies au user connecte
+
+                    foreach($promos_users as $promo_user) { //parcours des liaisons pivots
+                        if($promo_user->getCode() === $promo_guest) { //si le code promo rattache au pivot en cours est le meme que le code promo du panier guest
+                            $panier_guest->setCodePromo(null); //alors ce code a deja ete utilise par le user connecte, on dissocie le code promo du panier
+                        }
+                    }
+                }
+                
+                $session->set("guest", null);
+                $this->entityManager->persist($panier_guest);
+                $this->entityManager->flush();
+            }
+        }
+    }
+
     private function controlePromoLiee() {
         $panier = $this->getPanier();
         $code_promo = $panier->getCodePromo();
@@ -379,6 +427,16 @@ class MDWPaniersController extends AbstractController
             //gestion minimum d'achat
             else if($panier->getMontantTtc() < $code_promo->getMinimumAchat()) {
                 $erreur = "Vous ne remplissez pas les conditions : " . $description;
+            } else if($this->getUser() !== null) {  //si user connecte
+
+                $promos_users = $this->getUser()->getCodesPromos(); //recuperation des entites pivots codePromo_users lies au user
+                $codes = $promos_users->getCodePromo(); //recuperation des codes promos lies au user
+
+                foreach($codes as $code) { 
+                    if($code === $code_promo) {
+                        $erreur = "Vous avez déjà utilisé ce code promo";  
+                    }
+                }
             }
 
             if($erreur !== "") {
@@ -563,19 +621,6 @@ class MDWPaniersController extends AbstractController
     }
 
     private function getPanier() {
-        /*$user = null;
-
-        if($this->getUser() !== null) {
-            $user = $this->getUser();
-        } else {
-            $session = $this->requestStack->getSession();
-            if($session->get("guest") !== null) {
-                $user = $session->get("guest");
-            } else {
-                $user = $this->securityController->guestCreator();
-            }
-        }*/
-
         $user = $this->getUtilisateur();
         $panier = $this->paniersRepository->findOneBy(["user" => $user]);
 

@@ -16,7 +16,10 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-use App\Repository\MDWUsersRepository; //test
+//use App\Repository\MDWUsersRepository;
+//use App\Repository\MDWPaniersRepository;
+//use App\Repository\MDWPaniersProduitsRepository;
+use App\Controller\MDWPaniersController;
 
 class LoginAuthenticator extends AbstractLoginFormAuthenticator
 {
@@ -25,13 +28,22 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
     public const LOGIN_ROUTE = 'app_login';
 
     private UrlGeneratorInterface $urlGenerator;
-    private $userRepository; //test
+    private MDWPaniersController $panierController;
+    private $userRepository;
+    private $panierRepository;
+    private $panierProduitRepository;
 
     public function __construct(UrlGeneratorInterface $urlGenerator,
-                                MDWUsersRepository $userRepository)
+                                //MDWUsersRepository $userRepository,
+                                //MDWPaniersRepository $panierRepository,
+                                MDWPaniersController $panierController
+                                /*MDWPaniersProduitsRepository $panierProduitRepository*/)
     {
         $this->urlGenerator = $urlGenerator;
-        $this->userRepository = $userRepository; //test
+        //$this->userRepository = $userRepository;
+        //$this->panierRepository = $panierRepository;
+        //$this->panierProduitRepository = $panierProduitRepository;
+        $this->panierController = $panierController;
     }
 
     public function authenticate(Request $request): PassportInterface
@@ -59,6 +71,11 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        //dd($request);
+        //test zone begin
+        $this->panierController->panierGuestVersPanierConnecte();
+        //test zone end
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }

@@ -56,29 +56,12 @@
                         <div class="col-12 case-reduite {{ fond }}">
                             <span>Prix:</span>
                             <span>
-                                {# original #}
-                                {# {% if produit.getTvaActive() %}
-                                    {% set tva = produit.getTauxTva().getTaux() %}
-                                {% else %}
-                                    {% set tva = 0 %}
-                                {% endif %}
-
-                                {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
-                                    {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
-                                    &euro;{{ prix|number_format(2, ',', ' ') }}
-                                {% else %}
-                                    {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
-                                    &euro;{{ prix|number_format(2, ',', ' ') }}
-                                {% endif %} #}
-
-                                {# test begin #}
                                 {% set tarifs = produit.getTarifsAffiches() %}
                                 {% set prix = tarifs['tarif'] %}
                                 {% if tarifs['tarif_promo'] is not same as null %}
                                     {% set prix = tarifs['tarif_promo'] %}
                                 {% endif %}
                                 &euro;{{ (prix/100)|number_format(2, ',', ' ') }}
-                                {# test end #}
                             </span>
                         </div>
 
@@ -109,7 +92,6 @@
                             <span>Sous-total:</span>
                             <span>
                                 <span id="prix_total_article_reduit_{{ produit.id }}">
-                                    {# {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }} #}
                                     &euro;{{ (prix/100 * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
                                 </span>
                             </span>
@@ -161,38 +143,12 @@
                         </div>
 
                         <div class="col-2 case-article" id="prix_unitaire_{{ produit.id }}">
-                            {# {% if produit.getTvaActive() %}
-                                {% set tva = produit.getTauxTva().getTaux() %}
-                            {% else %}
-                                {% set tva = 0 %}
-                            {% endif %} #}
-
-                            {# {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
-                                {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
-                                # {{ prix|format_currency('EUR') }} #
-                                &euro;{{ prix|number_format(2, ',', ' ') }}
-
-                            {% else %}
-                                {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
-                                # {{ prix|format_currency('EUR') }} #
-                                &euro;{{ prix|number_format(2, ',', ' ') }}
-
-
-                                # {% set test = produit.getTarifEffectif() %}
-                                <span style="color: blue">{{ (test['ttc'] / 100)|number_format(2, ',', ' ') }}</span> #
-                            {% endif %} #}
-
                             {% set tarifs = produit.getTarifsAffiches() %}
                             {% set prix = tarifs['tarif'] %}
                             {% if tarifs['tarif_promo'] is not same as null %}
                                 {% set prix = tarifs['tarif_promo'] %}
                             {% endif %}
 
-                            {# {% if produit.getTvaActive() %}
-                                {% set prix = produit.getTarifEffectif()['ttc'] / 100 %}
-                            {% else %}
-                                {% set prix = produit.getTarifEffectif()['ht'] / 100 %}
-                            {% endif %} #}
                             &euro;{{ (prix/100)|number_format(2, ',', ' ') }}
                         </div>
                         
@@ -217,7 +173,6 @@
 
                         <div class="col-2 case-article total">
                             <span id="prix_total_article_{{ produit.id }}">
-                                {# {{ (prix * panier_produit.getQuantite())|format_currency('EUR') }} #}
                                 &euro;{{ (prix/100 * panier_produit.getQuantite())|number_format(2, ',', ' ') }}
                             </span>
                         </div>
@@ -292,12 +247,6 @@
 
                             <tr>
                                 <td>Sous total HT</td>
-                                {# <td>&euro;<span id="prix_ht">{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td> #}
-                                {# <td><span id="prix_ht">{{ (panier.getMontantHt()/100)|format_currency('EUR')  }}</span></td> #}
-                                {# <td id="prix_ht">{{ (panier.getMontantHt()/100)|format_currency('EUR')  }}</td> #} {# ORIGINAL #}
-                                {# <td id="prix_ht">{{ (panier.getMontantHt()/100)|format_currency('EUR', locale='fr')  }}</td> #} {# marche pas alors que viens de la doc #}
-
-                                {# <td id="prix_ht">&euro;{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> #}
                                 <td>&euro;<span id="prix_ht">{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td>
                            </tr>
 
@@ -308,13 +257,7 @@
 
                             <tr>
                                 <td>TVA</td>
-                                {# <td>&euro;<span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td> #}
-                                {# <td><span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|format_currency('EUR')  }}</span></td> #}
-
-                                {# <td id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|format_currency('EUR')  }}</td> #}
-                                {# <td id="prix_tva">&euro;{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> #}
                                 <td>&euro;<span id="prix_tva">{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</span></td>
-
                             </tr>
 
                             {% if secu_promo['reduction'] is same as "" %}
@@ -332,25 +275,15 @@
 
                             <tr>
                                 <td>Sous total TTC</td>
-                                {# <td>&euro;<span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</span></td> #}
-                                {# <td><span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|format_currency('EUR')  }}</span></td> #}
-                                
-                                {# <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">{{ (panier.getMontantTtc()/100)|format_currency('EUR')  }}</td> #}
-
-
-                                {# base #}
-                                {# <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td> #}
-
                                 {% if secu_promo['reduction'] is same as "" %}
-                                    {# <td id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td> #}
                                     <td>&euro;
                                         <span id="prix_ttc" data-prix="{{ panier.getMontantTtc()/100 }}">
-                                            &euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}
+                                            {{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}
                                         </span></td>
                                 {% else %}
                                     <td>&euro;
                                     <span id="prix_ttc" data-prix="{{ (panier.getMontantTtc() - secu_promo['reduction'])/100 }}">
-                                        &euro;{{ ((panier.getMontantTtc() - secu_promo['reduction'])/100)|number_format(2, ',', ' ') }}
+                                        {{ ((panier.getMontantTtc() - secu_promo['reduction'])/100)|number_format(2, ',', ' ') }}
                                     </span>
                                     </td>
                                 {% endif %}
@@ -359,8 +292,9 @@
                             <tr>
                                 <td colspan="2">
                                 {# @TODO route pas encore cree #}
-                                <button class="btn btn-warning">VALIDER (provi)</button>
-                                    {# <a href="{{ path('panier_paiement') }}" id="bouton-valide-commande" class="btn btn-danger">VALIDER LA COMMANDE</a> #}
+                                {# <button class="btn btn-warning">VALIDER (provi)</button> #}
+                                {# class="btn btn-danger" #}
+                                    <a href="{{ path('panier_paiement') }}" id="bouton-valide-commande" class="btn">VALIDER LA COMMANDE</a>
                                 </td>
                             </tr>
                         </tbody>
