@@ -11,6 +11,7 @@ use App\Entity\MDWPaniersProduits;
 use App\Repository\MDWProduitsRepository;
 use App\Repository\MDWPaniersRepository;
 use App\Repository\MDWCodesPromosRepository;
+use App\Repository\MDWCodesPromosUsersRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Doctrine\ORM\EntityManagerInterface;
 use DateTime;
@@ -28,6 +29,7 @@ class MDWPaniersController extends AbstractController
     private $paniersRepository;
     private $produitsRepository;
     private $codesPromosRepository;
+    private $codesPromosUsersRepository;
     private SecurityController $securityController;
     private $requestStack;
     private $entityManager;
@@ -37,6 +39,7 @@ class MDWPaniersController extends AbstractController
     public function __construct(MDWPaniersRepository $paniersRepository,
                                 MDWProduitsRepository $produitsRepository,
                                 MDWCodesPromosRepository $codesPromosRepository, 
+                                MDWCodesPromosUsersRepository $codesPromosUsersRepository,
                                 SecurityController $securityController,
                                 RequestStack $requestStack,
                                 EntityManagerInterface $entityManager,
@@ -44,6 +47,7 @@ class MDWPaniersController extends AbstractController
         $this->paniersRepository = $paniersRepository;
         $this->produitsRepository = $produitsRepository;
         $this->codesPromosRepository = $codesPromosRepository;
+        $this->codesPromosUsersRepository = $codesPromosUsersRepository;
         $this->securityController = $securityController;
         $this->entityManager = $entityManager;
         $this->requestStack = $requestStack;
@@ -57,15 +61,12 @@ class MDWPaniersController extends AbstractController
         $panier = $this->getPanier();
 
         //test begin
-        //memo 492
-        /*$uu = $this->getUser();
-        $pivots = $uu->getCodesPromos();
-        
-        foreach($pivots as $pivot) {
-            $entite_code = $pivot->getCodePromo();
-            dd($entite_code->getCode());
-        }*/
-
+        /*$code_promo = $this->codesPromosUsersRepository->findOneBy(["id" => 1]);
+        $liaison = $this->codesPromosUsersRepository->findOneBy([
+            "user" => $this->getUser(),
+            "code_promo" => $code_promo
+        ]);
+        dd($liaison);*/
 
         
         //test end
@@ -378,47 +379,116 @@ class MDWPaniersController extends AbstractController
     }
 
     public function panierGuestVersPanierConnecte() {
+
+        //strat 2 begin
         $session = $this->requestStack->getSession();
         $user_session = $session->get("guest");
-//here
+
+        if($user_session !== null) {
+            $panier_guest = $this->paniersRepository->findOneBy(["user" => $user_session]);
+            $panier_user = $this->getPanier();
+
+            if($panier_guest !== null) {
+                //on verifie qu'il y a au moins 1 produit lie à panier_guest
+                if($panier_guest->getProduits()->count() !== 0) {
+                    //reset du contenu du panier user
+                    foreach($panier_user->getProduits() as $liaison_user) {
+                        $panier_user->removeProduit($liaison_user);
+                    }
+
+                    //chaque liason entre panier_guest et un produit est reaffectee a panier_user
+                    foreach($panier_guest->getProduits() as $produit_guest) {
+                        $panier_user->AddProduit($produit_guest);
+
+
+                        $panier_guest->removeProduit($produit_guest); //maybe
+                        $this->entityManager->persist($panier_guest);
+                        $this->entityManager->flush();
+                    }
+
+                     $panier_user->setMontantHt($panier_guest->getMontantHt());
+                     $panier_user->setMontantTtc($panier_guest->getMontantTtc());
+                }
+            }
+
+            
+
+            //here
+            //si no code promo ds panier guest -> OK
+            //si code promo ds panier guest deja utilise par user => liaison panier_produit efface  <====
+            //si code promo ds panier guest non utilise par user => OK, code promo bien affecte au panier user
+            //ctrl code promo begin
+            $promo_guest = $panier_guest->getCodePromo(); //on recupere le code promo lie au panier guest
+
+            if($promo_guest !== null) {
+                $liaison = $this->codesPromosUsersRepository->findOneBy([
+                    "user" => $this->getUser(),
+                    "code_promo" => $promo_guest
+                ]);
+
+                if($liaison === null) { //code promo non utilise par user
+                    //controler conditions code promo OK !!!!!!
+                    $panier_user->setCodePromo($promo_guest);
+                }
+
+                //remarque: a ce niveau, on ne fait que lier le code promo au panier
+                //la liaison entre code promo et user se fait au moment du paiement valide
+            }
+
+            //ctrl code promo end
+
+            $session->set("guest", null);
+            $panier_user->setDateModification(new DateTime());
+            $this->entityManager->persist($panier_user);
+            $this->entityManager->remove($panier_guest);
+            $this->entityManager->flush();
+        }
+        //start 2 end
+
+
+        /*
+        //tentative de base: si panier guest non vide, editer le panier guest pour l'attribuer au user connecte
+        //probleme rencontre: 
+            //situation: si le user connecte, on efface l'ancien panier puis on affecte le panier user
+            //resultat: l'ancien panier est bien efface mais l'affectation du panier guest rencontre une erreur
+            //          erreur sql comme si l'ancien panier user n'etait pas efface (champ user_id doit etre unique)
+        //changement de strategie: on copie les infos du panier guest vers panier user (au besoin on le cree), puis on efface panier guest
+        $session = $this->requestStack->getSession();
+        $user_session = $session->get("guest");
+
         if($user_session !== null) {
 
             //recup panier guest en bdd
             $panier_guest = $this->paniersRepository->findOneBy(["user" => $user_session]);
 
-            /* notes test
-            cas 1
-                ancien panier null
-                promo guest null
-                No bug
+            // notes test
+            // cas 1
+            //     ancien panier null
+            //     promo guest null
+            //     No bug
 
-            cas 2
-                ancien panier existe
-                promo guest null
+            // cas 2
+            //     ancien panier existe
+            //     promo guest null
                 
-                An exception occurred while executing 'UPDATE mdwpaniers SET user_id = ? WHERE id = ?' with params [14, 75]:
-                SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '14' for key 'UNIQ_B57CE0DFA76ED395'
+            //     An exception occurred while executing 'UPDATE mdwpaniers SET user_id = ? WHERE id = ?' with params [14, 75]:
+            //     SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '14' for key 'UNIQ_B57CE0DFA76ED395'
 
-                apres message d'erreur, nispection ds bdd : aucun panier lie au user connecte (id 14)
+            //     apres message d'erreur, nispection ds bdd : aucun panier lie au user connecte (id 14)
 
-            cas 3
-                    ancien panier null
-                    promo guest test promo10 (deja utilise par user id 14)
+            // cas 3
+            //         ancien panier null
+            //         promo guest test promo10 (deja utilise par user id 14)
 
-                    aucun message d'erreur sql ok
-                    code promo bien supprime du panier ok
-                    panier bien enregistre ac user id 14 ok
-
-
-            */
+            //         aucun message d'erreur sql ok
+            //         code promo bien supprime du panier ok
+            //         panier bien enregistre ac user id 14 ok
             
 
             if($panier_guest !== null) {
                 //si panier guest n'est pas vide (aucun produit lie)
                 if($panier_guest->getProduits()->count() !== 0) {
                     $ancien_panier = $this->paniersRepository->findOneBy(["user" => $this->getUser()]);
-
-                    //dd($ancien_panier);
                 
                     //si l'utilisateur qui se connecte a deja un panier enregistre, on le supprime
                     if($ancien_panier !== null) {
@@ -428,7 +498,6 @@ class MDWPaniersController extends AbstractController
 
                     //ctrl code promo begin
                     $promo_guest = $panier_guest->getCodePromo(); //on recupere le code promo lie au panier guest
-                    //dd($promo_guest);
 
                     if($promo_guest !== null) {
                         //on recupere les liaisons pivots (codePromo_user) lies au user connecte
@@ -440,22 +509,15 @@ class MDWPaniersController extends AbstractController
                             }
                         }
                     }
-
                     //ctrl code promo end
                     $panier_guest->setUser($this->getUser());
-                    //dd($panier_guest);
                     $session->set("guest", null);
                     $this->entityManager->persist($panier_guest);
                     $this->entityManager->flush();
-                } else {
-                    dd("panier guest vide");  //provi
                 }
             }
-
-        
-        } else {
-            dd("guest est null");  //provi
         }
+        */
     }
 
     private function controlePromoLiee() {
