@@ -115,11 +115,21 @@
                                 </span>
                             {% endif %}
                             <span class="element-menu">
-                                {% if app.user %}
+                                {# {% if app.user %}
                                     <a href="{{ path('mon_compte') }}">Mon compte</a>
                                 {% else %}
                                     <a href="{{ path('app_login') }}">Connexion</a>
+                                {% endif %} #}
+                                {% if app.user %}
+                                    {% if current_path is not same as ("mon_compte") %}
+                                        <a href="{{ path('mon_compte') }}">Mon compte</a>
+                                    {% endif %}
+                                {% else %}
+                                    {% if current_path is not same as ("app_login") %}
+                                        <a href="{{ path('app_login') }}">Connexion</a>
+                                    {% endif %}
                                 {% endif %}
+                                
                             </span>
                         </div>
 
@@ -133,7 +143,6 @@
                         </div>
 
                         <div class="col-3" id='menu-header-droite'>
-
                             {% set current_path = app.request.get('_route') %}
                             {% if current_path is not same as ("accueil") %}
                                 <span class="element-menu">
@@ -142,10 +151,13 @@
                             {% endif %}
                             <span class="element-menu">
                                 {% if app.user %}
-                                    <a href="{{ path('mon_compte') }}">Mon compte</a>
+                                    {% if current_path is not same as ("mon_compte") %}
+                                        <a href="{{ path('mon_compte') }}">Mon compte</a>
+                                    {% endif %}
                                 {% else %}
-                                    <a href="{{ path('app_login') }}">Connexion</a>
-                                    {# sur page connexion, changer pour inscription ? #}
+                                    {% if current_path is not same as ("app_login") %}
+                                        <a href="{{ path('app_login') }}">Connexion</a>
+                                    {% endif %}
                                 {% endif %}
                             </span>
                         </div>

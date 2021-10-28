@@ -78,7 +78,8 @@ $(document).ready(function() {
                 if(result.length > 0) {
 
                     for(produit of result) {
-                        let prix = produit.tarif.ttc * produit.quantite;
+                        //let prix = produit.tarif.ttc * produit.quantite;
+                        let prix = Math.round(produit.tarif.ttc) * produit.quantite;
                         total += prix;
                         prix = CurrencyFormatted(prix/100);
                         let image = "<img src='" + racine + "images/produits/" + produit.image + "' class='image-appercu' alt='image " + produit.nom + "'>";

@@ -57,9 +57,11 @@
                             <span>Prix:</span>
                             <span>
                                 {% set tarifs = produit.getTarifsAffiches() %}
-                                {% set prix = tarifs['tarif'] %}
+                                {# {% set prix = tarifs['tarif'] %} #}
+                                {% set prix = tarifs['tarif']|round %}
                                 {% if tarifs['tarif_promo'] is not same as null %}
-                                    {% set prix = tarifs['tarif_promo'] %}
+                                    {# {% set prix = tarifs['tarif_promo'] %} #}
+                                    {% set prix = tarifs['tarif_promo']|round %}
                                 {% endif %}
                                 &euro;{{ (prix/100)|number_format(2, ',', ' ') }}
                             </span>
@@ -144,9 +146,11 @@
 
                         <div class="col-2 case-article" id="prix_unitaire_{{ produit.id }}">
                             {% set tarifs = produit.getTarifsAffiches() %}
-                            {% set prix = tarifs['tarif'] %}
+                            {# {% set prix = tarifs['tarif'] %} #}
+                            {% set prix = tarifs['tarif']|round %}
                             {% if tarifs['tarif_promo'] is not same as null %}
-                                {% set prix = tarifs['tarif_promo'] %}
+                                {# {% set prix = tarifs['tarif_promo'] %} #}
+                                {% set prix = tarifs['tarif_promo']|round %}
                             {% endif %}
 
                             &euro;{{ (prix/100)|number_format(2, ',', ' ') }}

@@ -59,67 +59,10 @@ class MDWPaniersController extends AbstractController
     public function index(): Response
     {
         $panier = $this->getPanier();
-
-        //test begin
-        /*$code_promo = $this->codesPromosUsersRepository->findOneBy(["id" => 1]);
-        $liaison = $this->codesPromosUsersRepository->findOneBy([
-            "user" => $this->getUser(),
-            "code_promo" => $code_promo
-        ]);
-        dd($liaison);*/
-
-        
-        //test end
-
-        /*$produit = $this->produitsRepository->findOneBy(["id" => 131]);
-        $tarifs = $produit->getTarifEffectif();
-        dd($tarifs);*/
-
-        /*
-        array:2 [▼
-        "ht" => 180
-        "ttc" => 189.9
-        ]
-        */
-
-        //cote front, |number_format(2, ',', ' ') de twig utilise la meme logique
-        //arrondir pour les prix cote back
-        //test arrondi end
-
-        //pur test begin -- test en cours: simple edition qte  -- need presence des produits 129 et 130 ds panier (produits 8 et 9)
-        //sert just a trigger le controle qtes
-        /*foreach($panier->getProduits() as $liaison) {
-            $produit = $liaison->getProduit();
-            if($produit->getId() === 130) {
-                $liaison->setQuantite(80);
-                $this->entityManager->persist($liaison);
-                $tarifs = $produit->getTarifEffectif();
-                $panier->setMontantHt($panier->getMontantHt() + 80 * $tarifs['ht']);
-                $panier->setMontantTtc($panier->getMontantTtc() + 80 * $tarifs['ttc']);
-                $panier->setDateModification(new DateTime());
-                $this->entityManager->persist($panier);
-            } else if($produit->getId() === 129) {
-                $liaison->setQuantite(70);
-                $this->entityManager->persist($liaison);
-                $tarifs = $produit->getTarifEffectif();
-                $panier->setMontantHt(70 * $tarifs['ht']);
-                $panier->setMontantTtc(70 * $tarifs['ttc']);
-                $panier->setDateModification(new DateTime());
-                $this->entityManager->persist($panier);
-            }
-            $this->entityManager->flush();
-        }*/
-        //pur test end
-        
-
         $modifications = $this->controleQuantites();
 
-
-
         return $this->render('mdw_paniers/index.html.twig', [
-            //'controller_name' => 'MDWPaniersController',
-            'panier' => $panier, //provi
-            //'modifications' => $modifications
+            'panier' => $panier,
             'editions' => $modifications['editions'],
             'suppressions' => $modifications['suppressions'],
             'secu_promo' => $this->controlePromoLiee(),
@@ -231,7 +174,7 @@ class MDWPaniersController extends AbstractController
             $panier->setDateModification(new DateTime());
             $this->entityManager->persist($panier);
             $this->entityManager->flush();
-            $this->quantitesEnSession($id_produit, $quantite_finale);
+            $this->setQuantitesEnSession($id_produit, $quantite_finale);
 
             $retour = [
                 "produit_dispo_sans_stock" => $produit->getCommandableSansStock(),
@@ -336,8 +279,8 @@ class MDWPaniersController extends AbstractController
         } else {
             $panier = $this->getPanier();
 
-            $this->annulePromo();
-            //minimum achat trop faible
+            $this->annulePromo(); //annule le code promo deja lie (s'il y en a un)
+            //controle minimum achat trop faible
             if($panier->getMontantTtc() < $code_promo->getMinimumAchat()) {
                 $retour = json_encode([
                     "erreur" => "Vous ne remplissez pas les conditions : " . $code_promo->getDescription()
@@ -379,14 +322,13 @@ class MDWPaniersController extends AbstractController
     }
 
     public function panierGuestVersPanierConnecte() {
-
-        //strat 2 begin
         $session = $this->requestStack->getSession();
         $user_session = $session->get("guest");
+        $panier_user = $this->getPanier();
 
         if($user_session !== null) {
             $panier_guest = $this->paniersRepository->findOneBy(["user" => $user_session]);
-            $panier_user = $this->getPanier();
+            //$panier_user = $this->getPanier();
 
             if($panier_guest !== null) {
                 //on verifie qu'il y a au moins 1 produit lie à panier_guest
@@ -401,123 +343,59 @@ class MDWPaniersController extends AbstractController
                         $panier_user->AddProduit($produit_guest);
 
 
-                        $panier_guest->removeProduit($produit_guest); //maybe
+                        $panier_guest->removeProduit($produit_guest);
                         $this->entityManager->persist($panier_guest);
                         $this->entityManager->flush();
                     }
 
-                     $panier_user->setMontantHt($panier_guest->getMontantHt());
-                     $panier_user->setMontantTtc($panier_guest->getMontantTtc());
-                }
-            }
-
-            
-
-            //here
-            //si no code promo ds panier guest -> OK
-            //si code promo ds panier guest deja utilise par user => liaison panier_produit efface  <====
-            //si code promo ds panier guest non utilise par user => OK, code promo bien affecte au panier user
-            //ctrl code promo begin
-            $promo_guest = $panier_guest->getCodePromo(); //on recupere le code promo lie au panier guest
-
-            if($promo_guest !== null) {
-                $liaison = $this->codesPromosUsersRepository->findOneBy([
-                    "user" => $this->getUser(),
-                    "code_promo" => $promo_guest
-                ]);
-
-                if($liaison === null) { //code promo non utilise par user
-                    //controler conditions code promo OK !!!!!!
-                    $panier_user->setCodePromo($promo_guest);
+                    $panier_user->setMontantHt($panier_guest->getMontantHt());
+                    $panier_user->setMontantTtc($panier_guest->getMontantTtc());
                 }
 
-                //remarque: a ce niveau, on ne fait que lier le code promo au panier
-                //la liaison entre code promo et user se fait au moment du paiement valide
-            }
+                $promo_guest = $panier_guest->getCodePromo(); //on recupere le code promo lie au panier guest
 
-            //ctrl code promo end
+                //si panier_user contient deja un code promo, on l'efface
+                //evite de devoir re-controller le code promo (si present) avec le nouveau contenu
+                if($panier_user->getCodePromo() !== null) {
+                    $panier_user->setCodePromo(null);
+                }
+                //
 
-            $session->set("guest", null);
-            $panier_user->setDateModification(new DateTime());
-            $this->entityManager->persist($panier_user);
-            $this->entityManager->remove($panier_guest);
-            $this->entityManager->flush();
-        }
-        //start 2 end
+                if($promo_guest !== null) {
+                    $liaison = $this->codesPromosUsersRepository->findOneBy([
+                        "user" => $this->getUser(),
+                        "code_promo" => $promo_guest
+                    ]);
 
-
-        /*
-        //tentative de base: si panier guest non vide, editer le panier guest pour l'attribuer au user connecte
-        //probleme rencontre: 
-            //situation: si le user connecte, on efface l'ancien panier puis on affecte le panier user
-            //resultat: l'ancien panier est bien efface mais l'affectation du panier guest rencontre une erreur
-            //          erreur sql comme si l'ancien panier user n'etait pas efface (champ user_id doit etre unique)
-        //changement de strategie: on copie les infos du panier guest vers panier user (au besoin on le cree), puis on efface panier guest
-        $session = $this->requestStack->getSession();
-        $user_session = $session->get("guest");
-
-        if($user_session !== null) {
-
-            //recup panier guest en bdd
-            $panier_guest = $this->paniersRepository->findOneBy(["user" => $user_session]);
-
-            // notes test
-            // cas 1
-            //     ancien panier null
-            //     promo guest null
-            //     No bug
-
-            // cas 2
-            //     ancien panier existe
-            //     promo guest null
-                
-            //     An exception occurred while executing 'UPDATE mdwpaniers SET user_id = ? WHERE id = ?' with params [14, 75]:
-            //     SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '14' for key 'UNIQ_B57CE0DFA76ED395'
-
-            //     apres message d'erreur, nispection ds bdd : aucun panier lie au user connecte (id 14)
-
-            // cas 3
-            //         ancien panier null
-            //         promo guest test promo10 (deja utilise par user id 14)
-
-            //         aucun message d'erreur sql ok
-            //         code promo bien supprime du panier ok
-            //         panier bien enregistre ac user id 14 ok
-            
-
-            if($panier_guest !== null) {
-                //si panier guest n'est pas vide (aucun produit lie)
-                if($panier_guest->getProduits()->count() !== 0) {
-                    $ancien_panier = $this->paniersRepository->findOneBy(["user" => $this->getUser()]);
-                
-                    //si l'utilisateur qui se connecte a deja un panier enregistre, on le supprime
-                    if($ancien_panier !== null) {
-                        $this->entityManager->remove($ancien_panier);
-                        $this->entityManager->flush();
+                    if($liaison === null) { //code promo non utilise par user
+                        //remarque: les conditions d'utilisation du code promo ont ete verifiees lors de sa liaison
+                        //au panier guest. A ce niveau, la panier user precedent a ete vidé (si existant) et recupere
+                        //les donnees du panier guest => pas besoin de re-controler les conditions pour le code promo
+                        $panier_user->setCodePromo($promo_guest);
                     }
 
-                    //ctrl code promo begin
-                    $promo_guest = $panier_guest->getCodePromo(); //on recupere le code promo lie au panier guest
-
-                    if($promo_guest !== null) {
-                        //on recupere les liaisons pivots (codePromo_user) lies au user connecte
-                        $promos_users = $this->getUser()->getCodesPromos();
-
-                        foreach($promos_users as $promo_user) { //parcours des liaisons pivots
-                            if($promo_user->getCodePromo() === $promo_guest) { //si le code promo rattache au pivot en cours est le meme que le code promo du panier guest
-                                $panier_guest->setCodePromo(null); //alors ce code a deja ete utilise par le user connecte, on dissocie le code promo du panier
-                            }
-                        }
-                    }
-                    //ctrl code promo end
-                    $panier_guest->setUser($this->getUser());
-                    $session->set("guest", null);
-                    $this->entityManager->persist($panier_guest);
-                    $this->entityManager->flush();
+                    //remarque: a ce niveau, on ne fait que lier le code promo au panier
+                    //la liaison entre code promo et user se fait au moment du paiement valide
                 }
+
+                $session->set("guest", null);
+                $panier_user->setDateModification(new DateTime());
+                $this->entityManager->persist($panier_user);
+                $this->entityManager->remove($panier_guest);
+                $this->entityManager->flush();
+            }   
+        } else {
+            //chargement des infos du panier user precedent en session
+            $quantites_session = [];
+            $nombre_articles = 0;
+            foreach($panier_user->getProduits() as $panier_produit) {
+                $quantites_session[$panier_produit->getProduit()->getId()] = $panier_produit->getQuantite();
+                $nombre_articles += $panier_produit->getQuantite();
             }
+
+            $quantites_session['nombre_articles_panier'] = $nombre_articles;
+            $session->set('quantites_session', $quantites_session);
         }
-        */
     }
 
     private function controlePromoLiee() {
@@ -584,21 +462,10 @@ class MDWPaniersController extends AbstractController
         }
     }
 
-    private function quantitesEnSession($id_produit, $quantite) {
-        /*$session = $this->requestStack->getSession();
-        $quantites = $session->get('quantites_session');
-
-        if($quantites === null) {
-            $session->set('quantites_session', [$id_produit => $quantite]);
-        } else {
-            $quantites[$id_produit] = $quantite;  //a corriger: pr le moment on remplace juste la valeur
-            $this->session->set('quantites_session', $quantites);
-        }*/
-
+    private function setQuantitesEnSession($id_produit, $quantite) {
         $session = $this->requestStack->getSession();
         $quantites = $session->get('quantites_session');
         
-
         if($quantites === null) {
             $session->set('quantites_session', [
                 $id_produit => $quantite,
@@ -622,89 +489,25 @@ class MDWPaniersController extends AbstractController
         $suppressions = [];
         $panier = $this->getPanier();
 
-        //!!! re-calcul du cout du panier
-        // modifier panier => montant_ht, montant_ttc, date_modification
-        //$panier->setDateModification(new DateTime());
-
         foreach($panier->getProduits() as $panier_produit) {
             $produit = $panier_produit->getProduit();
-            $tarifs = $produit->getTarifEffectif(); //ajout pr recalcul total panier
+            $tarifs = $produit->getTarifEffectif();
 
             if(!$produit->getCommandableSansStock()) {
                 if($produit->getQuantiteStock() === 0) {
-                    //array_push($suppressions, [$produit->getId() => $produit->getNom()]);
-
-                    //recalcul prix begin part 1
-                    //$qte = -$panier_produit->getQuantite();
-                    /*$panier->setMontantHt($panier->getMontantHt() - ($panier_produit->getQuantite() * $tarifs['ht']));
-                    $panier->setMontantTtc($panier->getMontantTtc() - ($panier_produit->getQuantite() * $tarifs['ttc']));*/
-
-
                     $panier->setMontantHt($panier->getMontantHt() - ($panier_produit->getQuantite() * round($tarifs['ht'])));
                     $panier->setMontantTtc($panier->getMontantTtc() - ($panier_produit->getQuantite() * round($tarifs['ttc'])));
-
-                    //$this->entityManager->persist($panier);
-                    //recalcul prix end part 1
-
-                    
-
                     $suppressions[$produit->getId()] = $produit->getNom();
-
-
-                    $this->quantitesEnSession($produit->getId(), 0);
+                    $this->setQuantitesEnSession($produit->getId(), 0);
                     $panier->removeProduit($panier_produit);
                 } else if($produit->getQuantiteStock() < $panier_produit->getQuantite()) {
-                    //array_push($editions, [$produit->getId() => $produit->getNom()]);
-
-                    //recalcul prix begin part 2
                     $quantite_retrait = $panier_produit->getQuantite() - $produit->getQuantiteStock();
-
-                    //-------------
-                    /*
-                    //id 129 diff de 30 OK
-                    if($produit->getId() === 130) {
-                        $test = [$produit->getId(), $quantite_retrait];
-                        dd($test);  //id 130 diff de 20 OK
-                    }*/
-
-                    
-                    /*if($produit->getId() === 130) {
-                        dd($tarifs);
-                        /*
-                        array:2 [▼
-                        "ht" => 6282
-                        "ttc" => 6627.51
-                        ]
-                        *
-                    }*/
-
-                    //id 129
-                    /*array:2 [▼
-                    "ht" => 9135
-                    "ttc" => 9637.425
-                    ]*/
-
-                    //quantite_retrait ok, tarifs ok
-
-                    //-----------------
-                    
-
-
-
-                    /*$panier->setMontantHt($panier->getMontantHt() - ($quantite_retrait * $tarifs['ht']));
-                    $panier->setMontantTtc($panier->getMontantTtc() - ($quantite_retrait * $tarifs['ttc']));*/
-
                     $panier->setMontantHt($panier->getMontantHt() - ($quantite_retrait * round($tarifs['ht'])));
                     $panier->setMontantTtc($panier->getMontantTtc() - ($quantite_retrait * round($tarifs['ttc'])));
-
-                    //$this->entityManager->persist($panier);
-                    //recalcul prix end part 2
-
                     $editions[$produit->getId()] = $produit->getNom();
-
                     $panier_produit->setQuantite($produit->getQuantiteStock());
                     $this->entityManager->persist($panier_produit);
-                    $this->quantitesEnSession($produit->getId(), $produit->getQuantiteStock());
+                    $this->setQuantitesEnSession($produit->getId(), $produit->getQuantiteStock());
                 }
             }
         }

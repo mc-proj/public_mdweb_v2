@@ -293,12 +293,12 @@ $(document).ready(function() {
     }
 
     //debut useless zone
-    function pseudoArrondi(nombre) {
+    /*function pseudoArrondi(nombre) {
 
         nombre = Math.trunc(nombre * 100);
         nombre = nombre/100;
         return nombre;
-    }
+    }*/
 
     function convertionNombreTextePourCalcul(texte) { //utile !!!
 
@@ -308,14 +308,14 @@ $(document).ready(function() {
         return texte;
     }
 
-    function convertionNombrePourAffichage(prix) {
+    /*function convertionNombrePourAffichage(prix) {
 
         prix = formatteNombre(prix);
         prix = prix.replace(".", ",");
         return prix;
-    }
+    }*/
 
-    function formatteNombre(nombre) {
+    /*function formatteNombre(nombre) {
 
         nombre = nombre.toFixed(2) + '';
         nombre = nombre.split(".");
@@ -328,7 +328,7 @@ $(document).ready(function() {
         }
 
         return (entier + ',' + decimale);
-    }
+    }*/
     //fin useless zone
 
     function loader(show) {
