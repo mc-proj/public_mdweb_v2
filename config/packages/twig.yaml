@@ -9,6 +9,8 @@ twig:
     globals:
         gg_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
         quantite_max_commande: '%env(QUANTITE_MAX_COMMANDE)%'
+        stripe_pk: '%env(STRIPE_PK)%'
+        stripe_sk: '%env(STRIPE_SK)%'
 
 when@test:
     twig:

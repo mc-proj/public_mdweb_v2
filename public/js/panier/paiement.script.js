@@ -27,6 +27,60 @@ $(document).ready(function() {
         $("#col-livraison").toggleClass("collapse");
     })
 
+
+    //
+
+    //new test begin
+    $("body").on("click", "#bouton_envoi", function(event) {
+        event.preventDefault(); //empeche le comportement de validation par defaut
+        loader(true);
+        let form = $("[name = 'adresse_livraison']");
+        // need $.fn.serializeObject
+        let form_data = form.serializeObject();
+
+        $.ajax({
+            type: "POST",
+            url: racine + "commun/adresse_livraison_custom",
+            dataType: 'json',
+            data: form_data,
+            success: function(data) {
+                if(typeof(data.output) === "undefined") {
+                    toastr.success("Adresse de livraison enregistree");
+                } else {
+                    $("#col-livraison").empty();
+                    $("#col-livraison").append("<span id='consigne-formulaire'>Veuillez renseigner tout les champs</span>");
+                    $("#col-livraison").append(data.output);
+                }
+
+                loader(false);
+            },
+            error: function(err) {
+
+                toastr.error("Erreur: un probleme est survenu pendant l'enregisrement de l'adresse de livraison");
+                //console.log(err);
+                loader(false);
+            }
+        })
+    })
+
+    $("body").on("click", ".champ", function() {
+        let element_suivant = $(this).next();
+        
+        if(element_suivant.hasClass("invalid-feedback")) {
+            //retrait du style champ incorrect
+            $(this).removeClass("is-invalid");
+            element_suivant.remove();
+        }
+    })
+    //new test end
+
+    //notes begin
+    /*
+    champ : class = champ form-control
+    msg erreur => class = invalid-feedback
+    */
+    //notes end
+    
     //permet utilisation .serializeObject()
     $.fn.serializeObject = function()
     {
@@ -45,7 +99,8 @@ $(document).ready(function() {
         return o;
     };
 
-    $("#btn-submit").on("click", function() {
+    //btn adresse livraison differente
+    /*$("#btn-submit").on("click", function() {
 
         let form = $("[name = 'form']");
         // need $.fn.serializeObject
@@ -121,31 +176,27 @@ $(document).ready(function() {
                 loader(false);
             }
         })
-    })
+    })*/
 
-    $("#bouton-message").on("click", function() {
+    $("body").on("click", "#bouton-message", function(event) {
 
-        let form = $("[name = 'form-message']");
+        event.preventDefault(); //empeche le comportement de validation par defaut
+        loader(true);
+        let form = $("[name = 'message_livraison']");
         //need $.fn.serializeObject
         let form_data = form.serializeObject();
-        loader(true);
 
         $.ajax({
-
             type: "POST",
-            url: "/panier/soumetmessage",
+            url: racine + "commun/message_livraison",
             dataType: 'json',
             data: form_data,
-            success: function(response) {
-
-                if(response != "ok") {
-
-                    toastr.error("Erreur: votre message doit comporter 255 caracteres maximum");
-                }
-
-                else {
-
+            success: function(data) {
+                if(typeof(data.output) === "undefined") {
                     toastr.success("Votre message a bien été enregistré");
+                } else {
+                    $("#td-message-livraison").empty();
+                    $("#td-message-livraison").append(data.output);
                 }
 
                 loader(false);

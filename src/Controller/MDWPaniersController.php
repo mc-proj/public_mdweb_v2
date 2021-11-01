@@ -18,6 +18,9 @@ use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
+use Stripe\Stripe;
+
+
 
 
 //use App\Repository\MDWUsersRepository;
@@ -318,7 +321,139 @@ class MDWPaniersController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        dd("that's all folks (for now)");
+        $panier = $this->getPanier();
+        
+        if($panier->getProduits()->count() === 0) { //si panier vide
+            return $this->redirectToRoute('accueil_panier');
+        }
+
+        $user = $this->getUser();
+        $cartes = [];
+        $methodes_de_paiement = null;
+        //$this->session->set("stripe_pk", $this->getParameter("stripe_pk"));  //needed ? si oui utiliser methode 5.3 pr session
+        
+        \Stripe\Stripe::setApiKey(
+            $this->getParameter("app.stripe_sk")
+        );
+
+
+        $stripe = new \Stripe\StripeClient(
+            $this->getParameter("app.stripe_sk")
+        );
+
+        $customer = null;
+        $date = new DateTime();
+        $date = $date->format("d.m.y");
+
+        if($user->getIdStripe() != null && $user->getIdStripe() != "") {
+
+            $customer = $stripe->customers->retrieve(
+                $user->getIdStripe(),
+                []
+            );
+
+            $methodes_de_paiement = $stripe->paymentMethods->all([
+                'customer' => $user->getIdStripe(),
+                'type' => 'card',
+            ]);
+        }
+
+        else {
+
+            $customer = \Stripe\Customer::create();
+        }
+
+        //$this->session->set("stripe_customer", $customer); //needed ? si oui utiliser methode 5.3 pr session
+
+        //$code_promo = $this->codesPromoRepository->findOneBy(["id" => $this->session->get("code_promo_id")]);
+        $code_promo = $panier->getCodePromo();
+        $total = $panier->getMontantTtc();
+
+        if($code_promo != null) {
+
+            if($code_promo->getTypePromo() == "forfaitaire") {
+
+                $reduction = $code_promo->getValeur();
+            }
+            
+            else {
+
+                $reduction = $panier->getMontantTtc() * $code_promo->getValeur()/10000;
+            }
+
+            $total = $panier->getMontantTtc() - $reduction;
+            $total = intval($total);
+        }
+
+        //l'utilisateur a au moins une carte enregistree
+        if($methodes_de_paiement != null) {
+
+            try {
+
+                $intent =  $stripe->paymentIntents->create([
+                    'amount' => $total,
+                    'currency' => 'eur',
+                    'customer' => $customer->id,
+                    'description' => 'ACHAT CB MARCHE DU WEB ' . $date,
+                    'receipt_email' => $this->getUser()->getEmail(),
+                    'payment_method' => $methodes_de_paiement["data"][0]->id,
+                ]);
+
+                foreach($methodes_de_paiement as $moyen) {
+
+                    $carte = [];
+                    $carte["methode_id"] = $moyen->id;
+                    $carte["brand"] = $moyen->card["brand"];
+                    $carte["last4"] = $moyen->card["last4"];
+                    $carte["exp_month"] = $moyen->card["exp_month"];
+                    $carte["exp_year"] = $moyen->card["exp_year"];
+                    array_push($cartes, $carte);
+                }
+            }
+
+            catch (\Stripe\Exception\CardException $e) {
+
+                // Error code will be authentication_required if authentication is needed
+                echo 'Error code is:' . $e->getError()->code;
+                $payment_intent_id = $e->getError()->payment_intent->id;
+                $intent = \Stripe\PaymentIntent::retrieve($payment_intent_id);
+            }
+        }
+
+        //l'utilisateur n'a aucune carte enregistree
+        else {
+            
+            $intent =  $stripe->paymentIntents->create([
+                'amount' => $panier->getMontantTtc(),
+                'currency' => 'eur',
+                'customer' => $customer->id,
+                'payment_method_types' => ['card'],
+                'description' => 'ACHAT CB MARCHE DU WEB ' . $date,
+                'receipt_email' => $this->getUser()->getEmail()
+            ]);
+        }
+
+        //$this->session->set("payment_intent", $intent);//needed ? si oui utiliser methode 5.3 pr session
+        //$this->session->set("cartes", $cartes);//needed ? si oui utiliser methode 5.3 pr session
+
+        //$form_livraison = ''; //@todo creer form type -- adresse livraison
+        $form_message = ''; //@todo creer form type -- message pour livraison
+
+        /*if(les form valids) {
+            //go to next
+        }*/
+        
+          
+
+        return $this->render("mdw_paniers/paiement.html.twig", [
+
+            'user' => $user,
+            "panier" => $panier,
+            "code_promo" => $code_promo,
+            //"form_livraison" => $form_livraison->createView(),
+            //"form_message" => $form_message->createView(),
+            "cartes" => $cartes
+        ]);
     }
 
     public function panierGuestVersPanierConnecte() {
@@ -537,7 +672,7 @@ class MDWPaniersController extends AbstractController
         return $user;
     }
 
-    private function getPanier() {
+    public function getPanier() {
         $user = $this->getUtilisateur();
         $panier = $this->paniersRepository->findOneBy(["user" => $user]);
 

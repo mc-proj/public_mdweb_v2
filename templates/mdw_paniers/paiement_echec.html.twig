@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement echec- Fake Shop V2{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/panier/paiement_echec.style.css') }}">
+{% endblock %}
+
+
+{% block body %}
+    <div class="container" id="container-principal">
+        <h1>Erreur paiement</h1><hr>
+        <div class="texte">Une erreur a été rencontrée lors de la procédure de paiement.</div>
+        <div class="texte">{{ erreur }}</div>
+        <div id="div-bouton">
+            <a class="btn btn-info" id="bouton-retour-paiement" href="{{ path('panier_paiement') }}">Retour vers la page de paiement</a>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+

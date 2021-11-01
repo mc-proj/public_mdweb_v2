@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\MDWAdressesLivraison;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\ContactFormType;
+use App\Form\AdresseLivraisonType;
+use App\Form\MessageLivraisonType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mime\Email;
@@ -14,6 +17,10 @@ use App\Repository\MDWCategoriesRepository;
 use App\Repository\MDWProduitsRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Doctrine\ORM\EntityManagerInterface;
+use DateTime;
+
+use App\Controller\MDWPaniersController;
 
 #[Route('/commun')]
 
@@ -22,13 +29,19 @@ class CommunController extends AbstractController
     private $categoriesRepository;
     private $produitsRepository;
     private $requestStack;
+    private $entityManager;
+    private MDWPaniersController $securityController;
 
     public function __construct(MDWCategoriesRepository $categoriesRepository,
                                 MDWProduitsRepository $produitsRepository,
-                                RequestStack $requestStack) {
+                                RequestStack $requestStack,
+                                EntityManagerInterface $entityManager,
+                                MDWPaniersController $securityController) {
         $this->categoriesRepository = $categoriesRepository;
         $this->produitsRepository = $produitsRepository;
         $this->requestStack = $requestStack;
+        $this->entityManager = $entityManager;
+        $this->securityController = $securityController;
     }
 
 
@@ -126,5 +139,103 @@ class CommunController extends AbstractController
         $resultats = json_encode($resultats);
         $response = new JsonResponse($resultats);
         return $response;
+    }
+
+    #[Route('/adresse_livraison_custom', name: "adresse_livraison_custom")]
+    public function formulaireLivraisonCustom(Request $request) {
+
+        $form = $this->createForm(AdresseLivraisonType::class, null, [
+            'action' => $this->generateUrl('adresse_livraison_custom') //par defaut, route utilisee est celle de la page qui fait l'include
+        ]);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted()) {
+            if($form->isValid()) {
+                $panier = $this->securityController->getPanier();
+                $adresse = new MDWAdressesLivraison();
+
+                if($panier->getAdresseLivraison() !== null) {
+                    $adresse = $panier->getAdresseLivraison();
+                }
+
+                $adresse->setNom($form->get('nom')->getData());
+                $adresse->setPrenom($form->get('prenom')->getData());
+                $adresse->setAdresse($form->get('adresse')->getData());
+                $adresse->setVille($form->get('ville')->getData());
+                $adresse->setCodePostal($form->get('code_postal')->getData());
+                $adresse->setPays($form->get('Pays')->getData());
+                $adresse->setTelephone($form->get('telephone')->getData());
+                $adresse->setActif(true);
+                $adresse->setDerniereModification(new DateTime());
+                $this->entityManager->persist($adresse);
+                $this->entityManager->flush(); //on ne peux pas associer une entite qui n'a pas encore d'id
+                $panier->setAdresseLivraison($adresse);
+                $this->entityManager->persist($panier);
+                $this->entityManager->flush();
+                return new JsonResponse(null);
+            }
+
+            /*$response = new JsonResponse(
+                array(
+                    //'message' => 'Success',
+                    'output' => $this->renderView('form/adresse_livraison_custom.html.twig',
+                    array(
+                        //'entity' => $item,
+                        'form' => $form->createView(),
+                    )
+                )), 200);*/
+
+            $response = new JsonResponse([
+                'output' => $this->renderView('form/adresse_livraison_custom.html.twig', [
+                    'form' => $form->createView(),
+                ])
+            ]
+            , 200);
+           
+            return $response;
+        }
+
+        return $this->render('form/adresse_livraison_custom.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/message_livraison', name: "message_livraison")]
+    public function formulaireMessageLivraison(Request $request) {
+        $form = $this->createForm(MessageLivraisonType::class, null, [
+            'action' => $this->generateUrl('message_livraison')
+        ]);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted()) {
+            if($form->isValid()) {
+                $panier = $this->securityController->getPanier();
+                $panier->setMessage($form->get('message')->getData());
+                $this->entityManager->persist($panier);
+                $this->entityManager->flush();
+                return new JsonResponse(null);
+            }
+
+            $response = new JsonResponse([
+                'output' => $this->renderView('form/message_livraison.html.twig', [
+                    'form' => $form->createView(),
+                ])
+            ]
+            , 200);
+
+            /*$response = new JsonResponse(
+                array(
+                    'output' => $this->renderView('form/message_livraison.html.twig',
+                    array(
+                        'form' => $form->createView(),
+                    )
+                )), 200);*/
+           
+            return $response;
+        }
+
+        return $this->render('form/message_livraison.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 }

@@ -11,9 +11,11 @@ parameters:
     app.nb_articles_recents: '%env(NOMBRE_ARTICLES_RECENTS)%'
     app.quantite_max_commande: '%env(QUANTITE_MAX_COMMANDE)%'
 
-    #perso
-    #stripe_pk: 'pk_test_51HtbJdIfRUAUkm1D3LrKGG5kkBEf66jaT4DdAfD8eqFtoJfHwfpBcnoW0tOhUfDmBKoXt0q0TeiyQOn5Aj1NuEfM00kCu9qIzU'
-    #stripe_sk: 'sk_test_51HtbJdIfRUAUkm1DXPNADXgTmWa2jRcvgOmZCaUmtJe466M3XmJWl1aSkLBsKRCW0Mo9cdj0ln5V0Xul3G63vXwN002ud1dOzz'
+    #cles perso
+    # stripe_pk: 'pk_test_51HtbJdIfRUAUkm1D3LrKGG5kkBEf66jaT4DdAfD8eqFtoJfHwfpBcnoW0tOhUfDmBKoXt0q0TeiyQOn5Aj1NuEfM00kCu9qIzU'
+    # stripe_sk: 'sk_test_51HtbJdIfRUAUkm1DXPNADXgTmWa2jRcvgOmZCaUmtJe466M3XmJWl1aSkLBsKRCW0Mo9cdj0ln5V0Xul3G63vXwN002ud1dOzz'
+    app.stripe_pk: '%env(STRIPE_PK)%'
+    app.stripe_sk: '%env(STRIPE_SK)%'
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
 
 services:

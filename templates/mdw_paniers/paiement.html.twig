@@ -1,0 +1,269 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page paiement - Fake Shop V2{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/panier/paiement.style.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div id="loader"></div>
+        <h1>Paiement</h1><hr>
+        <div class="row" id="rang-principal">
+            <div class="col-md-7 col-12" id="case-adresse">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><h3><u>Adresse de facturation</u></h3></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="adresse">
+                                    {{ user.nom|capitalize }} {{ user.prenom|capitalize }}<br>
+                                    {{ user.adresse }}<br>
+                                    {{ user.getCodePostal() }} {{ user.ville|capitalize }}<br>
+                                    Téléphone: {{ user.telephone }}<br>
+                                    Adresse de messagerie: {{ user.email }}
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="custom-control custom-checkbox" id="div-checkbox">
+                                    <input class="custom-control-input" type="checkbox" value="" id="checkbox-livraison">
+                                    <label class="custom-control-label" id="label-checkbox" for="checkbox-livraison">Expedier à une adresse différente ?</label>
+                                </div>
+
+                                <div class="collapse" id="col-livraison">
+                                    <span id="consigne-formulaire">Veuillez renseigner tout les champs</span>
+
+
+                                    {# {{ form_start(form_livraison) }}
+                                        {{ form_widget(form_livraison) }}
+
+                                        <div class="row" id="case-boutons-adresse-custom">
+                                            <div class="col-md-6 col-12 col-centre">
+                                                <button type="button" class="btn bouton-formulaire" id="btn-submit" formnovalidate>Confirmer cette adresse de livraison</button>
+                                            </div>
+
+                                            <div class="col-md-6 col-12 col-centre">
+                                                <button type="reset" class="btn bouton-formulaire">Réinstaller les champs</button>
+                                            </div>
+                                        </div>
+                                    {{ form_end(form_livraison) }} #}
+
+                                    {{ render(path('adresse_livraison_custom')) }}
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td id="td-message-livraison">
+                                {# {{ form_start(form_message, {"name": "form-message", "attr": {"novalidate": "novalidate"}} )}}
+                                    {{ form_widget(form_message) }}
+                                {{ form_end(form_message) }}
+                                <button type="button" class="btn bouton-formulaire" id="bouton-message">Enregistrer le message</button> #}
+
+                                {{ render(path('message_livraison')) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-4 col-12" id="case-paiement">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Sous total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td colspan="2">
+                                {% for panier_produit in panier.getProduits() %}
+                                    {% set produit = panier_produit.getProduit() %}
+                                    {# {% if produit.getEtatTva() %}
+                                        {% set tva = produit.getTauxTvaId().getTaux() %}
+                                    {% else %}
+                                        {% set tva = 0 %}
+                                    {% endif %}
+
+                                    {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
+                                        {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
+                                    {% else %}
+                                        {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
+                                    {% endif %} #}
+                                    {% set tarifs = produit.getTarifsAffiches() %}
+                                    {% set prix = tarifs['tarif']|round %}
+                                    {% if tarifs['tarif_promo'] is not same as null %}
+                                        {% set prix = tarifs['tarif_promo']|round %}
+                                    {% endif %}
+                                    {#  #}
+
+                                    <div class="col-space-between">
+                                        {# <span>{{ produit.getNom() }} X {{ panier_produit.getQuantite() }}</span>
+                                        <span>&euro;{{ (prix|number_format(2) * panier_produit.getQuantite())|number_format(2, ',', ' ') }}</span> #}
+                                        {#  #}
+                                        {% set quantite_panier = app.session.get('quantites_session') %}
+                                        {% if quantite_panier[produit.id] is defined %}
+                                            {% set quantite_panier = quantite_panier[produit.id] %}
+                                        {% else %}
+                                            {% set quantite_panier = 0 %}
+                                        {% endif %}
+                                        <span>{{ produit.getNom() }} X {{ quantite_panier }}</span>
+                                        <span>&euro;{{ (prix/100 * panier_produit.getQuantite())|number_format(2, ',', ' ') }}</span>
+                                    </div>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Sous Total HT</td>
+                            {# <td class="texte-a-droite">&euro;{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> #}
+                            <td class="texte-a-droite">&euro;{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td>
+
+                        </tr>
+
+                        <tr>
+                            <td>Expedition</td>
+                            <td class="texte-a-droite">Livraison gratuite</td>
+                        </tr>
+
+                        <tr>
+                            <td>TVA</td>
+                            {# <td class="texte-a-droite">&euro;{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> #}
+                            <td class="texte-a-droite">&euro;{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td>
+                        </tr>
+
+                        {% set reduction = 0 %}
+                        {% if code_promo is not same as(null) %}
+                            <tr>
+                                {% if code_promo.getTypePromo() is same as("forfaitaire") %}
+                                    {% set reduction = (code_promo.valeur /100) %}
+                                {% else %}
+                                    {% set reduction = (panier.getMontantTtc()/100 * code_promo.valeur /100)/100 %}
+                                {% endif %}
+
+                                <td>Code promo</td>
+                                <td class="texte-a-droite">- &euro;{{ reduction|number_format(2, ',', ' ') }}</td>
+                            </tr>
+                        {% endif %}
+
+                        <tr>
+                            <td>Total TTC</td>
+                            {# <td class="texte-a-droite" id="montant-final">&euro;{{ ((panier.getMontantTtc()/100 - reduction))|number_format(2, ',', ' ')  }}</td> #}
+                            <td class="texte-a-droite" id="montant-final">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>RAPPEL :</td>
+                            <td>Ceci N'EST PAS un vrai site de vente. Aucun des produits présentés n'est réelement disponible. Veuillez NE PAS ENTRER de vraies coordonees bancaires</td>
+                        <tr>
+
+                        <tr>
+                            <td colspan="2">
+                                <label id="label-paypal">
+                                    <input type="radio" name="moyen-paiement" disabled>&nbsp;Paypal
+                                </label>
+                                <img src={{ asset("images/logo_paiement/pp-acceptance-small.webp") }} alt="logo paypal"><br>
+
+                                <label>
+                                    <input type="radio" name="moyen-paiement" checked>&nbsp;Carte de paiement (Stripe)
+                                </label>
+
+                                <br>
+                                <img src={{ asset("images/logo_paiement/visa.svg") }} alt="logo visa" class="image-logo">
+                                <img src={{ asset("images/logo_paiement/amex.svg") }} alt="logo american express" class="image-logo">
+                                <img src={{ asset("images/logo_paiement/mastercard.svg") }} alt="logo mastercard" class="image-logo">
+
+                                <div id="options-stripe">
+                                    {% if cartes is not same as ([]) %}
+                                        <label>
+                                            <input type="radio" id="utiliser-carte-enregistree" name="type-carte">&nbsp;Utiliser une carte enregistrée
+                                        </label>
+
+                                        <select class="custom-select" id="carte_enregistree">
+                                            {% for cartes in app.session("cartes") %}
+                                                {% for carte in cartes %}
+                                                    <option value="{{ carte["methode_id"] }}">
+                                                        {{ carte["brand"] }}&nbsp;**** **** **** {{ carte["last4"] }}&nbsp;&nbsp;{{ carte["exp_month"] }}/{{ carte["exp_year"] }}
+                                                    </option>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </select>
+                                    {% endif %}
+
+                                    <label id="label-nouvelle-carte">
+                                        <input type="radio" id="utiliser-nouvelle-carte" name="type-carte" checked>&nbsp;Utiliser une autre carte
+                                    </label>
+
+                                    <form id="form-stripe">
+                                        <div class="row" class="col-centre">
+                                            <div class="col-11 p-0">
+                                                <div class="input" id="numero-carte"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row" class="col-centre">
+                                            <div class="col-5 p-0">
+                                                <div class="input" id="expiration-carte"></div>
+                                            </div>
+
+                                            <div class="col-5 offset-1 p-0">
+                                                <div class="input" id="crypto-carte"></div>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                    <div class="custom-control custom-checkbox">
+                                        <input class="custom-control-input" type="checkbox" value="" id="checkbox-remember">
+                                        <label class="custom-control-label" for="checkbox-remember">Enregistrer les informations de paiement sur mon compte pour de futurs achats</label>
+                                    </div><hr>
+
+                                    Vos données personnelles seront utilisées pour le traitement de votre commande, vous accompagner au cours de votre visite du site web,
+                                    et pour d’autres raisons décrites dans notre <a href="{{ path('confidentialite') }}" class="confidentialite">politique de confidentialité.</a><br><br>
+
+                                    <div class="custom-control custom-checkbox" id="div-checkbox-conditions">
+                                        <input class="custom-control-input" type="checkbox" value="" id="checkbox-conditions">
+                                        <label class="custom-control-label" id="label-conditions" for="checkbox-conditions">J’ai lu et j’accepte les <a href="{{ path('confidentialite') }}" class="confidentialite">conditions générales</a><span class="texte-rouge"> *</span></label>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2" id="td-bouton-paiement">
+                                <button type="button" id="bouton-paiement" class="btn btn-danger" aria-disabled="true" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="Veuillez lire et accepter les conditions générales de vente">Valider le paiement</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{# const route = "{{ path('panier_paiement_success') }}"; #} {# @TODO reintegrer #}
+{# let stripe_pk = {{ app.session.get("stripe_pk")|json_encode|raw }}; #} {# ori #}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# lien js stripe #}
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        let stripe_pk = {{ stripe_pk|json_encode|raw }}; //!!! console.log(stripe_pk) marche
+        let user_mail = {{ user.getEmail()|json_encode|raw }};
+        
+    </script>
+    <script src="{{ asset('js/panier/paiement.script.js') }}"></script>
+{% endblock %}
+

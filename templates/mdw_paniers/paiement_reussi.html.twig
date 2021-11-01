@@ -1,0 +1,181 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement réussi- Fake Shop V2{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/panier/paiement_reussi.style.css') }}">
+{% endblock %}
+
+{% block body %}
+    {% set user = facture.usersId %}
+    {% set adresse_livraison = facture.getIdAdresseLivraison() %}
+
+    <div class="container" id="container-principal">
+        <h1>Commande reçue</h1><hr>
+        <p>Merci, votre commande a été reçue.</p>
+
+        <div class="row" id="rang-commande">
+            <div class="col-lg-3 col-12 bordure-droite-lg">
+                <div class="row">
+                    <div class="col-lg-12 col-6 case-p-8">NUMERO DE COMMANDE :</div>
+                    <div class="col-lg-12 col-6 case-p-8 gras">{{ facture.id }}</div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-12 bordure-droite-lg">
+                <div class="row">
+                    <div class="col-lg-12 col-6 case-p-8">DATE :</div>
+                    <div class="col-lg-12 col-6 case-p-8 gras">{{ facture.dateCreation|date('d/m/Y') }}</div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-12 bordure-droite-lg">
+                <div class="row">
+                    <div class="col-lg-12 col-6 case-p-8">EMAIL :</div>
+                    <div class="col-lg-12 col-6 case-p-8 gras">{{ user.email }}</div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-12">
+                <div class="row">
+                    <div class="col-lg-12 col-6 case-p-8">TOTAL :</div>
+                    <div class="col-lg-12 col-6 case-p-8 gras">&euro;{{ (facture.montantTotal/100)|number_format(2, ',', ' ') }}</div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-12">
+                <div class="row">
+                    <div class="col-lg-12 col-6 case-p-8">MOYEN DE PAIEMENT :</div>
+                    <div class="col-lg-12 col-6 case-p-8 gras">Carte de paiement (Stripe)</div>
+                </div>
+            </div>       
+        </div>
+
+        <h2>Détails de la commande</h2>
+        <table id="table-commande">
+            <tr>
+                <th class="en-tete-tableau-commande">Produit</th>
+                <th class="en-tete-tableau-commande">Total</th>
+            </tr>
+        
+            {% for produit_lie in produits_lies %}
+                {% set produit = produit_lie.getProduitsId() %}
+
+                {% if produit.getEtatTva() %}
+                    {% set tva = produit.getTauxTvaId().getTaux() %}
+                {% else %}
+                    {% set tva = 0 %}
+                {% endif %}
+                <tr>
+                    <td>
+                        {% set categorie = produit.getCategories()|first %}
+                        {% if categorie.getSousCategories()|length < 1 %}
+                            <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': produit.getNom()}) }}" class="lien-produit">
+                        {% else %}
+                            {# {% set cat = categorie.getSousCategories()|first %}
+                            {% set cat_ppal = cat.getNom() %}
+                                {% set sc = cat.getCategory()|first %}
+                                {% set sous_cat = sc.getNom() %}
+                                <a href="{{ path('produits_par_categorie', {'categorie': cat_ppal, 'sous_categorie': sous_cat, 'produit': produit.getNom() }) }}" class="lien-produit"> #}
+                        
+                            {% set categorie_generale = "" %}
+                            {% set sous_categorie = "" %}
+
+                            {% for categorie in produit.getCategories() %}
+                                {% if(categorie.getSousCategories|length > 0 ) %}
+                                    {% set sous_categorie = categorie.getNom() %}
+                                {% else %}
+                                    {% set categorie_generale = categorie.getNom() %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <a href="{{ path('produits_par_categorie', {'categorie': categorie_generale, 'sous_categorie': sous_categorie, 'produit': produit.getNom() }) }}" class="lien-article">
+                        {% endif %}
+                        {{ produit.nom }}</a> x {{ produit_lie.quantite }}
+                    </td>
+
+                    <td>
+                        {% if produit.getDateDebutPromo()|date('Y-m-d') <= facture.dateCreation|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= facture.dateCreation|date('Y-m-d') %}
+                            {% set prix = (produit.getTarifPromo()/100) *  produit_lie.quantite %}
+                            &euro;{{ prix|number_format(2, ',', ' ') }}
+                        {% else %}
+                            {% set prix = (produit.tarif/100) *  produit_lie.quantite %}
+                            &euro;{{ prix|number_format(2, ',', ' ') }}
+                        {% endif %}
+                    </td>
+                </tr>   
+            {% endfor %}
+
+            <tr>
+                <td>Sous-total HT :</td>
+                <td>&euro;{{ (facture.getMontantHt()/100)|number_format(2, ',', ' ') }}</td>
+            </tr>
+
+            <tr>
+                <td>Expédition :</td>
+                <td>Livraison gratuite</td>
+            </tr>
+
+            <tr>
+                <td>TVA :</td>
+                <td>&euro;{{ (facture.getMontantTtc()/100 - facture.getMontantHt()/100)|number_format(2, ',', ' ') }}</td>
+            </tr>
+
+            {% if(facture.getCodesPromoId() is not same as(null)) %}
+                {% set code_promo = facture.getCodesPromoId() %}
+                <tr>
+                    <td>Code promo : {{ code_promo.code }}</td>
+                    <td>&euro;{{ (facture.getMontantTotal()/100 - facture.getMontantTtc()/100)|number_format(2, ',', ' ') }}</td>
+                </tr>
+            {% endif %}
+
+            <tr>
+                <td>Moyen de paiement :</td>
+                <td>Carte de paiement (Stripe)</td>
+            </tr>
+
+            <tr>
+                <td>Total :</td>
+                <td>&euro;{{ (facture.montantTotal/100)|number_format(2, ',', ' ') }}</td>
+            </tr>    
+        </table>
+
+        <div class="row">
+            <div class="col-md-6 col-12">
+                <h2 class="titre-syncro">Adresse de facturation</h2>
+                <div class="bloc-adresse">
+                    <div>{{ user.prenom }} {{ user.nom }}</div>
+                    <div>{{ user.adresse }}</div>
+                    <div>{{ user.codePostal}} {{ user.ville }}</div>
+                    <div><i class="fas fa-phone"></i>&nbsp;{{ user.telephone }}</div>
+                    <div><i class="far fa-envelope"></i>&nbsp;{{ user.email }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <h2 class="titre-syncro">Adresse de livraison</h2>
+                <div class="bloc-adresse">
+                    {% if (adresse_livraison is not same as(null)) %}
+                        <div>{{ adresse_livraison.getPrenom }} {{ adresse_livraison.getNom }}</div>
+                        <div>{{ adresse_livraison.getAdresse }}</div>
+                        <div>{{ adresse_livraison.getCodePostal }} {{ adresse_livraison.getVille }}</div>
+                    {% else %}
+                        <div>{{ user.prenom }} {{ user.nom }}</div>
+                        <div>{{ user.adresse }}</div>
+                        <div>{{ user.codePostal}} {{ user.ville }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div id="div-bouton-accueil">
+            <a class="btn" id="bouton-accueil" href="{{ path('accueil') }}">Retour vers l'accueil</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+
