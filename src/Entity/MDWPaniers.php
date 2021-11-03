@@ -6,6 +6,7 @@ use App\Repository\MDWPaniersRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=MDWPaniersRepository::class)
@@ -41,6 +42,13 @@ class MDWPaniers
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotBlank(message = "Votre message est facultatif mais ne doit pas etre vide")
+     * @Assert\Length(
+     *         min = 3,
+     *         minMessage = "Votre message doit comporter au moins {{ limit }} caractères",
+     *         max = 255,
+     *         maxMessage = "Votre message doit comporter au maximum {{ limit }} caractères"
+     * )
      */
     private $message;
 
@@ -150,7 +158,8 @@ class MDWPaniers
         return $this->adresse_livraison;
     }
 
-    public function setAdresseLivraison(MDWAdressesLivraison $adresse_livraison): self
+    //public function setAdresseLivraison(MDWAdressesLivraison $adresse_livraison): self
+    public function setAdresseLivraison(?MDWAdressesLivraison $adresse_livraison): self
     {
         $this->adresse_livraison = $adresse_livraison;
 

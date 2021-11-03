@@ -54,8 +54,6 @@ class MDWPaniersController extends AbstractController
         $this->securityController = $securityController;
         $this->entityManager = $entityManager;
         $this->requestStack = $requestStack;
-
-        //$this->usersRepository = $usersRepository;
     }
 
     #[Route('/', name: 'accueil_panier')]
@@ -327,9 +325,13 @@ class MDWPaniersController extends AbstractController
             return $this->redirectToRoute('accueil_panier');
         }
 
-        $user = $this->getUser();
+        //$user = $this->getUser();
+        $user = $this->getUtilisateur();
         $cartes = [];
         $methodes_de_paiement = null;
+        $session = $this->requestStack->getSession();
+
+        //a priori useless
         //$this->session->set("stripe_pk", $this->getParameter("stripe_pk"));  //needed ? si oui utiliser methode 5.3 pr session
         
         \Stripe\Stripe::setApiKey(
@@ -363,15 +365,16 @@ class MDWPaniersController extends AbstractController
             $customer = \Stripe\Customer::create();
         }
 
+        $session->set("stripe_customer", $customer);
         //$this->session->set("stripe_customer", $customer); //needed ? si oui utiliser methode 5.3 pr session
 
-        //$code_promo = $this->codesPromoRepository->findOneBy(["id" => $this->session->get("code_promo_id")]);
+
         $code_promo = $panier->getCodePromo();
         $total = $panier->getMontantTtc();
 
         if($code_promo != null) {
 
-            if($code_promo->getTypePromo() == "forfaitaire") {
+            /*if($code_promo->getTypePromo() == "forfaitaire") {
 
                 $reduction = $code_promo->getValeur();
             }
@@ -379,7 +382,14 @@ class MDWPaniersController extends AbstractController
             else {
 
                 $reduction = $panier->getMontantTtc() * $code_promo->getValeur()/10000;
+            }*/
+
+            $reduction = $code_promo->getValeur();
+
+            if($code_promo->getTypePromo() === "proportionnelle") {
+                $reduction = $panier->getMontantTtc() * ($reduction/10000);
             }
+            //---
 
             $total = $panier->getMontantTtc() - $reduction;
             $total = intval($total);
@@ -395,7 +405,8 @@ class MDWPaniersController extends AbstractController
                     'currency' => 'eur',
                     'customer' => $customer->id,
                     'description' => 'ACHAT CB MARCHE DU WEB ' . $date,
-                    'receipt_email' => $this->getUser()->getEmail(),
+                    //'receipt_email' => $this->getUser()->getEmail(),
+                    'receipt_email' => $user->getEmail(),
                     'payment_method' => $methodes_de_paiement["data"][0]->id,
                 ]);
 
@@ -429,31 +440,149 @@ class MDWPaniersController extends AbstractController
                 'customer' => $customer->id,
                 'payment_method_types' => ['card'],
                 'description' => 'ACHAT CB MARCHE DU WEB ' . $date,
-                'receipt_email' => $this->getUser()->getEmail()
+                //'receipt_email' => $this->getUser()->getEmail()
+                'receipt_email' => $user->getEmail(),
             ]);
         }
 
+        $session->set("payment_intent", $intent);
+        $session->set("cartes", $cartes);
         //$this->session->set("payment_intent", $intent);//needed ? si oui utiliser methode 5.3 pr session
-        //$this->session->set("cartes", $cartes);//needed ? si oui utiliser methode 5.3 pr session
-
-        //$form_livraison = ''; //@todo creer form type -- adresse livraison
-        $form_message = ''; //@todo creer form type -- message pour livraison
-
-        /*if(les form valids) {
-            //go to next
-        }*/
-        
-          
+        //$this->session->set("cartes", $cartes);//needed ? si oui utiliser methode 5.3 pr session          
 
         return $this->render("mdw_paniers/paiement.html.twig", [
 
             'user' => $user,
             "panier" => $panier,
             "code_promo" => $code_promo,
-            //"form_livraison" => $form_livraison->createView(),
-            //"form_message" => $form_message->createView(),
             "cartes" => $cartes
         ]);
+    }
+
+    #[Route('/paiement_post', name: 'panier_paiement_post', methods: 'POST')]
+    public function postPaiement(Request $request) {
+        $stripe = new \Stripe\StripeClient(
+            $this->getParameter("app.stripe_sk")  
+        );
+
+        \Stripe\Stripe::setApiKey(
+            $this->getParameter("app.stripe_sk")
+        );
+
+        $conditions_lues = true;
+
+        if($request->request->get("conditions_lues") == "false") {
+            $conditions_lues = false;
+        }
+
+        if($request->request->get("adresse_differente") == "false") {
+            $panier = $this->getPanier();
+            $adresse = $panier->getAdresseLivraison();
+
+            if($adresse !== null) {
+                $panier->setAdresseLivraison(null);
+                $this->entityManager->remove($adresse);
+                $this->entityManager->flush();
+            }
+        }
+
+        /*
+        sont en session
+
+        $session->set("stripe_customer", $customer);
+        $session->set("payment_intent", $intent);
+        $session->set("cartes", $cartes);
+        */
+
+        $session = $this->requestStack->getSession();
+        $intent = $session->get("payment_intent");
+
+        //utilisation d'une carte enregistree
+        if($request->request->get("payment_method_id") != null) {
+            try {
+                //si le moyen de paiement est different de celui attache par defaut, on le change
+                if($intent->payment_method != $request->request->get("payment_method_id")) {
+                    $intent->payment_method = $request->request->get("payment_method_id");
+                }
+            } catch(\Stripe\Exception\CardException $e) {
+                $payment_intent_id = $e->getError()->payment_intent->id;
+                $payment_intent = \Stripe\PaymentIntent::retrieve($payment_intent_id);
+            }
+        }
+
+        return new JsonResponse([
+            "client_secret" => $intent["client_secret"],
+            "conditions_lues" => $conditions_lues
+        ]);
+    }
+
+    #[Route('/paiement_success', name: 'panier_paiement_succes', methods: 'POST')]
+    public function paiementReussi() {
+        $now = new dateTime();
+        $reduction = 0;
+        $user = $this->getUtilisateur();
+        $panier = $this->getPanier();
+
+        if($panier->getProduits()->count() === 0) { //si panier vide
+            return $this->redirectToRoute('accueil_panier');
+        }
+
+        //here
+        $code_promo = $panier->getCodePromo();
+
+        if($code_promo !== null) {
+            //@TODO: lier code promo au user
+            $reduction = $code_promo->getValeur();
+
+            if($code_promo->getTypePromo() === "proportionnelle") {
+                $reduction = $panier->getMontantTtc() * ($reduction/10000);
+            }
+        }
+
+        //@TODO: creation facture
+        //@TODO: reseter panier
+        //@TODO: faire la vue
+        return $this->render('panier/paiement_reussi.html.twig', [
+
+            /*'facture' => $facture,
+            'produits_lies' => $produits_lies*/
+        ]);
+    }
+
+    #[Route('/paiement_fail', name: 'panier_paiement_fail', methods: 'POST')]
+    public function paiemenentEchec(Request $request) {
+        $erreur = $request->request->get("erreur");
+
+        //@TODO: faire la vue correspondante
+        return $this->render('panier/paiement_echec.html.twig', [
+            'erreur' => $erreur,
+        ]);
+    }
+
+    #[Route('/sauvecarte', name: 'panier_sauve_carte', methods: 'POST')]
+    public function sauveCarte() {
+
+        $session = $this->requestStack->getSession();
+        $customer = $session->get("stripe_customer");
+        //$user = $this->getUser();
+        $user = $this->getUtilisateur();
+        $user->setIdStripe($customer->id);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        \Stripe\Stripe::setApiKey(
+            $this->getParameter("app.stripe_sk")
+        );
+
+        $stripe = new \Stripe\StripeClient(
+            $this->getParameter("app.stripe_sk")
+        );
+
+        return new JsonResponse([]);
+
+        /*return new JsonResponse([
+            //
+        ]);*/
     }
 
     public function panierGuestVersPanierConnecte() {

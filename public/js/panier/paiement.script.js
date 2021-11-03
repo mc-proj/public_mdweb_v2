@@ -8,31 +8,30 @@ $(document).ready(function() {
     expiration_carte.mount('#expiration-carte');
     var crypto_carte = elements.create('cardCvc', {placeholder: "CVC / Cryptogramme"});
     crypto_carte.mount('#crypto-carte');
-    
-    //decoche la checkbox en cas de f5
-    $("#checkbox-livraison").prop("checked", false);
+
+    if($("#adresse_livraison_nom").prop("value") !== "") {
+        $("#checkbox-livraison").prop("checked", true);
+        $("#col-livraison").slideDown();
+        $("#col-livraison").toggleClass("collapse");
+    } else {
+        $("#checkbox-livraison").prop("checked", false);
+    }
 
     $("#checkbox-livraison").on("click", function() {
-
         if($(this).prop("checked")) {
-
             $("#col-livraison").slideDown();
-        }
-
-        else {
-
+        } else {
             $("#col-livraison").slideUp();
         }
-
         $("#col-livraison").toggleClass("collapse");
     })
 
 
     //
 
-    //new test begin
+    //soumission adresse de livraison differente
     $("body").on("click", "#bouton_envoi", function(event) {
-        event.preventDefault(); //empeche le comportement de validation par defaut
+        event.preventDefault();
         loader(true);
         let form = $("[name = 'adresse_livraison']");
         // need $.fn.serializeObject
@@ -63,6 +62,7 @@ $(document).ready(function() {
         })
     })
 
+    //retire le style des champs invalides
     $("body").on("click", ".champ", function() {
         let element_suivant = $(this).next();
         
@@ -72,16 +72,7 @@ $(document).ready(function() {
             element_suivant.remove();
         }
     })
-    //new test end
 
-    //notes begin
-    /*
-    champ : class = champ form-control
-    msg erreur => class = invalid-feedback
-    */
-    //notes end
-    
-    //permet utilisation .serializeObject()
     $.fn.serializeObject = function()
     {
         var o = {};
@@ -99,91 +90,11 @@ $(document).ready(function() {
         return o;
     };
 
-    //btn adresse livraison differente
-    /*$("#btn-submit").on("click", function() {
-
-        let form = $("[name = 'form']");
-        // need $.fn.serializeObject
-        let form_data = form.serializeObject();
-        let champs = [];
-        loader(true);
-
-        $(".champ").each(function() {
-
-            let id = $(this).attr("id");
-            let input = id.split("form_");
-            champs.push(input[1]);
-        })
-
-        $.ajax({
-
-            type: "POST",
-            url: "/panier/paiement",
-            dataType: 'json',
-            data: form_data,
-            success: function(data) {
-
-                let erreurs = data.erreurs;
-                let valeurs_entrees = data.valeurs_entrees;
-
-                if(valeurs_entrees != []) {
-
-                    for(champ of champs) {
-
-                        let input = "#form_" + champ;
-                        $(input).val(valeurs_entrees[champ]);
-
-                        //le champ en cours n'a pas d'erreur
-                        if(typeof erreurs[champ] == "undefined") {
-
-                            //si un message d'erreur est present, on le supprime
-                            if($(input).siblings(".texte-rouge").length != 0) {
-
-                                $(input).siblings(".texte-rouge").remove();
-                            }
-                        }
-
-                        else {
-
-                            let form_group = $(input).parent();
-
-                            //si un message d'erreur est deja present pour le champ en cours, on edite son contenu
-                            if($(input).siblings(".texte-rouge").length != 0) {
-
-                                $(input).siblings(".texte-rouge").html("<span class='badge badge-danger'>ERREUR</span> " + erreurs[champ]);
-                            }
-
-                            //si aucun message d'erreur n'est encore present, on l'ajoute
-                            else {
-
-                                form_group.prepend("<div class='texte-rouge'><span class='badge badge-danger'>ERREUR</span> " + erreurs[champ] + "</div>");
-                            }
-                        }
-                    }
-                }
-
-                else {
-
-                    toastr.success("Adresse de livraison enregistree");
-                }
-
-                loader(false);
-            },
-            error: function(err) {
-
-                toastr.error("Erreur: un probleme est survenu pendant l'enregisrement de l'adresse de livraison");
-                //console.log(err);
-                loader(false);
-            }
-        })
-    })*/
-
+    //soumission message pour la livraison
     $("body").on("click", "#bouton-message", function(event) {
-
-        event.preventDefault(); //empeche le comportement de validation par defaut
+        event.preventDefault();
         loader(true);
         let form = $("[name = 'message_livraison']");
-        //need $.fn.serializeObject
         let form_data = form.serializeObject();
 
         $.ajax({
@@ -225,7 +136,7 @@ $(document).ready(function() {
         let data = {
 
             conditions_lues: $("#checkbox-conditions").prop("checked"),
-            adresse_differente: $("#checkbox-livraison").prop("checked")
+            adresse_differente: $("#checkbox-livraison").prop("checked"),
         };
         //utiliser carte enregistree
         if($("#utiliser-carte-enregistree").length && $("#utiliser-carte-enregistree").is(':checked')) {
@@ -238,7 +149,8 @@ $(document).ready(function() {
         $.ajax({
   
           type: "POST",
-          url: "/panier/paiement_post",
+          //url: racine + "/paniers/paiement_post", //provoque erreur
+          url: "/paniers/paiement_post", //is fine
           data: data,
           success: function(response) {
 
@@ -264,7 +176,7 @@ $(document).ready(function() {
                             form.action = "/panier/paiement_fail";
                             var input = document.createElement('input');
                             input.type = 'hidden';
-                            form.action = "/panier/paiement_fail";
+                            //form.action = "/panier/paiement_fail"; //en double. erreur ?
 
 
                             if (result.error) {

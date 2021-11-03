@@ -18,9 +18,9 @@ use App\Repository\MDWProduitsRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Controller\MDWPaniersController;
 use DateTime;
 
-use App\Controller\MDWPaniersController;
 
 #[Route('/commun')]
 
@@ -30,18 +30,18 @@ class CommunController extends AbstractController
     private $produitsRepository;
     private $requestStack;
     private $entityManager;
-    private MDWPaniersController $securityController;
+    private MDWPaniersController $panierController;
 
     public function __construct(MDWCategoriesRepository $categoriesRepository,
                                 MDWProduitsRepository $produitsRepository,
                                 RequestStack $requestStack,
                                 EntityManagerInterface $entityManager,
-                                MDWPaniersController $securityController) {
+                                MDWPaniersController $panierController) {
         $this->categoriesRepository = $categoriesRepository;
         $this->produitsRepository = $produitsRepository;
         $this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
-        $this->securityController = $securityController;
+        $this->panierController = $panierController;
     }
 
 
@@ -144,18 +144,18 @@ class CommunController extends AbstractController
     #[Route('/adresse_livraison_custom', name: "adresse_livraison_custom")]
     public function formulaireLivraisonCustom(Request $request) {
 
-        $form = $this->createForm(AdresseLivraisonType::class, null, [
+        $panier = $this->panierController->getPanier();
+        $adresse = $panier->getAdresseLivraison();
+
+        $form = $this->createForm(AdresseLivraisonType::class, $adresse, [
             'action' => $this->generateUrl('adresse_livraison_custom') //par defaut, route utilisee est celle de la page qui fait l'include
         ]);
         $form->handleRequest($request);
 
         if($form->isSubmitted()) {
             if($form->isValid()) {
-                $panier = $this->securityController->getPanier();
-                $adresse = new MDWAdressesLivraison();
-
-                if($panier->getAdresseLivraison() !== null) {
-                    $adresse = $panier->getAdresseLivraison();
+                if($adresse === null) {
+                    $adresse = new MDWAdressesLivraison();
                 }
 
                 $adresse->setNom($form->get('nom')->getData());
@@ -175,16 +175,6 @@ class CommunController extends AbstractController
                 return new JsonResponse(null);
             }
 
-            /*$response = new JsonResponse(
-                array(
-                    //'message' => 'Success',
-                    'output' => $this->renderView('form/adresse_livraison_custom.html.twig',
-                    array(
-                        //'entity' => $item,
-                        'form' => $form->createView(),
-                    )
-                )), 200);*/
-
             $response = new JsonResponse([
                 'output' => $this->renderView('form/adresse_livraison_custom.html.twig', [
                     'form' => $form->createView(),
@@ -202,14 +192,14 @@ class CommunController extends AbstractController
 
     #[Route('/message_livraison', name: "message_livraison")]
     public function formulaireMessageLivraison(Request $request) {
-        $form = $this->createForm(MessageLivraisonType::class, null, [
+        $panier = $this->panierController->getPanier();
+        $form = $this->createForm(MessageLivraisonType::class, $panier, [
             'action' => $this->generateUrl('message_livraison')
         ]);
         $form->handleRequest($request);
 
         if($form->isSubmitted()) {
             if($form->isValid()) {
-                $panier = $this->securityController->getPanier();
                 $panier->setMessage($form->get('message')->getData());
                 $this->entityManager->persist($panier);
                 $this->entityManager->flush();
@@ -222,14 +212,6 @@ class CommunController extends AbstractController
                 ])
             ]
             , 200);
-
-            /*$response = new JsonResponse(
-                array(
-                    'output' => $this->renderView('form/message_livraison.html.twig',
-                    array(
-                        'form' => $form->createView(),
-                    )
-                )), 200);*/
            
             return $response;
         }
