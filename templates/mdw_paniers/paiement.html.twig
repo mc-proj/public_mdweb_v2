@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Page paiement - Fake Shop V2{% endblock %}
+{% block title %}Page paiement - Marché du web{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -161,7 +161,7 @@
                         <tr>
                             <td>Total TTC</td>
                             {# <td class="texte-a-droite" id="montant-final">&euro;{{ ((panier.getMontantTtc()/100 - reduction))|number_format(2, ',', ' ')  }}</td> #}
-                            <td class="texte-a-droite" id="montant-final">&euro;{{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}</td>
+                            <td class="texte-a-droite" id="montant-final">&euro;{{ (panier.getMontantTtc()/100 - reduction)|number_format(2, ',', ' ')  }}</td>
                         </tr>
 
                         <tr>

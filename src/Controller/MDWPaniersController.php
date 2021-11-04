@@ -8,6 +8,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\SecurityController;
 use App\Entity\MDWPaniers;
 use App\Entity\MDWPaniersProduits;
+use App\Entity\MDWFactures;
+use App\Entity\MDWFacturesProduits;
+use App\Entity\MDWCodesPromosUsers;
 use App\Repository\MDWProduitsRepository;
 use App\Repository\MDWPaniersRepository;
 use App\Repository\MDWCodesPromosRepository;
@@ -249,17 +252,35 @@ class MDWPaniersController extends AbstractController
         $code_recu = $request->request->get("code");
         $user = $this->getUtilisateur();
 
+        //
+        $code_promo = $this->codesPromosRepository->findOneBy(["code" => $code_recu]);
+        $code_use = $this->codesPromosUsersRepository->findOneBy([
+            "user" => $user,
+            "code_promo" => $code_promo,
+        ]);
+
+        if($code_use !== null) {
+            $date_utilisation = $code_use->getDateUtilisation()->format('d/m/Y');
+            $retour = json_encode([
+                "erreur" => "Vous avez déjà utilisé ce code promo le " . $date_utilisation,
+            ]);
+            return new JsonResponse($retour);
+        }
+
+        /*  original
         //parcours des codes promos deja utilises
         foreach($user->getCodesPromos() as $code) {
-            if($code->getCodePromo() === $code_recu) {
+            if($code->getCodePromo()->getCode() === $code_recu) {
+                $date_utilisation = $code->getDateUtilisation()->format('d/m/Y');
                 $retour = json_encode([
-                    "erreur" => "ce code promo a déjà été utilisé"
+                    "erreur" => "Vous avez déjà utilisé ce code promo le " . $date_utilisation,
                 ]);
                 return new JsonResponse($retour);
             }
         }
 
         $code_promo = $this->codesPromosRepository->findOneBy(["code" => $code_recu]);
+        */
 
         if($code_promo === null) {
             $retour = json_encode([
@@ -518,7 +539,7 @@ class MDWPaniersController extends AbstractController
 
     #[Route('/paiement_success', name: 'panier_paiement_succes', methods: 'POST')]
     public function paiementReussi() {
-        $now = new dateTime();
+        //$now = new dateTime();
         $reduction = 0;
         $user = $this->getUtilisateur();
         $panier = $this->getPanier();
@@ -531,21 +552,58 @@ class MDWPaniersController extends AbstractController
         $code_promo = $panier->getCodePromo();
 
         if($code_promo !== null) {
-            //@TODO: lier code promo au user
+
+            $code_promo_user = new MDWCodesPromosUsers();
+            $code_promo_user->setCodePromo($code_promo);
+            $code_promo_user->setUser($user);
+            $code_promo_user->setDateUtilisation(new dateTime());
+            $this->entityManager->persist($code_promo_user);
+
+            //$user->addCodesPromo($code_promo);
+            //$code_promo->addUser($user);
             $reduction = $code_promo->getValeur();
 
             if($code_promo->getTypePromo() === "proportionnelle") {
                 $reduction = $panier->getMontantTtc() * ($reduction/10000);
             }
         }
+        /*
+        panier --> adresse_livraison_id, commande_terminee, date_creation, montant_ht, montant_ttc, message, user_id, code_promo_id, date_modification
+        facture --> user_id, adresse_livraison_id, code_promo_id, date_creation, montant_total,  montant_ht, montant_ttc, message
+        */
+        //creation facture
+        $facture = new MDWFactures();
+        $facture->setUser($user);
+        $facture->setAdresseLivraison($panier->getAdresseLivraison());
+        $facture->setCodePromo($panier->getCodePromo());
+        $facture->setDateCreation(new dateTime());
+        $facture->setMontantTotal($panier->getMontantTtc() - $reduction);
+        $facture->setMontantHt($panier->getMontantHt());
+        $facture->setMontantTtc($panier->getMontantTtc());
+        $facture->setMessage($panier->getMessage());
+        $this->entityManager->persist($facture);
+        $this->entityManager->flush();
+
+
+        foreach($panier->getProduits() as $panier_produit) {
+            $facture_produit = new MDWFacturesProduits();
+            $facture_produit->setFacture($facture);
+            $facture_produit->setProduit($panier_produit->getProduit());
+            $facture_produit->setQuantite($panier_produit->getQuantite());
+            $this->entityManager->persist($facture_produit);
+        }
+
+        $this->entityManager->flush();
+        $this->videPanier();
+
 
         //@TODO: creation facture
-        //@TODO: reseter panier
+        //@TODO: reseter panier --> $this->videPanier();
         //@TODO: faire la vue
-        return $this->render('panier/paiement_reussi.html.twig', [
+        return $this->render('mdw_paniers/paiement_reussi.html.twig', [
 
-            /*'facture' => $facture,
-            'produits_lies' => $produits_lies*/
+            'facture' => $facture,
+            //'produits_lies' => $produits_lies*/
         ]);
     }
 

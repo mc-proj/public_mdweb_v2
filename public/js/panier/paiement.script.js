@@ -173,7 +173,7 @@ $(document).ready(function() {
                             let form = document.createElement('form');
                             document.body.appendChild(form);
                             form.method = 'post';
-                            form.action = "/panier/paiement_fail";
+                            form.action = "/paniers/paiement_fail";
                             var input = document.createElement('input');
                             input.type = 'hidden';
                             //form.action = "/panier/paiement_fail"; //en double. erreur ?
@@ -191,7 +191,7 @@ $(document).ready(function() {
     
                             if (result.paymentIntent.status === 'succeeded') {
 
-                                form.action = "/panier/paiement_success";
+                                form.action = "/paniers/paiement_success";
                                 input.name = "message";
                                 input.value = "Votre paiement a bien été effectué";
                                 form.appendChild(input);
@@ -249,7 +249,7 @@ $(document).ready(function() {
                             let form = document.createElement('form');
                             document.body.appendChild(form);
                             form.method = 'post';
-                            form.action = "/panier/paiement_success";
+                            form.action = "/paniers/paiement_success";
                             var input = document.createElement('input');
                             input.type = 'hidden';
     
@@ -259,7 +259,7 @@ $(document).ready(function() {
                                 $.ajax({
     
                                     type: "POST",
-                                    url: "/panier/sauvecarte",
+                                    url: "/paniers/sauvecarte",
                                     success: function(){
     
                                         input.value = "Votre paiement et l'enregistrement de votre carte ont bien été effectués";
