@@ -16,7 +16,7 @@ class MessageLivraisonType extends AbstractType
             ->add("message", TextareaType::class, [
                 "label" => "Notes de commande (facultatif)",
                 "attr" => [
-                    "class" => "champ",
+                    "class" => "champ champ-message",
                     "maxlength" => "255",
                     "rows" => "3",
                     "placeholder" => "Commentaires concernant votre commande, ex. : consignes de livraison."

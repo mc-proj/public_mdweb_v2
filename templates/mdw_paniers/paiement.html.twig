@@ -35,8 +35,8 @@
 
                         <tr>
                             <td>
-                                <div class="custom-control custom-checkbox" id="div-checkbox">
-                                    <input class="custom-control-input" type="checkbox" value="" id="checkbox-livraison">
+                                <div class="custom-control custom-checkbox" id="div-checkbox">                                    
+                                    <input class="custom-control-input" type="checkbox" {#value=""#} id="checkbox-livraison">
                                     <label class="custom-control-label" id="label-checkbox" for="checkbox-livraison">Expedier à une adresse différente ?</label>
                                 </div>
 
@@ -64,7 +64,7 @@
                         </tr>
 
                         <tr>
-                            <td id="td-message-livraison">
+                            <td class="pt-3" id="td-message-livraison">
                                 {# {{ form_start(form_message, {"name": "form-message", "attr": {"novalidate": "novalidate"}} )}}
                                     {{ form_widget(form_message) }}
                                 {{ form_end(form_message) }}
@@ -190,14 +190,11 @@
                                         <label>
                                             <input type="radio" id="utiliser-carte-enregistree" name="type-carte">&nbsp;Utiliser une carte enregistrée
                                         </label>
-
                                         <select class="custom-select" id="carte_enregistree">
-                                            {% for cartes in app.session("cartes") %}
-                                                {% for carte in cartes %}
-                                                    <option value="{{ carte["methode_id"] }}">
-                                                        {{ carte["brand"] }}&nbsp;**** **** **** {{ carte["last4"] }}&nbsp;&nbsp;{{ carte["exp_month"] }}/{{ carte["exp_year"] }}
-                                                    </option>
-                                                {% endfor %}
+                                            {% for carte in cartes %}
+                                                <option value="{{ carte["methode_id"] }}">
+                                                    {{ carte["brand"] }}&nbsp;**** **** **** {{ carte["last4"] }}&nbsp;&nbsp;{{ carte["exp_month"] }}/{{ carte["exp_year"] }}
+                                                </option>
                                             {% endfor %}
                                         </select>
                                     {% endif %}
@@ -247,6 +244,14 @@
                         </tr>
                     </tbody>
                 </table>
+
+                <div class="text-center p-3 collapse" id="rappel-validation">
+                    <ul>
+                        <li class="mb-1 d-none" id="li-expedition">Adresse d'expedition modifiée</li>
+                        <li class="d-none" id="li-message">Notes de commandes modifiées</li>
+                    </ul>
+                    <span>Les modifications doivent etre enregistrées avant la validation du paiement afin d'etre prises en compte</span>
+                </div>
             </div>
         </div>
     </div>
@@ -260,7 +265,7 @@
     {# lien js stripe #}
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        let stripe_pk = {{ stripe_pk|json_encode|raw }}; //!!! console.log(stripe_pk) marche
+        let stripe_pk = {{ stripe_pk|json_encode|raw }};
         let user_mail = {{ user.getEmail()|json_encode|raw }};
         
     </script>

@@ -19,21 +19,21 @@ class AdresseLivraisonType extends AbstractType
             ->add("nom", TextType::class, [
                 "label" => " ",
                 "attr" => [
-                    "class" => "champ",
+                    "class" => "champ champ-adresse",
                     "placeholder" => "Nom",
                 ],
             ])
             ->add("prenom", TextType::class, [
                 "label" => " ",
                 "attr" => [
-                    "class" => "champ",
+                    "class" => "champ champ-adresse",
                     "placeholder" => "Prenom"
                 ],
             ])
             ->add("adresse", TextareaType::class, [
                 "label" => " ",
                 "attr" => [
-                    "class" => "champ",
+                    "class" => "champ champ-adresse",
                     "placeholder" => "Adresse",
                     "maxlength" => "255",
                     "rows" => "3",
@@ -43,28 +43,28 @@ class AdresseLivraisonType extends AbstractType
             ->add("ville", TextType::class, [
                 "label" => " ",
                 "attr" => [
-                    "class" => "champ",
+                    "class" => "champ champ-adresse",
                     "placeholder" => "Ville"
                 ],
             ])
             ->add("code_postal", TextType::class, [
                 "label" => " ",
                 "attr" => [
-                    "class" => "champ",
+                    "class" => "champ champ-adresse",
                     "placeholder" => "Code postal"
                 ],
             ])
             ->add("Pays",  CountryType::class, [
                 "label" => " ",
                 "attr" => [
-                    "class" => "champ"
+                    "class" => "champ champ-adresse"
                 ],
                 "preferred_choices" => array('FR')
             ])
             ->add("telephone", TextType::class, [
                 "label" => " ",
                 "attr" => [
-                    "class" => "champ",
+                    "class" => "champ champ-adresse",
                     "placeholder" => "Téléphone",
                 ],
             ])

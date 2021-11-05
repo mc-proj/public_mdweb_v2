@@ -26,12 +26,34 @@ $(document).ready(function() {
         $("#col-livraison").toggleClass("collapse");
     })
 
+    $(".champ-adresse").on("change", function() {
+        if($("#rappel-validation").hasClass("collapse")) {
+            $("#rappel-validation").toggleClass("collapse");
+        }
 
-    //
+        $("#li-expedition").removeClass("d-none");
+    })
+
+    $(".champ-message").on("change", function() {
+        if($("#rappel-validation").hasClass("collapse")) {
+            $("#rappel-validation").toggleClass("collapse");
+        }
+
+        $("#li-message").removeClass("d-none");
+    })
 
     //soumission adresse de livraison differente
     $("body").on("click", "#bouton_envoi", function(event) {
         event.preventDefault();
+
+        if(!$("#li-expedition").hasClass("d-none")) {
+            $("#li-expedition").addClass("d-none");
+
+            if($("#li-message").hasClass("d-none")) {
+                $("#rappel-validation").toggleClass("collapse");
+            }
+        }
+
         loader(true);
         let form = $("[name = 'adresse_livraison']");
         // need $.fn.serializeObject
@@ -93,6 +115,15 @@ $(document).ready(function() {
     //soumission message pour la livraison
     $("body").on("click", "#bouton-message", function(event) {
         event.preventDefault();
+
+        if(!$("#li-message").hasClass("d-none")) {
+            $("#li-message").addClass("d-none");
+
+            if($("#li-expedition").hasClass("d-none")) {
+                $("#rappel-validation").toggleClass("collapse");
+            }
+        }
+
         loader(true);
         let form = $("[name = 'message_livraison']");
         let form_data = form.serializeObject();

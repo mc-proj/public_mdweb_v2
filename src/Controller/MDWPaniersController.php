@@ -23,11 +23,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Stripe\Stripe;
 
-
-
-
-//use App\Repository\MDWUsersRepository;
-
 #[Route('/paniers')]
 
 class MDWPaniersController extends AbstractController
@@ -49,7 +44,7 @@ class MDWPaniersController extends AbstractController
                                 SecurityController $securityController,
                                 RequestStack $requestStack,
                                 EntityManagerInterface $entityManager,
-                                /*MDWUsersRepository $usersRepository*/) {
+                                ) {
         $this->paniersRepository = $paniersRepository;
         $this->produitsRepository = $produitsRepository;
         $this->codesPromosRepository = $codesPromosRepository;
@@ -239,6 +234,8 @@ class MDWPaniersController extends AbstractController
             $this->entityManager->persist($promo);
         }
 
+        $panier->setAdresseLivraison(null);
+        $panier->setMessage(null);
         $panier->setMontantHt(0);
         $panier->setMontantTtc(0);
         $panier->setDateModification(new DateTime());
@@ -466,8 +463,9 @@ class MDWPaniersController extends AbstractController
             ]);
         }
 
-        $session->set("payment_intent", $intent);
-        $session->set("cartes", $cartes);
+        $session->set("payment_intent", $intent); 
+        //$session->set("cartes", $cartes);  //useless ? -- remplace ds vue paimement par la var cartes envoyee par ctrleur
+
         //$this->session->set("payment_intent", $intent);//needed ? si oui utiliser methode 5.3 pr session
         //$this->session->set("cartes", $cartes);//needed ? si oui utiliser methode 5.3 pr session          
 
@@ -502,6 +500,7 @@ class MDWPaniersController extends AbstractController
 
             if($adresse !== null) {
                 $panier->setAdresseLivraison(null);
+                $this->entityManager->persist($panier);
                 $this->entityManager->remove($adresse);
                 $this->entityManager->flush();
             }
@@ -612,7 +611,7 @@ class MDWPaniersController extends AbstractController
         $erreur = $request->request->get("erreur");
 
         //@TODO: faire la vue correspondante
-        return $this->render('panier/paiement_echec.html.twig', [
+        return $this->render('mdw_paniers/paiement_echec.html.twig', [
             'erreur' => $erreur,
         ]);
     }
