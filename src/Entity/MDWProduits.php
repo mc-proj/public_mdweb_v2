@@ -600,6 +600,7 @@ class MDWProduits
     public function getTarifEffectif($date_achat=null) {
         $tarif_ht = $this->getTarif();
         $tarif_ttc = 0;
+        $en_promo = false;
 
         if($date_achat === null) {
             $date_achat = new DateTime();
@@ -608,6 +609,7 @@ class MDWProduits
         //if($this->getDateDebutPromo() <= $date_achat || $this->getDateFinPromo() >= $date_achat) {
         if($this->getDateDebutPromo() <= $date_achat && $this->getDateFinPromo() >= $date_achat) {
             $tarif_ht = $this->getTarifPromo();
+            $en_promo = true;
         }
 
         if($this->getTvaActive()) {
@@ -616,7 +618,8 @@ class MDWProduits
 
         return [
             'ht' => $tarif_ht,
-            'ttc' => $tarif_ttc
+            'ttc' => $tarif_ttc,
+            'en_promo' => $en_promo,
         ];
     }
 
