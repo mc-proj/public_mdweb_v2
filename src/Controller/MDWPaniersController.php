@@ -595,10 +595,6 @@ class MDWPaniersController extends AbstractController
         $this->entityManager->flush();
         $this->videPanier();
 
-
-        //@TODO: creation facture
-        //@TODO: reseter panier --> $this->videPanier();
-        //@TODO: faire la vue
         return $this->render('mdw_paniers/paiement_reussi.html.twig', [
 
             'facture' => $facture,
@@ -610,7 +606,6 @@ class MDWPaniersController extends AbstractController
     public function paiemenentEchec(Request $request) {
         $erreur = $request->request->get("erreur");
 
-        //@TODO: faire la vue correspondante
         return $this->render('mdw_paniers/paiement_echec.html.twig', [
             'erreur' => $erreur,
         ]);

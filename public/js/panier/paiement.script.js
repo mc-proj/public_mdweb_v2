@@ -175,159 +175,167 @@ $(document).ready(function() {
             data.payment_method_id = $("#carte_enregistree").val();
         }
 
-        loader(true);
-        
-        $.ajax({
+        //loader(true);
+
+        //
+        if($("#checkbox-conditions").prop("checked") === false) {
+            /*$("#bouton-paiement").attr("aria-disabled", "true");
+            $("#bouton-paiement").attr("data-bs-toggle", "popover");
+            $("#bouton-paiement").attr("data-bs-trigger", "manual");
+            $("#bouton-paiement").attr("data-bs-placement", "left");
+            $("#bouton-paiement").attr("data-bs-content", "Veuillez lire et accepter les conditions générales de vente");
+            $("#bouton-paiement").popover('show');*/
+            popoverShow();
+        } else {
+            loader(true);
+            $.ajax({
   
-          type: "POST",
-          //url: racine + "/paniers/paiement_post", //provoque erreur
-          url: "/paniers/paiement_post", //is fine
-          data: data,
-          success: function(response) {
+                type: "POST",
+                //url: racine + "/paniers/paiement_post", //provoque erreur
+                url: "/paniers/paiement_post", //is fine
+                data: data,
+                success: function(response) {
 
-            if(response.conditions_lues == false) {
+                    if(response.conditions_lues == false) {
 
-                $("#bouton-paiement").popover('show');
-            }
+                        $("#bouton-paiement").popover('show');
+                    }
 
-            else {
+                    else {
 
-                //on paie avec une carte enregistrée
-                if($("#carte_enregistree").val() != null && $("#utiliser-carte-enregistree").is(':checked')) {
+                        //on paie avec une carte enregistrée
+                        if($("#carte_enregistree").val() != null && $("#utiliser-carte-enregistree").is(':checked')) {
 
-                    stripe.confirmCardPayment(response.client_secret, {
-    
-                            payment_method: response.erreur
-                        })
-                        .then(function(result) {
+                            stripe.confirmCardPayment(response.client_secret, {
+                                payment_method: response.erreur
+                            })
+                            .then(function(result) {
 
-                            let form = document.createElement('form');
-                            document.body.appendChild(form);
-                            form.method = 'post';
-                            form.action = "/paniers/paiement_fail";
-                            var input = document.createElement('input');
-                            input.type = 'hidden';
-                            //form.action = "/panier/paiement_fail"; //en double. erreur ?
+                                let form = document.createElement('form');
+                                document.body.appendChild(form);
+                                form.method = 'post';
+                                form.action = "/paniers/paiement_fail";
+                                var input = document.createElement('input');
+                                input.type = 'hidden';
 
+                                if (result.error) {
 
-                            if (result.error) {
-
-                                input.name = "erreur";
-                                input.value = result.error.message;
-                                form.appendChild(input);
-                                form.submit();
-                            }
-                        
-                        else {
-    
-                            if (result.paymentIntent.status === 'succeeded') {
-
-                                form.action = "/paniers/paiement_success";
-                                input.name = "message";
-                                input.value = "Votre paiement a bien été effectué";
-                                form.appendChild(input);
-                                form.submit();
-                            }
-                        }
-                    });
-                }
-    
-                //on paie avec une carte non enregistree
-                else {
-                    
-                    let secret = response.client_secret;
-                    let num_carte = elements._elements[0];
+                                    input.name = "erreur";
+                                    input.value = result.error.message;
+                                    form.appendChild(input);
+                                    form.submit();
+                                }
+                            
+                                else {
         
-                    stripe
-                    .confirmCardPayment(secret, {
-                        payment_method: {
-                            card: num_carte,
-                            billing_details: {
-                                email: user_mail
-                            },
-                        },
-                        setup_future_usage: 'off_session',
-                        save_payment_method: true
-                    })
-                    .then(function(result) {
-        
-                        if(typeof result.error != "undefined") {
-        
-                            switch(result.error.code) {
-    
-                                case "invalid_number":
-                                    $("#numero-carte").parent().addClass("invalid-input");
-                                    break;
-    
-                                case "expired_card":
-                                    $("#expiration-carte").parent().addClass("invalid-input");
-                                    break;
-    
-                                case "incorrect_cvc":
-                                    $("#crypto-carte").parent().addClass("invalid-input");
-                                    break;
-    
-                                default:
-                                    break;
-                            }
-    
-                            toastr.error(result.error.message);
-                            loader(false);
-                        }
-    
-                        else {
+                                    if (result.paymentIntent.status === 'succeeded') {
 
-                            let form = document.createElement('form');
-                            document.body.appendChild(form);
-                            form.method = 'post';
-                            form.action = "/paniers/paiement_success";
-                            var input = document.createElement('input');
-                            input.type = 'hidden';
-    
-                            //enregistrement de la carte utilisée (si demandé)
-                            if($("#checkbox-remember").prop("checked")) {
-    
-                                $.ajax({
-    
-                                    type: "POST",
-                                    url: "/paniers/sauvecarte",
-                                    success: function(){
-    
-                                        input.value = "Votre paiement et l'enregistrement de votre carte ont bien été effectués";
-                                        form.appendChild(input);
-                                        form.submit();
-                                    },
-                                    error: function() {
-    
-                                        input.value = "Attention: votre paiement a bien été effectué mais l'enregistrement de votre carte a échoué";
+                                        form.action = "/paniers/paiement_success";
+                                        input.name = "message";
+                                        input.value = "Votre paiement a bien été effectué";
                                         form.appendChild(input);
                                         form.submit();
                                     }
-                                })
-                            }
-
-                            else {
-
-                                input.value = "Votre paiement a bien été effectué";
-                                form.appendChild(input);
-                                form.submit();
-                            }
+                                }
+                            });
                         }
-                    });
+            
+                        //on paie avec une carte non enregistree
+                        else {
+                            
+                            let secret = response.client_secret;
+                            let num_carte = elements._elements[0];
+                
+                            stripe
+                            .confirmCardPayment(secret, {
+                                payment_method: {
+                                    card: num_carte,
+                                    billing_details: {
+                                        email: user_mail
+                                    },
+                                },
+                                setup_future_usage: 'off_session',
+                                save_payment_method: true
+                            })
+                            .then(function(result) {
+                
+                                if(typeof result.error != "undefined") {
+                
+                                    switch(result.error.code) {
+            
+                                        case "invalid_number":
+                                            $("#numero-carte").parent().addClass("invalid-input");
+                                            break;
+            
+                                        case "expired_card":
+                                            $("#expiration-carte").parent().addClass("invalid-input");
+                                            break;
+            
+                                        case "incorrect_cvc":
+                                            $("#crypto-carte").parent().addClass("invalid-input");
+                                            break;
+            
+                                        default:
+                                            break;
+                                    }
+            
+                                    toastr.error(result.error.message);
+                                    loader(false);
+                                }
+            
+                                else {
+
+                                    let form = document.createElement('form');
+                                    document.body.appendChild(form);
+                                    form.method = 'post';
+                                    form.action = "/paniers/paiement_success";
+                                    var input = document.createElement('input');
+                                    input.type = 'hidden';
+            
+                                    //enregistrement de la carte utilisée (si demandé)
+                                    if($("#checkbox-remember").prop("checked")) {
+            
+                                        $.ajax({
+            
+                                            type: "POST",
+                                            url: "/paniers/sauvecarte",
+                                            success: function(){
+            
+                                                input.value = "Votre paiement et l'enregistrement de votre carte ont bien été effectués";
+                                                form.appendChild(input);
+                                                form.submit();
+                                            },
+                                            error: function() {
+            
+                                                input.value = "Attention: votre paiement a bien été effectué mais l'enregistrement de votre carte a échoué";
+                                                form.appendChild(input);
+                                                form.submit();
+                                            }
+                                        })
+                                    }
+
+                                    else {
+
+                                        input.value = "Votre paiement a bien été effectué";
+                                        form.appendChild(input);
+                                        form.submit();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function(err) {
+        
+                    //console.log(err);
+                    toastr.error("Erreur: un problème est survenu. Veuillez raffraichir la page");
+                    loader(false);
                 }
-            }
-          },
-          error: function(err) {
-  
-            //console.log(err);
-            toastr.error("Erreur: un problème est survenu. Veuillez raffraichir la page");
-            loader(false);
-          }
-        })
+            })
+        }
       })
 
       $("#label-conditions").on("click", function() {
-
         $("#bouton-paiement").popover('hide');
       });
 
@@ -345,6 +353,15 @@ $(document).ready(function() {
 
         $("#utiliser-nouvelle-carte").prop("checked", true);
     });
+
+    function popoverShow() {
+        $("#bouton-paiement").attr("aria-disabled", "true");
+        $("#bouton-paiement").attr("data-bs-toggle", "popover");
+        $("#bouton-paiement").attr("data-bs-trigger", "manual");
+        $("#bouton-paiement").attr("data-bs-placement", "left");
+        $("#bouton-paiement").attr("data-bs-content", "Veuillez lire et accepter les conditions générales de vente");
+        $("#bouton-paiement").popover('show');
+    }
 
     function loader(show) {
 
