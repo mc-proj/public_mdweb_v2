@@ -56,7 +56,6 @@ $(document).ready(function() {
 
         loader(true);
         let form = $("[name = 'adresse_livraison']");
-        // need $.fn.serializeObject
         let form_data = form.serializeObject();
 
         $.ajax({
@@ -76,7 +75,6 @@ $(document).ready(function() {
                 loader(false);
             },
             error: function(err) {
-
                 toastr.error("Erreur: un probleme est survenu pendant l'enregisrement de l'adresse de livraison");
                 //console.log(err);
                 loader(false);
@@ -95,8 +93,7 @@ $(document).ready(function() {
         }
     })
 
-    $.fn.serializeObject = function()
-    {
+    $.fn.serializeObject = function() {
         var o = {};
         var a = this.serializeArray();
         $.each(a, function() {
@@ -144,7 +141,6 @@ $(document).ready(function() {
                 loader(false);
             },
             error: function(err) {
-
                 toastr.error("Erreur: un probleme est survenu pendant l'enregisrement de votre message");
                 //console.log(err);
                 loader(false);
@@ -153,19 +149,31 @@ $(document).ready(function() {
     })
 
     $("#utiliser-carte-enregistree").on("click", function() {
-
         $("#checkbox-remember").prop("checked", false);
     })
 
     $("#checkbox-remember").on("click", function() {
-
         $("#utiliser-nouvelle-carte").prop("checked", true);
     })
 
+    $("#carte_enregistree").on("click", function() {
+        $("#utiliser-carte-enregistree").prop("checked", true);
+    });
+
+    numero_carte.on("change", function() {
+        $("#utiliser-nouvelle-carte").prop("checked", true);
+    });
+
+    expiration_carte.on("change", function() {
+        $("#utiliser-nouvelle-carte").prop("checked", true);
+    });
+
+    crypto_carte.on("change", function() {
+        $("#utiliser-nouvelle-carte").prop("checked", true);
+    });
+
     $("#bouton-paiement").on("click", function() {
-
         let data = {
-
             conditions_lues: $("#checkbox-conditions").prop("checked"),
             adresse_differente: $("#checkbox-livraison").prop("checked"),
         };
@@ -175,42 +183,24 @@ $(document).ready(function() {
             data.payment_method_id = $("#carte_enregistree").val();
         }
 
-        //loader(true);
-
-        //
         if($("#checkbox-conditions").prop("checked") === false) {
-            /*$("#bouton-paiement").attr("aria-disabled", "true");
-            $("#bouton-paiement").attr("data-bs-toggle", "popover");
-            $("#bouton-paiement").attr("data-bs-trigger", "manual");
-            $("#bouton-paiement").attr("data-bs-placement", "left");
-            $("#bouton-paiement").attr("data-bs-content", "Veuillez lire et accepter les conditions générales de vente");
-            $("#bouton-paiement").popover('show');*/
             popoverShow();
         } else {
             loader(true);
             $.ajax({
-  
                 type: "POST",
-                //url: racine + "/paniers/paiement_post", //provoque erreur
-                url: "/paniers/paiement_post", //is fine
+                url: "/paniers/paiement_post", //utilisation d'une url du type racine + "/mon_url" provoque une erreur
                 data: data,
                 success: function(response) {
-
                     if(response.conditions_lues == false) {
-
                         $("#bouton-paiement").popover('show');
-                    }
-
-                    else {
-
+                    } else {
                         //on paie avec une carte enregistrée
                         if($("#carte_enregistree").val() != null && $("#utiliser-carte-enregistree").is(':checked')) {
-
                             stripe.confirmCardPayment(response.client_secret, {
                                 payment_method: response.erreur
                             })
                             .then(function(result) {
-
                                 let form = document.createElement('form');
                                 document.body.appendChild(form);
                                 form.method = 'post';
@@ -219,17 +209,12 @@ $(document).ready(function() {
                                 input.type = 'hidden';
 
                                 if (result.error) {
-
                                     input.name = "erreur";
                                     input.value = result.error.message;
                                     form.appendChild(input);
                                     form.submit();
-                                }
-                            
-                                else {
-        
-                                    if (result.paymentIntent.status === 'succeeded') {
-
+                                } else {
+                                    if(result.paymentIntent.status === 'succeeded') {
                                         form.action = "/paniers/paiement_success";
                                         input.name = "message";
                                         input.value = "Votre paiement a bien été effectué";
@@ -238,10 +223,7 @@ $(document).ready(function() {
                                     }
                                 }
                             });
-                        }
-            
-                        //on paie avec une carte non enregistree
-                        else {
+                        } else { //on paie avec une carte non enregistree
                             
                             let secret = response.client_secret;
                             let num_carte = elements._elements[0];
@@ -258,11 +240,8 @@ $(document).ready(function() {
                                 save_payment_method: true
                             })
                             .then(function(result) {
-                
                                 if(typeof result.error != "undefined") {
-                
                                     switch(result.error.code) {
-            
                                         case "invalid_number":
                                             $("#numero-carte").parent().addClass("invalid-input");
                                             break;
@@ -281,10 +260,7 @@ $(document).ready(function() {
             
                                     toastr.error(result.error.message);
                                     loader(false);
-                                }
-            
-                                else {
-
+                                } else {
                                     let form = document.createElement('form');
                                     document.body.appendChild(form);
                                     form.method = 'post';
@@ -294,28 +270,21 @@ $(document).ready(function() {
             
                                     //enregistrement de la carte utilisée (si demandé)
                                     if($("#checkbox-remember").prop("checked")) {
-            
                                         $.ajax({
-            
                                             type: "POST",
                                             url: "/paniers/sauvecarte",
                                             success: function(){
-            
                                                 input.value = "Votre paiement et l'enregistrement de votre carte ont bien été effectués";
                                                 form.appendChild(input);
                                                 form.submit();
                                             },
                                             error: function() {
-            
                                                 input.value = "Attention: votre paiement a bien été effectué mais l'enregistrement de votre carte a échoué";
                                                 form.appendChild(input);
                                                 form.submit();
                                             }
                                         })
-                                    }
-
-                                    else {
-
+                                    } else {
                                         input.value = "Votre paiement a bien été effectué";
                                         form.appendChild(input);
                                         form.submit();
@@ -326,7 +295,6 @@ $(document).ready(function() {
                     }
                 },
                 error: function(err) {
-        
                     //console.log(err);
                     toastr.error("Erreur: un problème est survenu. Veuillez raffraichir la page");
                     loader(false);
@@ -335,23 +303,8 @@ $(document).ready(function() {
         }
       })
 
-      $("#label-conditions").on("click", function() {
+    $("#label-conditions").on("click", function() {
         $("#bouton-paiement").popover('hide');
-      });
-
-    numero_carte.on("change", function() {
-
-        $("#utiliser-nouvelle-carte").prop("checked", true);
-    });
-
-    expiration_carte.on("change", function() {
-
-        $("#utiliser-nouvelle-carte").prop("checked", true);
-    });
-
-    crypto_carte.on("change", function() {
-
-        $("#utiliser-nouvelle-carte").prop("checked", true);
     });
 
     function popoverShow() {
@@ -364,14 +317,9 @@ $(document).ready(function() {
     }
 
     function loader(show) {
-
         if(show) {
-
             $("#loader").show();
-        }
-
-        else {
-            
+        } else {
             $("#loader").hide();
         }
     }

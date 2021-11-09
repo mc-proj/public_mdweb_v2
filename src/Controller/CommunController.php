@@ -21,6 +21,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\MDWPaniersController;
 use DateTime;
 
+use App\Services\PaniersService;
+
 
 #[Route('/commun')]
 
@@ -31,17 +33,20 @@ class CommunController extends AbstractController
     private $requestStack;
     private $entityManager;
     private MDWPaniersController $panierController;
+    private $paniersService;
 
     public function __construct(MDWCategoriesRepository $categoriesRepository,
                                 MDWProduitsRepository $produitsRepository,
                                 RequestStack $requestStack,
                                 EntityManagerInterface $entityManager,
-                                MDWPaniersController $panierController) {
+                                MDWPaniersController $panierController,
+                                PaniersService $paniersService) {
         $this->categoriesRepository = $categoriesRepository;
         $this->produitsRepository = $produitsRepository;
         $this->requestStack = $requestStack;
         $this->entityManager = $entityManager;
         $this->panierController = $panierController;
+        $this->paniersService = $paniersService;
     }
 
 
@@ -144,7 +149,8 @@ class CommunController extends AbstractController
     #[Route('/adresse_livraison_custom', name: "adresse_livraison_custom")]
     public function formulaireLivraisonCustom(Request $request) {
 
-        $panier = $this->panierController->getPanier();
+        //$panier = $this->panierController->getPanier();
+        $panier = $this->paniersService->getPanier();
         $adresse = $panier->getAdresseLivraison();
 
         $form = $this->createForm(AdresseLivraisonType::class, $adresse, [
@@ -192,7 +198,8 @@ class CommunController extends AbstractController
 
     #[Route('/message_livraison', name: "message_livraison")]
     public function formulaireMessageLivraison(Request $request) {
-        $panier = $this->panierController->getPanier();
+        //$panier = $this->panierController->getPanier();
+        $panier = $this->paniersService->getPanier();
         $form = $this->createForm(MessageLivraisonType::class, $panier, [
             'action' => $this->generateUrl('message_livraison')
         ]);

@@ -21,6 +21,8 @@ use App\Repository\MDWUsersRepository;
 //use App\Repository\MDWPaniersProduitsRepository;
 use App\Controller\MDWPaniersController;
 
+use App\Services\PaniersService;
+
 class LoginAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
@@ -33,10 +35,13 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
     private $panierRepository;
     private $panierProduitRepository;
 
+    private $paniersService;
+
     public function __construct(UrlGeneratorInterface $urlGenerator,
                                 MDWUsersRepository $userRepository,
                                 //MDWPaniersRepository $panierRepository,
-                                MDWPaniersController $panierController
+                                MDWPaniersController $panierController,
+                                PaniersService $paniersService,
                                 /*MDWPaniersProduitsRepository $panierProduitRepository*/)
     {
         $this->urlGenerator = $urlGenerator;
@@ -44,6 +49,8 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
         //$this->panierRepository = $panierRepository;
         //$this->panierProduitRepository = $panierProduitRepository;
         $this->panierController = $panierController;
+
+        $this->paniersService = $paniersService;
     }
 
     public function authenticate(Request $request): PassportInterface
@@ -74,7 +81,8 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
     {
         //dd($request);
         //test zone begin
-        $this->panierController->panierGuestVersPanierConnecte();
+        //$this->panierController->panierGuestVersPanierConnecte();
+        $this->paniersService->panierGuestVersPanierConnecte();
         //test zone end
 
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
