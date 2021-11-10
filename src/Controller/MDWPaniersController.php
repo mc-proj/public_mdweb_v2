@@ -23,6 +23,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Stripe\Stripe;
 
+use App\Repository\MDWFacturesRepository;
+
 use App\Services\PaniersService;
 
 #[Route('/paniers')]
@@ -61,8 +63,18 @@ class MDWPaniersController extends AbstractController
     }
 
     #[Route('/', name: 'accueil_panier')]
-    public function index(): Response
+    public function index(MDWFacturesRepository $provi): Response
     {
+        //
+        $facture = $provi->findOneBy(["id" => 1]);
+        return $this->render('email/confirmation_achat.html.twig', [
+            'facture' => $facture,
+        ]);
+
+        //
+
+
+
         //$panier = $this->getPanier();
         $panier = $this->paniersService->getPanier();
         //$modifications = $this->controleQuantites();
@@ -611,6 +623,28 @@ class MDWPaniersController extends AbstractController
 
         $this->entityManager->flush();
         $this->videPanier();
+
+        //envoi mail
+        /*
+        use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+        use Symfony\Component\Mime\Email;
+        use Symfony\Component\Mailer\MailerInterface;
+        parametre methode : MailerInterface $mailer
+                    $email = (new TemplatedEmail())
+                ->from($data["email"])
+                ->to($this->getParameter('admin_mail'))
+                ->subject("Marché du Web: un client vous a envoyé un message")
+                ->priority(Email::PRIORITY_HIGH)
+                ->htmlTemplate("email/contact.html.twig")
+                    ->context([
+                        "prenom" => $data["prenom"],
+                        "nom" => $data["nom"],
+                        "adresse_mail" => $data["email"],
+                        "message" => $data["message"]
+                ]);
+
+            $mailer->send($email);
+        */
 
         return $this->render('mdw_paniers/paiement_reussi.html.twig', [
             'facture' => $facture,

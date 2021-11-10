@@ -1,6 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Inscription - Marché du Web{% endblock %}
+{% block title %}
+    {% if app.user %}
+        Mon compte - Marché du web
+    {% else %}
+        Inscription - Marché du Web
+    {% endif %}
+{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}

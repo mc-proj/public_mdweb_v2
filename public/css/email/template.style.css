@@ -1,0 +1,32 @@
+@font-face {
+    font-family: "aclonica";
+    src: url('../../polices/Aclonica/Aclonica.ttf');
+}
+
+@font-face {
+    font-family: "garamond";
+    src: url('../../polices/Garamond/static/EBGaramond-Regular.ttf');
+}
+
+body {
+    font-family: "garamond", arial;
+    font-size: 19.2px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    /* white-space: nowrap; */
+}
+
+#container-banniere {
+    background-color: rgb(92, 22, 22);
+    color: white;
+    text-align: center;
+    padding: 1%;
+    font-family: "aclonica", arial;
+}
+
+#texte-banniere {
+    font-size: 20px;
+    letter-spacing: 4px;
+    font-weight: 700;
+    margin-top: 0.5%;
+}

@@ -1,0 +1,39 @@
+#reference {
+    text-decoration: underline;
+}
+
+h5 {
+    margin: 1%;
+}
+
+/* .bloc-adresse {
+    border: 1px solid lightgrey;
+    margin-bottom: 3%;
+    padding: 1% 0 1% 3%;
+
+    height: 150px;
+} */
+
+#row-adresses {
+
+    width: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.col-adresse {
+
+    padding: 4% 0 7% 0;
+}
+
+.div-adresse {
+
+    border: 1px solid lightgray;
+    height: 75%;
+    padding: 8px;
+    overflow-wrap: break-word;
+
+    width: 98%;
+    margin-left: 1%;
+}

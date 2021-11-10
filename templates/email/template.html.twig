@@ -2,11 +2,27 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Marché du Web{% endblock %}</title>
+
         {% block stylesheets %}
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+            <link rel="stylesheet" href="{{ asset('css/email/template.style.css') }}">
         {% endblock %}
     </head>
+
     <body>
+        {% block header %}
+            <div class="container-fluid" id="container-banniere">
+                <div class="row">
+                    <div class="col-12">
+                        <img src="{{ asset('images/icone/icone.png') }}" alt="logo marché du web">
+                        <div id="texte-banniere">Marché du web</div>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
         {% block body %}{% endblock %}
     </body>
 </html>
