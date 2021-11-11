@@ -79,10 +79,16 @@ class MDWProduitsController extends AbstractController
             }
         }
 
+        $username = null;
+        if($this->getUser()) {
+            $username = $this->getUser()->getPrenom() . " " . $this->getUser()->getNom();
+        }
+
         return $this->render('mdw_produits/detail.html.twig', [
             'produit' => $produit,
             'categorie' => $categorie_principale,
             'sous_categorie' => $categorie_secondaire,
+            'username' => $username,
         ]);
     }
 

@@ -22,6 +22,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Stripe\Stripe;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mailer\MailerInterface;
 
 use App\Repository\MDWFacturesRepository;
 
@@ -63,18 +66,8 @@ class MDWPaniersController extends AbstractController
     }
 
     #[Route('/', name: 'accueil_panier')]
-    public function index(MDWFacturesRepository $provi): Response
+    public function index(): Response
     {
-        //
-        $facture = $provi->findOneBy(["id" => 1]);
-        return $this->render('email/confirmation_achat.html.twig', [
-            'facture' => $facture,
-        ]);
-
-        //
-
-
-
         //$panier = $this->getPanier();
         $panier = $this->paniersService->getPanier();
         //$modifications = $this->controleQuantites();
@@ -570,7 +563,7 @@ class MDWPaniersController extends AbstractController
     }
 
     #[Route('/paiement_success', name: 'panier_paiement_succes', methods: 'POST')]
-    public function paiementReussi() {
+    public function paiementReussi(MailerInterface $mailer) {
         $reduction = 0;
         //$user = $this->getUtilisateur();
         $user = $this->paniersService->getUtilisateur();
@@ -624,27 +617,16 @@ class MDWPaniersController extends AbstractController
         $this->entityManager->flush();
         $this->videPanier();
 
-        //envoi mail
-        /*
-        use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-        use Symfony\Component\Mime\Email;
-        use Symfony\Component\Mailer\MailerInterface;
-        parametre methode : MailerInterface $mailer
-                    $email = (new TemplatedEmail())
-                ->from($data["email"])
-                ->to($this->getParameter('admin_mail'))
-                ->subject("Marché du Web: un client vous a envoyé un message")
+        $email = (new TemplatedEmail())
+                ->from($this->getParameter('admin_mail'))
+                ->to($user->getEmail())
+                ->subject("Marché du Web: validation de votre commande")
                 ->priority(Email::PRIORITY_HIGH)
-                ->htmlTemplate("email/contact.html.twig")
+                ->htmlTemplate("email/confirmation_achat.html.twig")
                     ->context([
-                        "prenom" => $data["prenom"],
-                        "nom" => $data["nom"],
-                        "adresse_mail" => $data["email"],
-                        "message" => $data["message"]
+                        'facture' => $facture,
                 ]);
-
-            $mailer->send($email);
-        */
+        $mailer->send($email);
 
         return $this->render('mdw_paniers/paiement_reussi.html.twig', [
             'facture' => $facture,

@@ -149,6 +149,96 @@ $(document).ready(function() {
         })
     })
 
+    
+    //soumission message pour la livraison
+    $("body").on("click", "#validation-avis", function(event) {
+        event.preventDefault();
+        loader(true);
+        let form = $("[name = 'avis']");
+        let form_data = form.serializeObject();
+
+        $.ajax({
+            type: "POST",
+            url: racine + "avis/formulaire/" + id_produit,
+            dataType: 'json',
+            data: form_data,
+            success: function(data) {
+                if(typeof(data.output) === "undefined") {
+                    nombre_avis++;
+                    ajoutAvis($("#avis_commentaire").val(), $("#avis_note").val());
+                    $("#nav-avis-tab").text("Avis (" + nombre_avis + ")");
+                    $("#avis_note").val("5");
+                    $("#avis_commentaire").val("");
+                    toastr.success("Votre avis a été enregistré. Merci de votre participation");
+                } else {
+                    $("#div-form-avis").empty();
+                    $("#div-form-avis").append(data.output);
+                }
+
+                loader(false);
+            },
+            error: function(err) {
+                toastr.error("Erreur: un probleme est survenu pendant l'enregisrement de votre avis");
+                //console.log(err);
+                loader(false);
+            }
+        });
+    })
+
+    function ajoutAvis(avis, note) {
+
+        let classe_row = "row rang-avis";
+
+        if(nombre_avis%2 === 0) {
+            classe_row += " fond-gris";
+        }
+
+        let add = "<div class='" + classe_row + "'>";
+        add += "<div class='col-md-3 col-6 case-note'>";
+
+        for(let i=1; i<6; i++) {
+            if(i <= note) {
+                add += "<i class='fas fa-star etoile'>&nbsp;</i>";
+            } else {
+                add += "<i class='far fa-star etoile'>&nbsp;</i>";
+            }
+        }
+
+        add += "</div>";
+        add += "<div class='col-md-9 col-6'>" + user + "</div></div>";
+        add += "<div class='" + classe_row + "'>";
+        add += "<div class='col-md-9 offset-md-3 col-12 commentaire'>";
+        add += avis + "</div></div>";
+        $("#container-avis").append(add);
+    }
+
+    //retire le style des champs invalides
+    $("body").on("click", ".champ-avis", function() {
+        let element_suivant = $(this).next();
+        
+        if(element_suivant.hasClass("invalid-feedback")) {
+            //retrait du style champ incorrect
+            $(this).removeClass("is-invalid");
+            element_suivant.remove();
+        }
+    })
+
+    $.fn.serializeObject = function() {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+
     function loader(show) {
         if(show) {
             $("#loader").show();

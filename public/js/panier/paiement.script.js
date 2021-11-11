@@ -22,6 +22,7 @@ $(document).ready(function() {
             $("#col-livraison").slideDown();
         } else {
             $("#col-livraison").slideUp();
+            cacheNotificationAdresse();
         }
         $("#col-livraison").toggleClass("collapse");
     })
@@ -46,13 +47,14 @@ $(document).ready(function() {
     $("body").on("click", "#bouton_envoi", function(event) {
         event.preventDefault();
 
-        if(!$("#li-expedition").hasClass("d-none")) {
+        /*if(!$("#li-expedition").hasClass("d-none")) {
             $("#li-expedition").addClass("d-none");
 
             if($("#li-message").hasClass("d-none")) {
                 $("#rappel-validation").toggleClass("collapse");
             }
-        }
+        }*/
+        cacheNotificationAdresse();
 
         loader(true);
         let form = $("[name = 'adresse_livraison']");
@@ -306,6 +308,16 @@ $(document).ready(function() {
     $("#label-conditions").on("click", function() {
         $("#bouton-paiement").popover('hide');
     });
+
+    function cacheNotificationAdresse() {
+        if(!$("#li-expedition").hasClass("d-none")) {
+            $("#li-expedition").addClass("d-none");
+
+            if($("#li-message").hasClass("d-none")) {
+                $("#rappel-validation").toggleClass("collapse");
+            }
+        }
+    }
 
     function popoverShow() {
         $("#bouton-paiement").attr("aria-disabled", "true");

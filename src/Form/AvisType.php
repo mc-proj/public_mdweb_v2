@@ -32,13 +32,16 @@ class AvisType extends AbstractType
                 'choice_attr' => [
                     '5/5' => ['selected' => true],
                 ],
+                'attr' => [
+                    'class' => 'champ-avis',
+                ]
             ])
             ->add('commentaire', TextareaType::class, [
                 'label' => 'Avis :',
-                "attr" => [
-                    //"class" => "texte-avis",
-                    "rows" => "3",
-                    "style" => "resize:none",
+                'attr' => [
+                    'class' => 'champ-avis',
+                    'rows' => '3',
+                    'style' => 'resize:none',
                     'maxlength' => 255,
                 ],
             ])

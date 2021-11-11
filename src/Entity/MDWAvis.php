@@ -26,6 +26,7 @@ class MDWAvis
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotBlank(message = "Veuillez donner votre avis")
      * @Assert\Length(
      *         max = 255,
      *         maxMessage = "Votre Avis doit comporter moins de {{ limit }} caractères"

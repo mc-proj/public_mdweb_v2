@@ -53,10 +53,10 @@ $(document).ready(function() {
                 $("#modale-tva").text("€" + tva);
                 $("#modale-prix-total").text("€" + CurrencyFormatted(resultats.montant_total/100));
                 let user = resultats.user;
-                let texte_adresse_user = user.nom + " " + user.prenom + "\n";
-                texte_adresse_user += user.adresse + "\n";
-                texte_adresse_user += user.code_postal + " " + user.ville + "\n";
-                $("#modale-adresse-facturation").text(texte_adresse_user);
+                let texte_adresse_user = user.nom + " " + user.prenom + "<br>";
+                texte_adresse_user += user.adresse + "<br>";
+                texte_adresse_user += user.code_postal + " " + user.ville + "<br>";
+                $("#modale-adresse-facturation").html(texte_adresse_user);
 
                 if(resultats.adresseLivraison === null) {
 
@@ -65,18 +65,18 @@ $(document).ready(function() {
 
                 else {
                     let livraison = resultats.adresseLivraison;
-                    let texte_adresse_livraison = livraison.nom + " " + livraison.prenom + "\n";
-                    texte_adresse_livraison += livraison.adresse + "\n";
-                    texte_adresse_livraison += livraison.code_postal + " " + livraison.ville + "\n";
-                    $("#modale-adresse-livraison").text(texte_adresse_livraison);
+                    let texte_adresse_livraison = livraison.nom + " " + livraison.prenom + "<br>";
+                    texte_adresse_livraison += livraison.adresse + "<br>";
+                    texte_adresse_livraison += livraison.code_postal + " " + livraison.ville + "<br>";
+                    $("#modale-adresse-livraison").html(texte_adresse_livraison);
                 }
 
                 if(resultats.message != null) {
                     let bloc_message = "<div class='row' id='row-message'>"//debut du div row
-                    bloc_message += "<div class='col-4'>";//debut 1er col
+                    bloc_message += "<div class='col-5'>";//debut 1er col  //col-4
                     bloc_message += "<span class='texte-souligne'>message pour la livraison</span> :"; //classe pour le style
                     bloc_message += "</div>";//fin 1er col
-                    bloc_message += "<div class='col-8'>";//debut 2eme col
+                    bloc_message += "<div class='col-7'>";//debut 2eme col  //col-8
                     bloc_message += resultats.message;
                     bloc_message += "</div>";//fin 2eme col
                     bloc_message += "</div>";//fin du div row

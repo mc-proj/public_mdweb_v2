@@ -24,42 +24,20 @@ body {
 }
 
 #row-adresses {
-
-    width: 100%;
-    margin: 0;
     display: flex;
-    justify-content: space-between;
 }
 
-.col-adresse {
-
-    padding: 4% 0 7% 0;
-}
-
-.div-adresse {
-
-    border: 1px solid lightgray;
-    height: 75%;
+.col-adresses {
+    border: 1px solid lightgrey;
     padding: 8px;
-    overflow-wrap: break-word;
-
-    width: 98%;
+    width: 48%;
     margin-left: 1%;
+    margin-right: 1%;
 }
 
 h5 {
 
     margin-left: 2%;
-}
-
-#modale-adresse-facturation {
-
-    white-space : pre-line;
-}
-
-#modale-adresse-livraison {
-
-    white-space : pre-line;
 }
 
 #row-message {

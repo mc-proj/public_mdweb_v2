@@ -8,12 +8,12 @@
 
 {% block body %}
     <div class="container">
-        Bonjour {{ facture.getUser().getPrenom() }},<br>
-        Votre commande reférence <span id="reference">{{ facture.getId() }}</span> a bien été enregistrée.
+        <div id="msg-confirmation">
+            Bonjour {{ facture.getUser().getPrenom() }},<br>
+            Votre commande reférence <span id="reference">{{ facture.getId() }}</span> a bien été enregistrée.
+        </div>
 
-        <hr>
-        <h5>Détails de la commande</h5>
-        <hr>
+        <hr><h5>Détails de la commande</h5><hr>
 
         <table class="table table-striped">
             <thead>
@@ -75,87 +75,38 @@
             </tbody>
         </table>
 
-        <div class="row row-adresses">
-            {# <div class="col-6">
-                <h5>Adresse de Facturation</h5>
+        <div class="row">
+            <div class="col-6"><h5>Adresse de Facturation</h5></div>
+            <div class="col-6"><h5>Adresse de Livraison</h5></div>
+        </div>
+
+        <div class="row" id="row-adresses">
+            <div class="col-6 col-adresses">
+                {{ facture.getUser().getNom() }} {{ facture.getUser().getPrenom() }}<br>
+                {{ facture.getUser().getAdresse() }}<br>
+                {{ facture.getUser().getCodePostal }} {{ facture.getUser().getVille() }}
             </div>
 
-            <div class="col-6">
-                <h5>Adresse de Livraison</h5>
-            </div>
-
-            <div class="col-6">
-                <div class="bloc-adresse">
+            <div class="col-6 col-adresses">
+                {% if facture.getAdresseLivraison() is same as null %}
                     {{ facture.getUser().getNom() }} {{ facture.getUser().getPrenom() }}<br>
                     {{ facture.getUser().getAdresse() }}<br>
                     {{ facture.getUser().getCodePostal }} {{ facture.getUser().getVille() }}
-                </div>
-            </div>
-
-            <div class="col-6">
-                <div class="bloc-adresse">
-                    {% if facture.getAdresseLivraison() is same as null %}
-                        {{ facture.getUser().getNom() }} {{ facture.getUser().getPrenom() }}<br>
-                        {{ facture.getUser().getAdresse() }}<br>
-                        {{ facture.getUser().getCodePostal }} {{ facture.getUser().getVille() }}
-                    {% else %}
-                        {{ facture.getAdresseLivraison().getNom() }} {{ facture.getAdresseLivraison().getPrenom() }}<br>
-                        {{ facture.getAdresseLivraison().getAdresse() }}<br>
-                        {{ facture.getAdresseLivraison().getCodePostal }} {{ facture.getAdresseLivraison().getVille() }} lorem ipsum dolor sit amet cnsectitur
-                    {% endif %}
-                </div>
-            </div> #}
-
-            <div class="col-6 col-adresse">
-                <h5>Adresse de Facturation</h5>
-                <div class="div-adresse">
-                    {{ facture.getUser().getNom() }} {{ facture.getUser().getPrenom() }}<br>
-                    {{ facture.getUser().getAdresse() }}<br>
-                    {{ facture.getUser().getCodePostal }} {{ facture.getUser().getVille() }}
-                </div>
-            </div>
-
-            <div class="col-6 col-adresse">
-                <h5>Adresse de Livraison</h5>
-                <div class="div-adresse">
-                    {% if facture.getAdresseLivraison() is same as null %}
-                        {{ facture.getUser().getNom() }} {{ facture.getUser().getPrenom() }}<br>
-                        {{ facture.getUser().getAdresse() }}<br>
-                        {{ facture.getUser().getCodePostal }} {{ facture.getUser().getVille() }}
-                    {% else %}
-                        {# {{ facture.getAdresseLivraison().getNom() }} {{ facture.getAdresseLivraison().getPrenom() }}<br>
-                        {{ facture.getAdresseLivraison().getAdresse() }}<br>
-                        {{ facture.getAdresseLivraison().getCodePostal }} {{ facture.getAdresseLivraison().getVille() }} #}
-                        Marie Constance Albertine de la Moumousse<br>
-                        1235 allée du maréchal de lattre tassigny<br>
-                        12 365 saint patelin sur mer
-                    {% endif %}
-                </div>
+                {% else %}
+                    {{ facture.getAdresseLivraison().getNom() }} {{ facture.getAdresseLivraison().getPrenom() }}<br>
+                    {{ facture.getAdresseLivraison().getAdresse() }}<br>
+                    {{ facture.getAdresseLivraison().getCodePostal }} {{ facture.getAdresseLivraison().getVille() }}
+                {% endif %}
             </div>
         </div>
 
-        {# 
-                            <div class="container container-fluid" id="container-adresses-modale">
-                        <div class="row" id="row-adresses">
-                            <div class="col-6 col-adresse">
-                                <h5>Adresse de Facturation</h5>
-                                <div id="modale-adresse-facturation" class="div-adresse"></div>
-                            </div>
-
-                            <div class="col-6 col-adresse">
-                                <h5>Adresse de Livraison</h5>
-                                <div id="modale-adresse-livraison" class="div-adresse"></div>
-                            </div>
-                        </div>
-                    </div>
-         #}
-
         {% if facture.getMessage() is not same as null %}
-            <div class="row">
-                <div class="col-4">message pour la livraison :</div>
-                <div class="col-8">{{ facture.getMessage() }}</div>
+            <div class="row" id="row-message">
+                <div class="col-12"><h5>Message pour la livraison</h5></div>
+                <div class="col-12" id="col-message">
+                    {{ facture.getMessage() }}
+                </div>
             </div>
         {% endif %}
-
     </div>
 {% endblock %}

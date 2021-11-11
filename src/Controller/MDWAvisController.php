@@ -10,6 +10,7 @@ use App\Form\AvisType;
 use App\Repository\MDWProduitsRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/avis')]
 
@@ -47,18 +48,35 @@ class MDWAvisController extends AbstractController
             //les meme contraintes sont presentes en back pour la secu
             //si un user a un message d'erreur, c'est qu'il a bricole le front
             if($form_avis->isValid()) {
+                /*$this->entityManager->persist($avis);
+                $this->entityManager->flush();
+                $this->addFlash('confirmation_avis', 'Votre avis a été enregistré. Merci de votre participation');*/
+
                 $this->entityManager->persist($avis);
                 $this->entityManager->flush();
-                $this->addFlash('confirmation_avis', 'Votre avis a été enregistré. Merci de votre participation');
-            } else {
+                return new JsonResponse(null);
+            } /*else {
                 $this->addFlash('erreur_avis', 'Erreur lors de la soumission de votre avis: un des champs est incorrect');
-            }
+            }*/
 
-            return $this->redirectToRoute('vue_produit', ['nom_produit' => $produit->getNom()]);
+            //return $this->redirectToRoute('vue_produit', ['nom_produit' => $produit->getNom()]);
+            //begin
+            $response = new JsonResponse([
+                'output' => $this->renderView('form/avis_produit.html.twig', [
+                    'form_avis' => $form_avis->createView(),
+                ])
+            ]
+            , 200);
+           
+            return $response;
+            //end
         }
 
-        return $this->render('avis/form_avis.html.twig', [
+        return $this->render('form/avis_produit.html.twig', [
             'form_avis' => $form_avis->createView(),
         ]);
+        /*return $this->render('avis/form_avis.html.twig', [
+            'form_avis' => $form_avis->createView(),
+        ]);*/
     }
 }

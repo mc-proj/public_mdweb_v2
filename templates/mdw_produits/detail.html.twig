@@ -51,7 +51,7 @@
             </div>
         </div> {# fin modale #}
 
-        {% for message_ok in app.flashes("confirmation_avis") %}
+        {# {% for message_ok in app.flashes("confirmation_avis") %}
             <div class="alert alert-success message-flash">
                 {{ message_ok }}
             </div>
@@ -61,7 +61,7 @@
             <div class="alert alert-danger message-flash">
                 {{ message_nok }}
             </div>
-        {% endfor %}
+        {% endfor %} #}
 
         <div class="container" id="container-principal">
             <div class="row">
@@ -274,7 +274,7 @@
                     {% if app.user %}
                         <div class="container">
                             <div class="row">
-                                <div class="col-10 offset-1">
+                                <div class="col-10 offset-1" id="div-form-avis">
                                     {{ render(path('form_avis', {'id_produit': produit.id })) }}
                                 </div>
                             </div>
@@ -292,7 +292,7 @@
                             <p>Vous devez être <a href="{{ path('app_login') }}">connecté</a> pour publier un avis.</p>
                         {% endif %}
                     {% else %}
-                        <div class="container">
+                        <div class="container" id="container-avis">
                             {% if app.user == false %}
                                 <p id="ligne-deconnecte">
                                     Vous devez être <a href="{{ path('app_login') }}">connecté</a> pour publier un avis.
@@ -416,7 +416,9 @@
 
     {% if produit is not same as (null) %}
         <script>
-            let id_produit = {{ produit.id|json_encode|raw }}
+            let id_produit = {{ produit.id|json_encode|raw }};
+            let nombre_avis = {{ produit.getAvis()|length }};
+            let user = {{ username|json_encode|raw }};
         </script>
     {% endif %}
     
