@@ -30,7 +30,7 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/inscription', name: 'app_register')]
-    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response //UserPasswordHasherInterface
+    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
     {
         $user = new MDWUsers();
         $form = $this->createForm(RegistrationFormType::class, $user);

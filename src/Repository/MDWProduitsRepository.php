@@ -43,7 +43,6 @@ class MDWProduitsRepository extends ServiceEntityRepository
     }
 
     public function getByCategories($categorie, $sous_categorie=null, $nom_produit=null, $rang_min=null, $quantite=null, $tri=null) {
-
         $champ_tri = 'p.date_creation';
         $type_tri = 'DESC';
 

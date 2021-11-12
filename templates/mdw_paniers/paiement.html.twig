@@ -42,22 +42,6 @@
 
                                 <div class="collapse" id="col-livraison">
                                     <span id="consigne-formulaire">Veuillez renseigner tout les champs</span>
-
-
-                                    {# {{ form_start(form_livraison) }}
-                                        {{ form_widget(form_livraison) }}
-
-                                        <div class="row" id="case-boutons-adresse-custom">
-                                            <div class="col-md-6 col-12 col-centre">
-                                                <button type="button" class="btn bouton-formulaire" id="btn-submit" formnovalidate>Confirmer cette adresse de livraison</button>
-                                            </div>
-
-                                            <div class="col-md-6 col-12 col-centre">
-                                                <button type="reset" class="btn bouton-formulaire">Réinstaller les champs</button>
-                                            </div>
-                                        </div>
-                                    {{ form_end(form_livraison) }} #}
-
                                     {{ render(path('adresse_livraison_custom')) }}
                                 </div>
                             </td>
@@ -65,11 +49,6 @@
 
                         <tr>
                             <td class="pt-3" id="td-message-livraison">
-                                {# {{ form_start(form_message, {"name": "form-message", "attr": {"novalidate": "novalidate"}} )}}
-                                    {{ form_widget(form_message) }}
-                                {{ form_end(form_message) }}
-                                <button type="button" class="btn bouton-formulaire" id="bouton-message">Enregistrer le message</button> #}
-
                                 {{ render(path('message_livraison')) }}
                             </td>
                         </tr>
@@ -91,28 +70,13 @@
                             <td colspan="2">
                                 {% for panier_produit in panier.getProduits() %}
                                     {% set produit = panier_produit.getProduit() %}
-                                    {# {% if produit.getEtatTva() %}
-                                        {% set tva = produit.getTauxTvaId().getTaux() %}
-                                    {% else %}
-                                        {% set tva = 0 %}
-                                    {% endif %}
-
-                                    {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
-                                        {% set prix = produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000) %}
-                                    {% else %}
-                                        {% set prix = produit.tarif/100 + (produit.tarif/100 * tva/10000) %}
-                                    {% endif %} #}
                                     {% set tarifs = produit.getTarifsAffiches() %}
                                     {% set prix = tarifs['tarif']|round %}
                                     {% if tarifs['tarif_promo'] is not same as null %}
                                         {% set prix = tarifs['tarif_promo']|round %}
                                     {% endif %}
-                                    {#  #}
 
                                     <div class="col-space-between">
-                                        {# <span>{{ produit.getNom() }} X {{ panier_produit.getQuantite() }}</span>
-                                        <span>&euro;{{ (prix|number_format(2) * panier_produit.getQuantite())|number_format(2, ',', ' ') }}</span> #}
-                                        {#  #}
                                         {% set quantite_panier = app.session.get('quantites_session') %}
                                         {% if quantite_panier[produit.id] is defined %}
                                             {% set quantite_panier = quantite_panier[produit.id] %}
@@ -128,9 +92,7 @@
                         
                         <tr>
                             <td>Sous Total HT</td>
-                            {# <td class="texte-a-droite">&euro;{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> #}
                             <td class="texte-a-droite">&euro;{{ (panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td>
-
                         </tr>
 
                         <tr>
@@ -140,7 +102,6 @@
 
                         <tr>
                             <td>TVA</td>
-                            {# <td class="texte-a-droite">&euro;{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td> #}
                             <td class="texte-a-droite">&euro;{{ (panier.getMontantTtc()/100 - panier.getMontantHt()/100)|number_format(2, ',', ' ')  }}</td>
                         </tr>
 
@@ -160,7 +121,6 @@
 
                         <tr>
                             <td>Total TTC</td>
-                            {# <td class="texte-a-droite" id="montant-final">&euro;{{ ((panier.getMontantTtc()/100 - reduction))|number_format(2, ',', ' ')  }}</td> #}
                             <td class="texte-a-droite" id="montant-final">&euro;{{ (panier.getMontantTtc()/100 - reduction)|number_format(2, ',', ' ')  }}</td>
                         </tr>
 
@@ -238,14 +198,8 @@
                         </tr>
 
                         <tr>
-                            <td colspan="2" id="td-bouton-paiement">
-                                {# <button type="button" id="bouton-paiement" class="btn btn-danger" animation="true" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="left" data-bs-content="Veuillez lire et accepter les conditions générales de vente">Valider le paiement</button> #}
-                            
-                            {# <button type="button" id="bouton-paiement" class="btn btn-danger" aria-disabled="true" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="left" data-bs-content="Veuillez lire et accepter les conditions générales de vente">Valider le paiement</button> #}
-
-                            <button type="button" id="bouton-paiement" class="btn btn-danger">Valider le paiement</button>
-
-                            
+                            <td colspan="2" id="td-bouton-paiement">                        
+                                <button type="button" id="bouton-paiement" class="btn btn-danger">Valider le paiement</button>
                             </td>
                         </tr>
                     </tbody>
@@ -263,12 +217,8 @@
     </div>
 {% endblock %}
 
-{# const route = "{{ path('panier_paiement_success') }}"; #} {# @TODO reintegrer #}
-{# let stripe_pk = {{ app.session.get("stripe_pk")|json_encode|raw }}; #} {# ori #}
-
 {% block javascripts %}
     {{ parent() }}
-    {# lien js stripe #}
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         let stripe_pk = {{ stripe_pk|json_encode|raw }};

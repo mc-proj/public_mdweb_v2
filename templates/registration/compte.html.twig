@@ -160,8 +160,6 @@
                                                 <td>{{ facture.getDateCreation|date('d/m/Y') }}</td>
                                                 <td>&euro;{{ (facture.getMontantTotal/100)|number_format(2, ',', ' ') }}</td>
                                                 <td>
-                                                    {# <button class="btn bouton-facture" data-id="{{ facture.getId }}">Voir la facture</button> #}
-
                                                     <button class="btn bouton-envoi bouton-facture" data-id="{{ facture.getId }}">Voir la facture</button>
                                                 </td>
                                             </tr>

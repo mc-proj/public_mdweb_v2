@@ -1,19 +1,16 @@
 body {
-
     font-family: "aclonica", arial;
     font-size: 16px;
     color: #2B2B2B;
 }
 
 #corps-modale {
-
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 #container-adresses-modale {
-
     padding: 0;
     margin-top: 24px;
     margin-bottom: 24x;
@@ -36,30 +33,25 @@ body {
 }
 
 h5 {
-
     margin-left: 2%;
 }
 
 #row-message {
-
     width: 98%;
     margin: 24px 1% 24px 1%;
 }
 
 .texte-souligne {
-
     text-decoration: underline;
 }
 
 h3 {
-
     font-size: 24px;
     margin-bottom: 20px;
     font-weight: 800;
 }
 
 #bouton-deconnexion {
-
     font-family: "crafty_girls", arial;
     font-size: 16px;
     background-color: rgb(92, 22, 22);
@@ -72,14 +64,11 @@ h3 {
 }
 
 #bouton-deconnexion:hover {
-
     color: white !important;
     background-color: rgb(125, 52, 47);
 }
 
-/* .onglet { */
 .onglet:not(.active) {
-
     background-color: rgb(92, 22, 22);
     border-right: 1px solid white !important;
     color: white;
@@ -88,7 +77,6 @@ h3 {
 }
 
 .onglet:hover {
-
     color: white !important;
     background-color: rgb(125, 52, 47);
 }
@@ -102,29 +90,13 @@ h3 {
 }
 
 .nav-link {
-
     font-family: "crafty_girls", arial;
     font-size: 17.6px;
 }
 
 .tab-pane {
-
     padding: 30px;
 }
-
-/*.bouton-envoi {
-
-    background-color: #C86262;
-    font-weight: 600;
-    width: 30%;
-    margin-left: 70%;
-}
-
-.bouton-envoi:hover {
-
-    background-color: rgb(0, 123, 255);
-    color: white !important;
-}*/
 
 .position-droite {
     width: 30%;
@@ -136,11 +108,7 @@ h3 {
     background-color: rgb(92, 22, 22);
     color: white;
     transition: all 500ms;
-
-
     font-weight: 600;
-    /* width: 30%;
-    margin-left: 70%; */
 }
 
 .bouton-envoi:hover {
@@ -149,7 +117,6 @@ h3 {
 }
 
 #loader {
-
     position: fixed;
     z-index: 9999;
     background: url("../../images/loader.svg") 50% 50% no-repeat;
@@ -161,61 +128,49 @@ h3 {
     display: none;
 }
 
-@media (min-width: 992px) and (max-width: 1199px) { /*large*/
-
+@media (min-width: 992px) and (max-width: 1199px) {
     #bouton-deconnexion {
-
         width: 17%;
         margin-left: 41.5%;
     }
 }
 
-@media (min-width: 768px) and (max-width: 991px) { /*medium*/
-
+@media (min-width: 768px) and (max-width: 991px) {
     #bouton-deconnexion {
-
         width: 23%;
         margin-left: 38.5%;
     }
 
     .bouton-envoi {
-
         width: 40%;
         margin-left: 60%;
     }
 }
 
-@media (min-width: 576px) and (max-width: 767px) { /*small*/
-
+@media (min-width: 576px) and (max-width: 767px) {
     #bouton-deconnexion {
-
         width: 30%;
         margin-left: 35%;
     }
 
     .bouton-envoi {
-
         width: 60%;
         margin-left: 40%;
     }
 }
 
-@media (max-width: 575px) { /*extra small*/
-
+@media (max-width: 575px) {
     #bouton-deconnexion {
-
         width: 50%;
         margin-left: 25%;
     }
 
     .onglet {
-
         width: 100%;
         margin-top: 15px;
     }
 
     .bouton-envoi {
-
         width: 80%;
         margin-left: 20%;
     }

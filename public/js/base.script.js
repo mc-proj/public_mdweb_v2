@@ -1,6 +1,5 @@
 $(document).ready(function() {
-
-    //init popover  //base 363 lignes
+    //init popover
     $(function () {
         $('[data-toggle="popover"]').popover()
     })
@@ -66,7 +65,6 @@ $(document).ready(function() {
         html: true,
     }).on("show.bs.popover", function() {
         $.ajax({
-            //url: racine + 'paniers/apercu_panier',
             url: route_apercu_panier,
             method: 'POST',
             success: function (response) {                
@@ -76,14 +74,11 @@ $(document).ready(function() {
 
                 //le panier comporte au moins 1 article
                 if(result.length > 0) {
-
                     for(produit of result) {
-                        //let prix = produit.tarif.ttc * produit.quantite;
                         let prix = Math.round(produit.tarif.ttc) * produit.quantite;
                         total += prix;
                         prix = CurrencyFormatted(prix/100);
                         let image = "<img src='" + racine + "images/produits/" + produit.image + "' class='image-appercu' alt='image " + produit.nom + "'>";
-    
                         html += "<div class='row' style='width: 100%'>";
                         html += "<div class='col-3 centre-verticallement'>" + image + "</div>";
                         html += "<div class='col-6'>";
@@ -103,9 +98,7 @@ $(document).ready(function() {
                     html += "<div class='col-4' id='bloc-total-droit'>€ " + CurrencyFormatted(total/100) + "</div>";
                     html += "<div class='col-12' id='bloc-bouton-apercu'><a class='btn btn-info' id='lien-apercu-panier' href='" + route_panier + "'>Voir mon Panier</a></div>";
                     html += "</div>"; //fin row
-                }
-
-                else {
+                } else {
                     html += "<div class='row'>";
                     html += "<div class='col-12'>Votre panier est vide</div>";
                     html += "</div>";
@@ -115,7 +108,6 @@ $(document).ready(function() {
             }
         });
     }).on("mouseenter", function() {
-
         let _this = this;
         $(this).popover("show");
         $(".popover").on("mouseleave", function() {
@@ -125,7 +117,6 @@ $(document).ready(function() {
         let _this = this;
         setTimeout(function () {
             if(!$(".popover:hover").length) {
-
                 $(_this).popover("hide");
             }
         }, 300);
@@ -133,7 +124,6 @@ $(document).ready(function() {
 
     //clic bouton suppr apercu panier
     $("body").on("click", ".apercu-supprime", function() {
-
         let _this = $(this);
         let id = _this.data("id");
         let quantite = _this.data("quantite");
@@ -144,19 +134,13 @@ $(document).ready(function() {
             url: route_retrait,
             data: {
                 id_produit: id,
-                //quantite: quantite  //normallement useless
                 mode: "suppression",
             },
             success: function(response) {
-
                 if(current_route == "accueil_panier") {
-
                     //si on se trouve sur la page panier, on provoque un f5
                     location.reload();
-                }
-
-                else {
-
+                } else {
                     let result = JSON.parse(response);
                     $("#compteur-panier").text(result.nombre_articles_panier);
                     //retrait de l'article de l'apercu
@@ -169,21 +153,17 @@ $(document).ready(function() {
                         html += "<div class='col-12'>Votre panier est vide</div>";
                         html += "</div>";
                         $("#apercu-popover").html(html);
-                    }
-
-                    else {
+                    } else {
                         //correction du total affiche apres suppression;
                         $("#bloc-total-droit").text("€" + CurrencyFormatted(result.total_ttc/100));
                     }
                 }
             },
             error: function(err) {
-
                 //console.log(err);
                 $(document).find(".loader-row").first().remove();
             }
         })
-
     })
 
     $("#bouton-cookies").on("click", function() {
@@ -209,9 +189,7 @@ $(document).ready(function() {
         }
 
         let debut = $(this).val();
-
         tempo = setTimeout(function() {
-
             $.ajax({
                 type: "POST",
                 url: "commun/recherche",
@@ -219,14 +197,12 @@ $(document).ready(function() {
                     debut: debut
                 },
                 success: function(response) {
-
                     let results = JSON.parse(response);
                     $("#resultats-recherche").empty();
 
                     if(results.length == 0) {
                         $("#resultats-recherche").slideUp();
                     } else {
-
                         for(result of results) {
                             let texte_lien = result.categorie;
                             let lien = "<a href='produits/filtre/" + result.categorie;
@@ -263,42 +239,10 @@ $(document).ready(function() {
         window.location.replace($(this).attr("href"));
     })
 
-    //
     function CurrencyFormatted(amount) {
         return amount.toLocaleString('fr-FR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
     }
-
-    //here
-    /*function formatteNombrePourAffichage(nombre) {
-
-        nombre /= 100;
-        nombre = nombre.toLocaleString('fr');
-
-        //separation parties entiere et decimale
-        let secu = nombre.split(",");
-        //cas decimale == 0
-        if(secu.length == 1) {
-
-            nombre = nombre + ",00";
-        }
-
-        //cas decimale a 1 chiffre, ajout d'un zero : 12,3 => 12,30
-        else if(secu[1].length == 1) {
-
-            nombre += "0";
-        }
-
-        //si la decimale est sur plus de deux chiffres, on ne garde que les 2 premiers
-        //12,3456 => 12,34
-        else if(secu[1].length > 2) {
-
-            let decimale = secu[1];
-            nombre = secu[0] + "," + decimale[0] + decimale[1];
-        }
-
-        return nombre;
-    }*/
 })

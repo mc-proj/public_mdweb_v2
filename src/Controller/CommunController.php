@@ -20,9 +20,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\MDWPaniersController;
 use DateTime;
-
 use App\Services\PaniersService;
-
 
 #[Route('/commun')]
 
@@ -32,7 +30,6 @@ class CommunController extends AbstractController
     private $produitsRepository;
     private $requestStack;
     private $entityManager;
-    private MDWPaniersController $panierController;
     private $paniersService;
 
     public function __construct(MDWCategoriesRepository $categoriesRepository,
@@ -71,7 +68,6 @@ class CommunController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
 
             $data = $form->getData();
-
             $email = (new TemplatedEmail())
                 ->from($data["email"])
                 ->to($this->getParameter('admin_mail'))
@@ -84,9 +80,7 @@ class CommunController extends AbstractController
                         "adresse_mail" => $data["email"],
                         "message" => $data["message"]
                 ]);
-
             $mailer->send($email);
-
             $this->addFlash(
                 'confirmation_contact',
                 'Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais'
@@ -119,7 +113,6 @@ class CommunController extends AbstractController
 
     #[Route('/cookies_acceptes', name: "cookies_acceptes", methods: "POST")]
     public function accepteCookies() {
-
         $session = $this->requestStack->getSession();
         $session->set('cookies_acceptes', true);
         $response = new JsonResponse("");
@@ -128,7 +121,6 @@ class CommunController extends AbstractController
 
     #[Route('/recherche', name: "recherche_produits", methods: "POST")]
     public function rechercheProduits(Request $request) {
-
         $debut = htmlspecialchars(trim($request->request->get("debut")), ENT_QUOTES, "UTF-8");
 
         if($debut == '') {
@@ -148,11 +140,8 @@ class CommunController extends AbstractController
 
     #[Route('/adresse_livraison_custom', name: "adresse_livraison_custom")]
     public function formulaireLivraisonCustom(Request $request) {
-
-        //$panier = $this->panierController->getPanier();
         $panier = $this->paniersService->getPanier();
         $adresse = $panier->getAdresseLivraison();
-
         $form = $this->createForm(AdresseLivraisonType::class, $adresse, [
             'action' => $this->generateUrl('adresse_livraison_custom') //par defaut, route utilisee est celle de la page qui fait l'include
         ]);
@@ -171,7 +160,6 @@ class CommunController extends AbstractController
                 $adresse->setCodePostal($form->get('code_postal')->getData());
                 $adresse->setPays($form->get('Pays')->getData());
                 $adresse->setTelephone($form->get('telephone')->getData());
-                $adresse->setActif(true);
                 $adresse->setDerniereModification(new DateTime());
                 $this->entityManager->persist($adresse);
                 $this->entityManager->flush(); //on ne peux pas associer une entite qui n'a pas encore d'id
@@ -198,7 +186,6 @@ class CommunController extends AbstractController
 
     #[Route('/message_livraison', name: "message_livraison")]
     public function formulaireMessageLivraison(Request $request) {
-        //$panier = $this->panierController->getPanier();
         $panier = $this->paniersService->getPanier();
         $form = $this->createForm(MessageLivraisonType::class, $panier, [
             'action' => $this->generateUrl('message_livraison')

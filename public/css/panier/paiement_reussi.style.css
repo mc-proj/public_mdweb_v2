@@ -1,5 +1,4 @@
 body {
-
     font-family: "aclonica", arial;
     font-size: 16px;
     color: #404248;
@@ -7,73 +6,60 @@ body {
 }
 
 #container-principal {
-
     margin-top: 24px;
     margin-bottom: 24px;
 }
 
 h1 {
-
     font-family: "roboto_condensed", arial;
     font-size: 48px;
 }
 
 h2 {
-
     font-family: "roboto_condensed", arial;
     font-size: 28px;
     margin: 32px 0 24px 0;
 }
 
 #rang-commande {
-
     padding-left: 24px;
     padding-right: 24px;
 }
 
 .case-p-8 {
-
     padding: 8px;
     font-size: 13px;
 }
 
 .gras {
-
     font-weight: 600;
 }
 
 #table-commande {
-
     width: 100%;
 }
 
 .en-tete-tableau-commande {
-
     padding: 16px;
 }
 
 .lien-produit {
-
     text-decoration: underline;
 }
 
 .lien-produit:hover {
-
     text-decoration: none;
 }
 
 #table-commande > th,tr {
-
     border: 1px solid lightgrey;
 }
 
 #table-commande > th,td {
-
     padding: 16px;
 }
 
 .bloc-adresse {
-
     border: 1px solid lightgrey;
     padding: 8px;
     height: 60%;
@@ -81,13 +67,11 @@ h2 {
 }
 
 #div-bouton-accueil {
-
     text-align: center;
     margin-top: 50px;
 }
 
 #bouton-accueil{
-
     background-color: #C86262;
     border-color: #C86262;
     font-size: 14px;
@@ -97,24 +81,19 @@ h2 {
 }
 
 #bouton-accueil:hover {
-
     background-color: rgb(0, 123, 255);
     border-color: rgb(0, 123, 255);
     color: white;
 }
 
-@media (min-width: 992px) { /*lg et plus*/
-
+@media (min-width: 992px) {
     .bordure-droite-lg {
-
         border-right: 1px solid lightgrey;
     }
 }
 
-@media (min-width: 768px) and (max-width: 991px) { /*md*/
-
+@media (min-width: 768px) and (max-width: 991px) {
     .titre-syncro {
-
         height: 70px;
     }
 }

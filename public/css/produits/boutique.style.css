@@ -1,5 +1,4 @@
 #chemin {
-
     font-family: "aclonica", arial;
     font-size: 13.6px;
     color: #767676;
@@ -9,7 +8,6 @@
 }
 
 #chemin a{
-
     text-decoration: none;
     color: #767676;
 }
@@ -19,25 +17,21 @@
 }
 
 .case-categorie {
-
     margin-top: 30px;
     margin-bottom: 30px;
 }
 
 .card {
-
     height: 100%;
     overflow: hidden;
 }
 
 .card-img-top {
-
     transform: scale(1.0);
     transition: all 700ms;
 }
 
 .card-img-top:hover {
-
     transform: scale(1.1);
 }
 

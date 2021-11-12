@@ -8,6 +8,8 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
+use DateTime;
+use DateInterval;
 
 /**
  * @method MDWUsers|null find($id, $lockMode = null, $lockVersion = null)
@@ -34,6 +36,18 @@ class MDWUsersRepository extends ServiceEntityRepository implements PasswordUpgr
         $user->setPassword($newHashedPassword);
         $this->_em->persist($user);
         $this->_em->flush();
+    }
+
+    public function getOldGuest($delai_max) {
+        $limite = new DateTime();
+        $limite->sub(new DateInterval($delai_max));
+
+        return $this->createQueryBuilder('g')
+            ->andWhere('g.date_modification < :delai')
+            ->setParameter('delai', $limite)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 
     // /**

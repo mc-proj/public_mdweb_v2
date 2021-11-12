@@ -112,11 +112,6 @@ class MDWAdressesLivraison
     private $telephone;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $actif;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     private $derniere_modification;
@@ -217,18 +212,6 @@ class MDWAdressesLivraison
     public function setTelephone(?string $telephone): self
     {
         $this->telephone = $telephone;
-
-        return $this;
-    }
-
-    public function getActif(): ?bool
-    {
-        return $this->actif;
-    }
-
-    public function setActif(bool $actif): self
-    {
-        $this->actif = $actif;
 
         return $this;
     }

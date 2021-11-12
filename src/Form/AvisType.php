@@ -14,11 +14,6 @@ class AvisType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            /*->add('note')
-            ->add('commentaire')
-            ->add('produit')
-            ->add('user')*/
-
             ->add('note', ChoiceType::class, [
                 'label' => 'Note :',
                 'choices' => [

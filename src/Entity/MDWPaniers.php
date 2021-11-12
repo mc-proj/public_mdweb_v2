@@ -8,6 +8,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use DateTime;
+use DateInterval;
+
 /**
  * @ORM\Entity(repositoryClass=MDWPaniersRepository::class)
  */
@@ -228,7 +231,17 @@ class MDWPaniers
     public function setDateModification(\DateTimeInterface $date_modification): self
     {
         $this->date_modification = $date_modification;
-
         return $this;
+    }
+
+    public function isOld($delai_max) {
+        $limite = new DateTime();
+        $limite->sub(new DateInterval($delai_max));
+
+        if($this->date_modification < $limite) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -8,9 +8,7 @@
 {% endblock %}
 
 {% block body %}
-    {# {% set user = facture.usersId %} #}
     {% set user = facture.getUser() %}
-    {# {% set adresse_livraison = facture.getIdAdresseLivraison() %} #}
     {% set adresse_livraison = facture.getAdresseLivraison() %}
 
     <div class="container" id="container-principal">
@@ -61,96 +59,20 @@
                 <th class="en-tete-tableau-commande">Total</th>
             </tr>
 
-            {#  #}
             {% for produit in facture.getProduit() %}
                 {% set produit = produit_lie.getProduitsId() %}
-
-                {# {% if produit.getEtatTva() %}
-                    {% set tva = produit.getTauxTvaId().getTaux() %}
-                {% else %}
-                    {% set tva = 0 %}
-                {% endif %} #}
                 <tr>
                     <td>
-                        {# {% set categorie = produit.getCategories()|first %}
-                        {% if categorie.getSousCategories()|length < 1 %}
-                            <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': produit.getNom()}) }}" class="lien-produit">
-                        {% else %}
-                            {% set categorie_generale = "" %}
-                            {% set sous_categorie = "" %}
-
-                            {% for categorie in produit.getCategories() %}
-                                {% if(categorie.getSousCategories|length > 0 ) %}
-                                    {% set sous_categorie = categorie.getNom() %}
-                                {% else %}
-                                    {% set categorie_generale = categorie.getNom() %}
-                                {% endif %}
-                            {% endfor %}
-
-                            <a href="{{ path('produits_par_categorie', {'categorie': categorie_generale, 'sous_categorie': sous_categorie, 'produit': produit.getNom() }) }}" class="lien-article">
-                        {% endif %}
-                        {{ produit.nom }}</a> x {{ produit_lie.quantite }} #}
-
                         <a href="{{ path('vue_produit', {'nom_produit': produit.nom()}) }}" class="lien-article">
                         {{ produit.nom }}</a> x {{ produit_lie.quantite }}
                     </td>
 
                     <td>
-                        {# {% if produit.getDateDebutPromo()|date('Y-m-d') <= facture.dateCreation|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= facture.dateCreation|date('Y-m-d') %}
-                            {% set prix = (produit.getTarifPromo()/100) *  produit_lie.quantite %}
-                            &euro;{{ prix|number_format(2, ',', ' ') }}
-                        {% else %}
-                            {% set prix = (produit.tarif/100) *  produit_lie.quantite %}
-                            &euro;{{ prix|number_format(2, ',', ' ') }}
-                        {% endif %} #}
                         {% set tarifs = produit.getTarifEffectif(facture.getDateCreation()) %}
                         &euro;{{ (tarifs['ttc']/100 * produit_lie.quantite)|number_format(2, ',', ' ') }}
                     </td>
                 </tr>   
             {% endfor %}
-            {#  #}
-        
-            {# {% for produit_lie in produits_lies %}
-                {% set produit = produit_lie.getProduitsId() %}
-
-                {% if produit.getEtatTva() %}
-                    {% set tva = produit.getTauxTvaId().getTaux() %}
-                {% else %}
-                    {% set tva = 0 %}
-                {% endif %}
-                <tr>
-                    <td>
-                        {% set categorie = produit.getCategories()|first %}
-                        {% if categorie.getSousCategories()|length < 1 %}
-                            <a href="{{ path('produits_par_categorie', {'categorie': categorie.getNom(), 'sous_categorie': produit.getNom()}) }}" class="lien-produit">
-                        {% else %}
-                            {% set categorie_generale = "" %}
-                            {% set sous_categorie = "" %}
-
-                            {% for categorie in produit.getCategories() %}
-                                {% if(categorie.getSousCategories|length > 0 ) %}
-                                    {% set sous_categorie = categorie.getNom() %}
-                                {% else %}
-                                    {% set categorie_generale = categorie.getNom() %}
-                                {% endif %}
-                            {% endfor %}
-
-                            <a href="{{ path('produits_par_categorie', {'categorie': categorie_generale, 'sous_categorie': sous_categorie, 'produit': produit.getNom() }) }}" class="lien-article">
-                        {% endif %}
-                        {{ produit.nom }}</a> x {{ produit_lie.quantite }}
-                    </td>
-
-                    <td>
-                        {% if produit.getDateDebutPromo()|date('Y-m-d') <= facture.dateCreation|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= facture.dateCreation|date('Y-m-d') %}
-                            {% set prix = (produit.getTarifPromo()/100) *  produit_lie.quantite %}
-                            &euro;{{ prix|number_format(2, ',', ' ') }}
-                        {% else %}
-                            {% set prix = (produit.tarif/100) *  produit_lie.quantite %}
-                            &euro;{{ prix|number_format(2, ',', ' ') }}
-                        {% endif %}
-                    </td>
-                </tr>   
-            {% endfor %} #}
 
             <tr>
                 <td>Sous-total HT :</td>
@@ -167,12 +89,10 @@
                 <td>&euro;{{ (facture.getMontantTtc()/100 - facture.getMontantHt()/100)|number_format(2, ',', ' ') }}</td>
             </tr>
 
-            {# {% if(facture.getCodesPromoId() is not same as(null)) %} #}
             {% if(facture.getCodePromo is not same as(null)) %}
                 {% set code_promo = facture.getCodePromo %}
                 <tr>
                     <td>Code promo : {{ code_promo.code }}</td>
-                    {# <td>&euro;{{ (facture.getMontantTotal()/100 - facture.getMontantTtc()/100)|number_format(2, ',', ' ') }}</td> #}
                     <td>&euro;{{ (facture.getMontantTtc()/100 - facture.getMontantTotal()/100)|number_format(2, ',', ' ') }}</td>
                 </tr>
             {% endif %}

@@ -14,7 +14,6 @@
         {# Lien CDN Bootstrap #}
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
         {# Lien Font Awesome #}
-            {# <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/> #}
             <link rel="stylesheet" href="{{ asset('fontawesome-5.15.4/css/all.css') }}">
         {# image favicon #}
             <link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon/logo_32x32.png') }}">
@@ -45,32 +44,10 @@
             </div>
         </div>
 
-        {# test
-        <i class="fa fa-camera-retro"></i>
-        <i class="fas fa-camera-retro"></i>
-        test #}
-
         {% block header %}
-        {# from doc begin  #}
-                        {# <form class="row row-cols-lg-auto g-3 align-items-center">
-                            <div class="col-10">
-                                <input type="text" class="form-control mr-3" placeholder="Rechercher..." aria-label="Rechercher...">
-                                <div class="form-control" id="resultats-recherche"></div>
-                            </div>
-
-                            <div class="col-2">
-                                <button id="croix-recherche" type="button" class="close ml-auto" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        </form> #}
-                        {# from doc end #}
-
             <div id="div-header">
                 <div class="container-fluid" id="container-header">
-
-                {# begin #}
-                <div class="row ligne-recherche" style="display: none"> {# display none ds css casse le design lors du slideToggle #}
+                <div class="row ligne-recherche" style="display: none">
                     <div class="col-11">
                         <form>
                             <label class="visually-hidden" for="texte-recherche">Rechercher un produit...</label>
@@ -78,7 +55,6 @@
                                 <input type="text" class="form-control" id="texte-recherche" placeholder="Rechercher un produit...">
                             </div>
 
-                            {# essai #}
                             <div class="form-control" id="resultats-recherche"></div>
                         </form>
                     </div>
@@ -87,22 +63,6 @@
                         <button id="croix-recherche"  class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                 </div>
-                {# end #}
-
-                {# ori #}
-                    {# <div class="row ligne-recherche">
-                        <div class="col-12">
-                            <form class="form-inline">
-                                <input class="form-control mr-3" id="texte-recherche" type="search" placeholder="Rechercher..." aria-label="Search">
-                                <div class="form-control" id="resultats-recherche"></div>
-
-                                <button id="croix-recherche" type="button" class="close ml-auto" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </form>  
-                        </div>
-                    </div> #}
-
                     <div class="row" id="header-main-row">
                         <div class="col-1" id='icone-recherche'>
                             <i class="fas fa-search icone"></i>
@@ -115,11 +75,6 @@
                                 </span>
                             {% endif %}
                             <span class="element-menu">
-                                {# {% if app.user %}
-                                    <a href="{{ path('mon_compte') }}">Mon compte</a>
-                                {% else %}
-                                    <a href="{{ path('app_login') }}">Connexion</a>
-                                {% endif %} #}
                                 {% if app.user %}
                                     {% if current_path is not same as ("mon_compte") %}
                                         <a href="{{ path('mon_compte') }}">Mon compte</a>
@@ -162,21 +117,8 @@
                             </span>
                         </div>
                         <div class="col-2" id='icone-panier'>
-                            {# @TODO panier (base.html) #}
                             <a href="{{ path('accueil_panier') }}">    
-                                {# ori #}
                                 <i class="fas fa-shopping-cart icone" id="logo-panier" data-container="body" data-bs-toggle="popover" data-bs-content="<div class='container' id='apercu-popover'><img id='loader-apercu' src='{{ asset("images/loader.svg") }}'></div>"></i>
-                                
-                                
-                                {# <i class="fas fa-shopping-cart icone" id="logo-panier" data-animation=true data-container="body" data-bs-toggle="popover" data-bs-content="<div class='container' id='apercu-popover'><img id='loader-apercu' src='{{ asset("images/loader.svg") }}'></div>"></i> #}
-                                
-                                {# <i class="fas fa-shopping-cart icone" id="logo-panier" data-animation=true data-container="body" data-bs-toggle="popover"
-                                    data-bs-content="<div class='container' id='apercu-popover'><img id='loader-apercu' src='{{ asset("images/loader.svg") }}'></div>"
-                                    
-                                ></i> #}
-
-                                
-                                
                                 <span class="badge bg-light text-dark" id="compteur-panier">
                                     {% if app.session.get("quantites_session") is not same as (null) %}
                                         {{ app.session.get("quantites_session")['nombre_articles_panier'] }}
@@ -205,13 +147,8 @@
             </div>
         {% endblock %} {#fin block header #}
 
-        {# {% block body %}
-            <div id="content"></div>
-        {% endblock %} #}
         <div id="content">
-            {% block body %}
-
-            {% endblock %}
+            {% block body %}{% endblock %}
         </div>
 
         {% block footer %}
@@ -337,9 +274,7 @@
 
         {# liens pour ReCaptcha #}
             <script>
-                {# let test_key = {{ gg_recaptcha_site_key }}; #}
                 let cle_site = {{ gg_recaptcha_site_key|json_encode|raw }};
-                //console.log(test_key);
             </script>
             <script type="text/javascript" src="{{ asset('js/captcha.js') }}"></script>
             <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?onload=onGoogleReCaptchaApiLoad&render=explicit&hl={{app.request.locale}}" async defer></script>
@@ -348,8 +283,6 @@
                 let current_route = '{{ app.request.get("_route") }}';
                 let racine = '{{ asset("") }}';
                 let route_apercu_panier = '{{ path("panier_apercu")}}';
-                {# let route_retrait = '{{ path("panier_retrait") }}';
-                let route_panier = '{{ path("panier") }}'; #}
                 let route_panier = '{{ path("accueil_panier") }}';
                 let route_retrait = '{{ path("modifie_panier") }}';
             </script>

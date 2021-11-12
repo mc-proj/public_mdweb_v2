@@ -27,14 +27,6 @@
 
                         <div class="card-body">
                             <p class="nom-produit">{{ produit.nom }}</p>
-                              {# will it be useless ? #}
-                            {# {% if produit.getTvaActive() %}
-                                {% set tva = produit.getTauxTva().getTaux() %}
-                            {% else %}
-                                {% set tva = 0 %}
-                            {% endif %} #}
-
-                            {# test begin #}
                             {% set tarifs = produit.getTarifsAffiches() %}
                             {% if tarifs['tarif_promo']  is not same as null %}
                                 <p class="prix-produit" id="ligne-promo">
@@ -51,24 +43,6 @@
                                     &euro;{{ (tarifs['tarif']/100)|number_format(2, ',', ' ')}}
                                 </p>
                             {% endif %}
-                            {# test end #}
-
-                            {# original #}
-                            {# {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
-                                <p class="prix-produit" id="ligne-promo">
-                                    <del>
-                                        {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
-                                    </del>
-                                    <ins>
-                                        {{ (produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000))|format_currency('EUR') }}
-                                    </ins><br>
-                                </p>
-                                <div class="prix-produit text-center">promotion valable jusqu'au {{ produit.getDateFinPromo()|date('d/m/Y') }}</div>
-                            {% else %}
-                                <p class="prix-produit">
-                                    {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
-                                </p>
-                            {% endif %} #}
                         </div>
                     </div>
                 </a>
@@ -87,14 +61,6 @@
 
                         <div class="card-body">
                             <p class="nom-produit">{{ produit.nom }}</p>
-                              {# will it be useless ? #}
-                            {# {% if produit.getTvaActive() %}
-                                {% set tva = produit.getTauxTva().getTaux() %}
-                            {% else %}
-                                {% set tva = 0 %}
-                            {% endif %} #}
-
-                            {# test begin #}
                             {% set tarifs = produit.getTarifsAffiches() %}
                             {% if tarifs['tarif_promo'] is not same as null %}
                                 <p class="prix-produit" id="ligne-promo">
@@ -111,26 +77,6 @@
                                     &euro;{{ (tarifs['tarif']/100)|number_format(2, ',', ' ')}}
                                 </p>
                             {% endif %}
-                            {# test end #}
-
-
-                            {# original #}
-                            {# {% if produit.getDateDebutPromo()|date('Y-m-d') <= "now"|date('Y-m-d') and produit.getDateFinPromo()|date('Y-m-d') >= "now"|date('Y-m-d') %}
-                                <p class="prix-produit" id="ligne-promo">
-                                    <del>
-                                        {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
-                                    </del>
-                                    <ins>
-                                        {{ (produit.getTarifPromo()/100 + (produit.getTarifPromo()/100 * tva/10000))|format_currency('EUR') }}
-                                    </ins><br>
-                                </p>
-                                <div class="prix-produit text-center">promotion valable jusqu'au {{ produit.getDateFinPromo()|date('d/m/Y') }}</div>
-
-                            {% else %}
-                                <p class="prix-produit">
-                                    {{ (produit.tarif/100 + (produit.tarif/100 * tva/10000))|format_currency('EUR') }}
-                                </p>
-                            {% endif %} #}
                         </div>
                     </div>
                 </a>

@@ -1,4 +1,3 @@
-        
         /**
         * The callback function executed
         * once all the Google dependencies have loaded
@@ -9,12 +8,7 @@
                 renderReCaptcha(widgets[i]);
             }
         }
-        //------------
-        //console.log({{ gg_recaptcha_site_key|json_encode|raw }});
-        //console.log('{{ gg_recaptcha_site_key }}');
-        //TODO VOIR PR SECURISER
-        /*console.log("2");
-        console.log(cle_site);*/
+
         /**
         * Render the given widget as a reCAPTCHA 
         * from the data-type attribute
@@ -23,7 +17,6 @@
             var form = widget.closest('form');
             var widgetType = widget.getAttribute('data-type');
             var widgetParameters = {
-                //'sitekey': '{{ gg_recaptcha_site_key }}'
                 'sitekey': cle_site
             };
 

@@ -27,7 +27,6 @@ $(document).ready(function() {
     })
 
     $(".page-navigation").on("click", function() {
-
         loader(true);
         let cible = $(this).parent().closest("li");
 
@@ -40,9 +39,7 @@ $(document).ready(function() {
         let numero_page = $(this).data("number");
 
         if(typeof numero_page == "undefined") {
-
             if($(this).parent().attr("id") == "fleche-dernier") {
-
                 numero_page = Math.ceil(quantite_totale/qte_max_articles_affiches);
                 $(document).find(".page-number").last().addClass("active");
             } else {
@@ -61,7 +58,6 @@ $(document).ready(function() {
                 tri: $("#filtre").val(),
             },
             success: function(response) {
-
                 page_actuelle = numero_page;
                 let produits = JSON.parse(response);
 
@@ -78,18 +74,15 @@ $(document).ready(function() {
                 }
                 
                 ajoutCartes(produits);
+                let premier = qte_max_articles_affiches * (numero_page - 1) + 1;
+                let dernier = qte_max_articles_affiches * numero_page;
 
-               let premier = qte_max_articles_affiches * (numero_page - 1) + 1;
-               let dernier = qte_max_articles_affiches * numero_page;
+                if(dernier > quantite_totale) {
+                        dernier = quantite_totale;
+                }
 
-               if(dernier > quantite_totale) {
-                    dernier = quantite_totale;
-               }
-
-               window.scrollTo(0, 0); 
-
-               $("#texte-resultats").text("Affichage de " + premier + "-" + dernier + " sur " + quantite_totale + " résultat(s)");
-
+                window.scrollTo(0, 0); 
+                $("#texte-resultats").text("Affichage de " + premier + "-" + dernier + " sur " + quantite_totale + " résultat(s)");
                 loader(false);
             },
             error: function(err) {

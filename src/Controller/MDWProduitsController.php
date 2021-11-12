@@ -27,7 +27,6 @@ class MDWProduitsController extends AbstractController
 
     #[Route('/', name: 'categories')]
     public function vueBoutique(): Response {
-
         $categories = $this->MDWCategoriesRepository->getMainCategories();
 
         return $this->render('mdw_produits/boutique.html.twig', [
@@ -37,7 +36,6 @@ class MDWProduitsController extends AbstractController
 
     #[Route('/recherche', name: 'recherche_standard')]
     public function rechercheStandard(Request $request): Response {
-
         $form = $this->createForm(RechercheStandardType::class, null, [
             'action' => $this->generateUrl('recherche_standard') //par defaut, route utilisee est celle de la page qui fait l'include
         ]);
@@ -59,7 +57,6 @@ class MDWProduitsController extends AbstractController
 
     #[Route('/details/{nom_produit}', name: 'vue_produit')] //recherche generale par nom ou id
     public function vueProduit($nom_produit): Response {
-
         $produit = $this->MDWProduitsRepository->getByNomOrId($nom_produit);
         $categorie_principale = "";
         $categorie_secondaire = "";
@@ -94,7 +91,6 @@ class MDWProduitsController extends AbstractController
 
     #[Route('/filtre/{categorie}/{sous_categorie}/{nom_produit}', name: 'produits_par_categorie')]
     public function filtreCategorie($categorie, $sous_categorie=null, $nom_produit=null): Response {
-
         $produits = $this->MDWProduitsRepository->getByCategories($categorie, $sous_categorie, $nom_produit);
         $quantite_totale = count($produits);
 
@@ -107,7 +103,7 @@ class MDWProduitsController extends AbstractController
             if($sous_categorie !== null) {  //url du type ../categorie/nom_produit
                 return $this->redirectToRoute('vue_produit', ['nom_produit' => $sous_categorie]);
             }
-            return $this->redirectToRoute('vue_produit', ['nom_produit' => $categorie]); // ! cas ou seul 1er param fourni, correspond a un nom de produit
+            return $this->redirectToRoute('vue_produit', ['nom_produit' => $categorie]);
         }
 
         if($nom_produit !== null && count($produits) > 0) {
@@ -129,7 +125,6 @@ class MDWProduitsController extends AbstractController
 
     #[Route('/more', name: 'more_produits', methods: 'POST')]
     public function getMore(Request $request, NormalizerInterface $normalizer) {
-
         $categorie = $request->request->get("categorie");
         $sous_categorie = $request->request->get("sous_categorie");
         $page_visee = $request->request->get("numero_page");

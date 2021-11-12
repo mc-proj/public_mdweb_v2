@@ -46,16 +46,7 @@ $(document).ready(function() {
     //soumission adresse de livraison differente
     $("body").on("click", "#bouton_envoi", function(event) {
         event.preventDefault();
-
-        /*if(!$("#li-expedition").hasClass("d-none")) {
-            $("#li-expedition").addClass("d-none");
-
-            if($("#li-message").hasClass("d-none")) {
-                $("#rappel-validation").toggleClass("collapse");
-            }
-        }*/
         cacheNotificationAdresse();
-
         loader(true);
         let form = $("[name = 'adresse_livraison']");
         let form_data = form.serializeObject();
@@ -191,7 +182,7 @@ $(document).ready(function() {
             loader(true);
             $.ajax({
                 type: "POST",
-                url: "/paniers/paiement_post", //utilisation d'une url du type racine + "/mon_url" provoque une erreur
+                url: "/paniers/paiement_post",
                 data: data,
                 success: function(response) {
                     if(response.conditions_lues == false) {

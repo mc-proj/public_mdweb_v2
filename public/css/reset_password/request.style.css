@@ -1,12 +1,10 @@
 body {
-
     font-family: arial, sans-serif;
     font-size: 16px;
     color: #2B2B2B;
 }
 
 h1 {
-
     font-family: "roboto_condensed", arial;
     font-size: 48px;
     color: #404248;
@@ -14,7 +12,6 @@ h1 {
 }
 
 #bouton_envoi {
-
     background-color: #C86262 !important;
     border-color: #C86262 !important;
     color: black !important;
@@ -24,16 +21,13 @@ h1 {
 }
 
 #bouton_envoi:hover {
-
     background-color: rgb(0, 123, 255) !important;
     border-color: rgb(0, 123, 255) !important;
     color: white !important;
 }
 
 @media (max-width: 991px) {
-
     h1 {
-
         font-size: 24px;
     }
 }

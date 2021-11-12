@@ -46,21 +46,12 @@ class MDWAvisController extends AbstractController
             //pas d'utilisation des messages d'erreur sur le formulaire
             //les contraintes (note != blank et avis < 255 caracteres) sont imposees via front
             //les meme contraintes sont presentes en back pour la secu
-            //si un user a un message d'erreur, c'est qu'il a bricole le front
             if($form_avis->isValid()) {
-                /*$this->entityManager->persist($avis);
-                $this->entityManager->flush();
-                $this->addFlash('confirmation_avis', 'Votre avis a été enregistré. Merci de votre participation');*/
-
                 $this->entityManager->persist($avis);
                 $this->entityManager->flush();
                 return new JsonResponse(null);
-            } /*else {
-                $this->addFlash('erreur_avis', 'Erreur lors de la soumission de votre avis: un des champs est incorrect');
-            }*/
+            }
 
-            //return $this->redirectToRoute('vue_produit', ['nom_produit' => $produit->getNom()]);
-            //begin
             $response = new JsonResponse([
                 'output' => $this->renderView('form/avis_produit.html.twig', [
                     'form_avis' => $form_avis->createView(),
@@ -69,14 +60,10 @@ class MDWAvisController extends AbstractController
             , 200);
            
             return $response;
-            //end
         }
 
         return $this->render('form/avis_produit.html.twig', [
             'form_avis' => $form_avis->createView(),
         ]);
-        /*return $this->render('avis/form_avis.html.twig', [
-            'form_avis' => $form_avis->createView(),
-        ]);*/
     }
 }

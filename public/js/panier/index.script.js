@@ -185,7 +185,6 @@ $(document).ready(function() {
                 code: $("#input-code-promo").val()
             },
             success: function(response) {
-
                 response = JSON.parse(response);
 
                 $("#ligne-promo").removeClass("d-none");
@@ -223,7 +222,6 @@ $(document).ready(function() {
         loader(true);
 
         $.ajax({
-
             type: "POST",
             url: racine + "paniers/reset_promo",
             success: function() {
@@ -292,44 +290,12 @@ $(document).ready(function() {
         });
     }
 
-    //debut useless zone
-    /*function pseudoArrondi(nombre) {
-
-        nombre = Math.trunc(nombre * 100);
-        nombre = nombre/100;
-        return nombre;
-    }*/
-
-    function convertionNombreTextePourCalcul(texte) { //utile !!!
-
+    function convertionNombreTextePourCalcul(texte) {
         texte = texte.replace(",", ".");
         texte = texte.replace("€", "");
         texte = parseFloat(texte);
         return texte;
     }
-
-    /*function convertionNombrePourAffichage(prix) {
-
-        prix = formatteNombre(prix);
-        prix = prix.replace(".", ",");
-        return prix;
-    }*/
-
-    /*function formatteNombre(nombre) {
-
-        nombre = nombre.toFixed(2) + '';
-        nombre = nombre.split(".");
-        let entier = nombre[0];
-        let decimale = nombre[1];
-        let rgx = /(\d+)(\d{3})/;
-
-        while (rgx.test(entier)) {
-            entier = entier.replace(rgx, '$1' + ' ' + '$2');
-        }
-
-        return (entier + ',' + decimale);
-    }*/
-    //fin useless zone
 
     function loader(show) {
         if(show) {

@@ -11,7 +11,6 @@
 }
 
 #chemin {
-
     font-family: "aclonica", arial;
     font-size: 13.6px;
     color: #767676;
@@ -22,12 +21,10 @@
 }
 
 #chemin a{
-
     color: #767676;
 }
 
 #texte-resultats {
-
     font-family: "aclonica", arial;
     font-size: 13.6px;
     color: #404248;
@@ -38,42 +35,35 @@
 }
 
 #filtre {
-
     width: 300px;
 }
 
 .case-produit {
-
     margin-top: 30px;
     margin-bottom: 30px;
 }
 
 .card {
-
     height: 100%;
     overflow: hidden;
 }
 
 .card-img-top {
-
     transform: scale(1.0);
     transition: all 700ms;
 }
 
 .card-img-top:hover {
-
     transform: scale(1.1);
 }
 
 .nom-produit {
-
     font-size: 16px;
     color: #404248;
     text-align: left;
 }
 
 .prix-produit {
-
     font-family: "aclonica", arial;
     font-size: 13.712px;
     font-style: italic;
@@ -82,12 +72,10 @@
 }
 
 .lien-article {
-
     text-decoration: none;
 } 
 
 #message_null {
-
     font-family: "aclonica", arial;
     font-size: 16px;
     color: #404248;
@@ -98,19 +86,15 @@
 }
 
 .pagination a {
-
     border: none;
 }
 
 .pagination a:hover {
-
     cursor: pointer;
 }
 
 @media (max-width: 767px) {
-
     #texte-resultats, #chemin {
-
         font-size: 12.75px;
     }
 }

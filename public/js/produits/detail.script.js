@@ -89,7 +89,6 @@ $(document).ready(function() {
     })
 
     $("#plus").on("mouseleave", function() {
-
         if(!secu_bulle) {
             tempo = setTimeout(function() {
 
@@ -148,7 +147,6 @@ $(document).ready(function() {
             }
         })
     })
-
     
     //soumission message pour la livraison
     $("body").on("click", "#validation-avis", function(event) {
@@ -186,7 +184,6 @@ $(document).ready(function() {
     })
 
     function ajoutAvis(avis, note) {
-
         let classe_row = "row rang-avis";
 
         if(nombre_avis%2 === 0) {

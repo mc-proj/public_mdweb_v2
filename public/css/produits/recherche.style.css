@@ -1,15 +1,12 @@
 #container-principal {
-
     margin-top: 30px;
 }
 
 #case-recherche {
-
     padding: 0;
 }
 
 #bouton-recherche {
-
     background-color: lightgrey !important;
     position: relative;
     width: 20%;
@@ -20,6 +17,5 @@
 }
 
 .icone-loupe {
-
     font-size: 18px;
 }

@@ -57,10 +57,8 @@
                             <span>Prix:</span>
                             <span>
                                 {% set tarifs = produit.getTarifsAffiches() %}
-                                {# {% set prix = tarifs['tarif'] %} #}
                                 {% set prix = tarifs['tarif']|round %}
                                 {% if tarifs['tarif_promo'] is not same as null %}
-                                    {# {% set prix = tarifs['tarif_promo'] %} #}
                                     {% set prix = tarifs['tarif_promo']|round %}
                                 {% endif %}
                                 &euro;{{ (prix/100)|number_format(2, ',', ' ') }}
@@ -146,10 +144,8 @@
 
                         <div class="col-2 case-article" id="prix_unitaire_{{ produit.id }}">
                             {% set tarifs = produit.getTarifsAffiches() %}
-                            {# {% set prix = tarifs['tarif'] %} #}
                             {% set prix = tarifs['tarif']|round %}
                             {% if tarifs['tarif_promo'] is not same as null %}
-                                {# {% set prix = tarifs['tarif_promo'] %} #}
                                 {% set prix = tarifs['tarif_promo']|round %}
                             {% endif %}
 
@@ -281,12 +277,12 @@
                                 <td>Sous total TTC</td>
                                 {% if secu_promo['reduction'] is same as "" %}
                                     <td>&euro;
-                                        <span id="prix_ttc" {#data-prix="{{ panier.getMontantTtc()/100 }}"#}>
+                                        <span id="prix_ttc">
                                             {{ (panier.getMontantTtc()/100)|number_format(2, ',', ' ')  }}
                                         </span></td>
                                 {% else %}
                                     <td>&euro;
-                                        <span id="prix_ttc" {#data-prix="{{ (panier.getMontantTtc() - secu_promo['reduction'])/100 }}"#}>
+                                        <span id="prix_ttc">
                                             {{ ((panier.getMontantTtc() - secu_promo['reduction'])/100)|number_format(2, ',', ' ') }}
                                         </span>
                                     </td>
@@ -295,9 +291,6 @@
 
                             <tr>
                                 <td colspan="2">
-                                {# @TODO route pas encore cree #}
-                                {# <button class="btn btn-warning">VALIDER (provi)</button> #}
-                                {# class="btn btn-danger" #}
                                     <a href="{{ path('panier_paiement') }}" id="bouton-valide-commande" class="btn">VALIDER LA COMMANDE</a>
                                 </td>
                             </tr>
