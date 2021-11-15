@@ -110,8 +110,17 @@ body {
 
 .flex-centre {
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
+}
+
+#sablier {
+    scale: 1.5;
+    background-color: rgb(202, 64, 64);
+    padding: 5px;
+    margin: 5px;
+    border-radius: 25%;
+    visibility: hidden;
 }
 
 #texte-recherche {

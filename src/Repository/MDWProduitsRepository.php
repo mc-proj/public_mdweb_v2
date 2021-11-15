@@ -23,6 +23,7 @@ class MDWProduitsRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->where("p.mis_en_avant = 1")
             ->andWhere("p.est_visible = 1")
+            // a decommenter pour controler le stock
             //->andWhere('p.quantite_stock >= p.limite_basse_stock OR p.commandable_sans_stock = 1')
             ->orderBy('p.date_creation', 'DESC')
             ->setMaxResults($quantite_max)
@@ -35,6 +36,7 @@ class MDWProduitsRepository extends ServiceEntityRepository
             ->where("p.id = :data")
             ->orWhere("p.nom = :data")
             ->andWhere("p.est_visible = 1")
+            // a decommenter pour controler le stock
             //->andWhere('p.quantite_stock >= p.limite_basse_stock OR p.commandable_sans_stock = 1')
             ->setParameter('data', $data)
             ->getQuery()
@@ -58,7 +60,6 @@ class MDWProduitsRepository extends ServiceEntityRepository
 
             case 'decroissant':
                 $champ_tri = 'p.tarif';
-                $type_tri = 'DESC';
                 break;
         }
 

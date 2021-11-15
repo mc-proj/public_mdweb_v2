@@ -179,6 +179,52 @@ $(document).ready(function() {
         })
     })
 
+    //gestion animation sablier
+    let etape = 1;
+    let spin = null;
+
+    function spinHourglass(anime) {
+        if(!anime) {
+            clearInterval(spin);
+            $("#sablier").css("visibility", "hidden");
+            $("#sablier").css("rotate", "0deg");
+            $("#sablier").attr("class", "fas fa-hourglass-start");
+            etape = 1;
+        } else {
+            $("#sablier").css("visibility", "visible");
+            spin = setInterval(function() {
+                let classe = ""
+                switch(etape) {
+                    case 1:
+                        $("#sablier").css("rotate", "0deg");
+                        classe = "fas fa-hourglass-half";
+                        $("#sablier").attr("class", "");
+                        break;
+
+                    case 2:
+                        classe="fas fa-hourglass-end";
+                        $("#sablier").attr("class", "");
+                        break;
+
+                    case 3:
+                        $("#sablier").css("rotate", "90deg");
+                        break;
+
+                    case 4:
+                        $("#sablier").css("rotate", "180deg");
+                        etape = 0;
+                        break;
+                }
+
+                if($("#sablier").attr("class") === "") {
+                    $("#sablier").attr("class", classe);
+                }
+
+                etape++;
+            }, 400)
+        }
+    }
+
     //gestion recherche dynamique
     let tempo = null;
 
@@ -186,35 +232,42 @@ $(document).ready(function() {
         if(tempo != null) {
             clearTimeout(tempo);
             tempo = null;
+            spinHourglass(false);
         }
 
         let debut = $(this).val();
         tempo = setTimeout(function() {
+            spinHourglass(true);
             $.ajax({
                 type: "POST",
-                url: "commun/recherche",
+                url: racine + "commun/recherche",
                 data: {
                     debut: debut
                 },
                 success: function(response) {
                     let results = JSON.parse(response);
                     $("#resultats-recherche").empty();
+                    spinHourglass(false);
 
                     if(results.length == 0) {
                         $("#resultats-recherche").slideUp();
                     } else {
                         for(result of results) {
-                            let texte_lien = result.categorie;
-                            let lien = "<a href='produits/filtre/" + result.categorie;
+                            let lien = "<a href='" + racine + "produits/filtre/";
+                            let categorie = result.categorie !== null ? result.categorie : "";
+                            let sous_categorie = result.sous_categorie !== null ? result.sous_categorie : "";
+                            let produit = typeof(result.nom_produit) !== "undefined" ? result.nom_produit : "";
+                            let texte_lien = categorie;
+                            lien += categorie;
 
-                            if(result.sous_categorie !== null) {
-                                texte_lien = result.sous_categorie;
-                                lien += "/" + result.sous_categorie;
+                            if(sous_categorie !== "") {
+                                texte_lien = sous_categorie;
+                                lien += "/" + sous_categorie;
                             }
 
-                            if(result.nom_produit !== null) {
-                                texte_lien = result.nom_produit;
-                                lien += "/" + result.nom_produit;
+                            if(produit !== "") {
+                                texte_lien = produit;
+                                lien += "/" + produit;
                             }
 
                             lien += "'>" + texte_lien + "</a><br>";
