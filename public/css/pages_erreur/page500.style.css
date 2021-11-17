@@ -1,0 +1,22 @@
+body {
+    font-family: "aclonica", arial;
+    font-size: 16px;
+    color: #404248;
+    text-align: center;
+}
+
+.container {
+    margin-top: 10px;
+}
+
+.bouton-retour {
+    color: black;
+    background-color: #C86262;
+    font-size: 12.8px;
+    margin: 10px;
+}
+
+.bouton-retour:hover {
+    color: white;
+    background-color: rgb(0, 123, 255);
+}

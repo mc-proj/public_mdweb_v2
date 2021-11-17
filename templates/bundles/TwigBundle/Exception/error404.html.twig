@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/pages_erreur/page404.style.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <img src="{{ asset('images/illustrations/404_reduite.jpg') }}" alt="image_erreur_404">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                La page que cherchez n'existe pas<br>
+                <a class="btn bouton-retour" href="{{ path('accueil') }}">Revenir vers la page d'accueil</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

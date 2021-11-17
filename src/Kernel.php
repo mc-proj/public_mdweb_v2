@@ -29,6 +29,9 @@ class Kernel extends BaseKernel
         $routes->import('../config/{routes}/'.$this->environment.'/*.yaml');
         $routes->import('../config/{routes}/*.yaml');
 
+        $routes->import('@FrameworkBundle/Resources/config/routing/errors.xml')
+                ->prefix('/_error');
+
         if (is_file(\dirname(__DIR__).'/config/routes.yaml')) {
             $routes->import('../config/routes.yaml');
         } else {
