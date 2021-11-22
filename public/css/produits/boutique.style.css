@@ -32,17 +32,18 @@
 }
 
 .card-img-top:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 .lien-categorie {
     font-family: "roboto_condensed", arial;
     font-size: 16px;
-    color: #0366D6;
+    color: #404248;
     letter-spacing: 1px;
     text-decoration: none;
 }
 
 .lien-categorie:hover {
     text-decoration: underline;
+    color: rgb(64, 66, 72);
 }
