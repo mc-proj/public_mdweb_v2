@@ -61,7 +61,7 @@ class MDWUsers implements UserInterface, PasswordAuthenticatedUserInterface
      *         maxMessage = "Votre Nom doit comporter moins de {{ limit }} caractères"
      * )
      */
-    #[Groups(['read:facture:MDWFacture'])] //ori alone
+    #[Groups(['read:facture:MDWFacture'])]
     private $nom;
 
     /**

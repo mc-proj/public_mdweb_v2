@@ -161,7 +161,6 @@ class MDWPaniers
         return $this->adresse_livraison;
     }
 
-    //public function setAdresseLivraison(MDWAdressesLivraison $adresse_livraison): self
     public function setAdresseLivraison(?MDWAdressesLivraison $adresse_livraison): self
     {
         $this->adresse_livraison = $adresse_livraison;
