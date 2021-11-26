@@ -45,6 +45,7 @@ class RegistrationController extends AbstractController
                 )
             );
 
+            $user->setIsVerified(false);
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
@@ -52,7 +53,6 @@ class RegistrationController extends AbstractController
             // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
-                    ->from(new Address('symfo.testmail@gmail.com', 'MDW mailbox'))
                     ->to($user->getEmail())
                     ->subject('Marché du web - Confirmation adresse email')
                     ->htmlTemplate('registration/confirmation_email.html.twig')
@@ -80,7 +80,6 @@ class RegistrationController extends AbstractController
     #[Route('/verify/email', name: 'app_verify_email')]
     public function verifyUserEmail(Request $request): Response
     {
-        $this->addFlash('register_success', 'Votre adresse email a bien été confirmée');
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         // validate email confirmation link, sets User::isVerified=true and persists
@@ -92,6 +91,7 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
+        $this->addFlash('register_success', 'Votre adresse email a bien été confirmée');
         return $this->redirectToRoute('app_login');
     }
 

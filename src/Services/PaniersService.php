@@ -108,7 +108,6 @@ class PaniersService {
                 if($panier_user->getCodePromo() !== null) {
                     $panier_user->setCodePromo(null);
                 }
-                //
 
                 if($promo_guest !== null) {
                     $liaison = $this->codesPromosUsersRepository->findOneBy([
@@ -118,7 +117,7 @@ class PaniersService {
 
                     if($liaison === null) { //code promo non utilise par user
                         //remarque: les conditions d'utilisation du code promo ont ete verifiees lors de sa liaison
-                        //au panier guest. A ce niveau, la panier user precedent a ete vidé (si existant) et recupere
+                        //au panier guest. A ce niveau, le panier user precedent a ete vidé (si existant) et il recupere
                         //les donnees du panier guest => pas besoin de re-controler les conditions pour le code promo
                         $panier_user->setCodePromo($promo_guest);
                     }
@@ -148,7 +147,6 @@ class PaniersService {
     }
 
     public function controlePromoLiee() {
-        //$panier = $this->getPanier();
         $panier = $this->getPanier();
         $code_promo = $panier->getCodePromo();
         $erreur = "";
@@ -170,11 +168,10 @@ class PaniersService {
             //gestion minimum d'achat
             else if($panier->getMontantTtc() < $code_promo->getMinimumAchat()) {
                 $erreur = "Vous ne remplissez pas les conditions : " . $description;
-            } else if($this->security->getUser() !== null) {  //si user connecte  //else if($this->getUser() !== null)
+            } else if($this->security->getUser() !== null) {  //si user connecte
 
                 $user = $this->getUtilisateur();
                 $promos_users = $user->getCodesPromos(); //recuperation des entites pivots codePromo_users lies au user
-                // ori  $promos_users = $this->getUser()->getCodesPromos(); //recuperation des entites pivots codePromo_users lies au user
 
                 foreach($promos_users as $promo_user) { //parcours des liaisons pivots
                     if($promo_user->getCodePromo() === $code_promo) {

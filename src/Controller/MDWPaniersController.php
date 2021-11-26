@@ -512,7 +512,6 @@ class MDWPaniersController extends AbstractController
         $this->videPanier();
 
         $email = (new TemplatedEmail())
-                ->from($this->getParameter('admin_mail'))
                 ->to($user->getEmail())
                 ->subject("Marché du Web: validation de votre commande")
                 ->priority(Email::PRIORITY_HIGH)

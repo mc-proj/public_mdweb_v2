@@ -15,12 +15,8 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordC
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
-
 use App\Repository\MDWUsersRepository;
-//use App\Repository\MDWPaniersRepository;
-//use App\Repository\MDWPaniersProduitsRepository;
 use App\Controller\MDWPaniersController;
-
 use App\Services\PaniersService;
 
 class LoginAuthenticator extends AbstractLoginFormAuthenticator
@@ -34,22 +30,16 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
     private $userRepository;
     private $panierRepository;
     private $panierProduitRepository;
-
     private $paniersService;
 
     public function __construct(UrlGeneratorInterface $urlGenerator,
                                 MDWUsersRepository $userRepository,
-                                //MDWPaniersRepository $panierRepository,
                                 MDWPaniersController $panierController,
                                 PaniersService $paniersService,
-                                /*MDWPaniersProduitsRepository $panierProduitRepository*/)
-    {
+                            ) {
         $this->urlGenerator = $urlGenerator;
         $this->userRepository = $userRepository;
-        //$this->panierRepository = $panierRepository;
-        //$this->panierProduitRepository = $panierProduitRepository;
         $this->panierController = $panierController;
-
         $this->paniersService = $paniersService;
     }
 
@@ -57,14 +47,10 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
     {
         $email = $request->request->get('email', '');
 
-        //secu maison
-        //cas visiteur -> creation d'un user en bdd avec ROLE_GUEST
-        //secu pour empecher petit malin de bricoler un form pr se connecter via un compte guest
-        //if($this->checkIsGuest($request->request->get('email'))) {
+        //empeche de se connecter via un compte avec ROLE_GUEST
         if($this->checkIsGuest($email)) {
             return new RedirectResponse($this->urlGenerator->generate('accueil'));
         }
-        //
 
         $request->getSession()->set(Security::LAST_USERNAME, $email);
 
@@ -79,11 +65,7 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        //dd($request);
-        //test zone begin
-        //$this->panierController->panierGuestVersPanierConnecte();
         $this->paniersService->panierGuestVersPanierConnecte();
-        //test zone end
 
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);

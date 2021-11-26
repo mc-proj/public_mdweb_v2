@@ -10,17 +10,24 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
+use App\Repository\MDWUsersRepository;
+
 class EmailVerifier
 {
     private $verifyEmailHelper;
     private $mailer;
     private $entityManager;
+    private $usersRepository;
 
-    public function __construct(VerifyEmailHelperInterface $helper, MailerInterface $mailer, EntityManagerInterface $manager)
+    public function __construct(VerifyEmailHelperInterface $helper,
+                                MailerInterface $mailer,
+                                EntityManagerInterface $manager,
+                                MDWUsersRepository $usersRepository)
     {
         $this->verifyEmailHelper = $helper;
         $this->mailer = $mailer;
         $this->entityManager = $manager;
+        $this->usersRepository = $usersRepository;
     }
 
     public function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email): void
@@ -47,10 +54,12 @@ class EmailVerifier
     public function handleEmailConfirmation(Request $request, UserInterface $user): void
     {
         $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getEmail());
+        //$user()->setIsVerified(true); -- pose probleme
+        $utilisateur = $this->usersRepository->findOneBy(["id" => $user->getId()]);
+        $utilisateur->setIsVerified(true);
 
-        $user->setIsVerified(true);
-
-        $this->entityManager->persist($user);
+        $this->entityManager->persist($utilisateur);
+        //$this->entityManager->persist($user);
         $this->entityManager->flush();
     }
 }

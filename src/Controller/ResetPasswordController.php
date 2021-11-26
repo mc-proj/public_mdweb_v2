@@ -155,7 +155,6 @@ class ResetPasswordController extends AbstractController
         }
 
         $email = (new TemplatedEmail())
-            ->from(new Address('symfo.testmail@gmail.com', 'Marché du web - ne pas répondre'))
             ->to($user->getEmail())
             ->subject('Marché du web - Réinitialisation de votre mot de passe')
             ->priority(Email::PRIORITY_HIGH)
