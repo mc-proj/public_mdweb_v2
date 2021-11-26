@@ -40,11 +40,13 @@ class CleanVisiteursCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $users = $this->usersRepository->getOldGuest("P2D");//Period of 2 Days
+        //recuperation de tout les users dont la derniere modification remonte a plus de 2 jours
+        $users = $this->usersRepository->getOldGuest("P2D");//P2D == Period of 2 Days
         $old_guests = [];
 
         foreach($users as $user) {
-            if(in_array("ROLE_GUEST", $user->getRoles())) {
+            //on selectionne les comptes qui ont un role_guest (simples visiteurs) ou qui n'ont pas été validés
+            if(in_array("ROLE_GUEST", $user->getRoles()) || !$user->isVerified()) {
                 array_push($old_guests, $user);
             }
         }

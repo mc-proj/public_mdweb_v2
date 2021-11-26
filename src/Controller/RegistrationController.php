@@ -61,7 +61,10 @@ class RegistrationController extends AbstractController
                     ])
             );
             
-            $this->addFlash('register_success', 'Votre demande de création de compte a bien été prise en compte. Nous vous avons envoyé un message afin de confirmer votre adresse email');
+            $this->addFlash('register_success', 'Votre demande de création de compte a bien été prise en compte.
+                                                Nous vous avons envoyé un message afin de confirmer votre adresse email.
+                                                Cette opération est indispensable pour utiliser votre compte');
+
             return $this->redirectToRoute('app_login');
         } else if($form->isSubmitted()) {
             $erreurs = [];

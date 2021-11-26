@@ -47,9 +47,8 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
     {
         $email = $request->request->get('email', '');
 
-        //empeche de se connecter via un compte avec ROLE_GUEST
-        if($this->checkIsGuest($email)) {
-            return new RedirectResponse($this->urlGenerator->generate('accueil'));
+        if(!$this->secuLoggin($email)) {
+            $email = '';
         }
 
         $request->getSession()->set(Security::LAST_USERNAME, $email);
@@ -79,13 +78,17 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
     }
 
-    private function checkIsGuest($email) {
+    private function secuLoggin($email) {
+        $secu_ok = true;
         $user = $this->userRepository->findOneBy(['email' => $email]);
 
+        //empeche de se connecter via un compte avec ROLE_GUEST
         if($user !== null && in_array('ROLE_GUEST', $user->getRoles())) {
-            return true;
-        } else {
-            return false;
+            $secu_ok = false;
+        } else if($user !== null && !$user->isVerified()) { //empeche la connexion avec un compte non validé
+            $secu_ok = false;
         }
+
+        return $secu_ok;
     }
 }
