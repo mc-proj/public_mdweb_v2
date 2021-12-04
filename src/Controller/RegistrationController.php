@@ -37,7 +37,6 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
             $user->setPassword(
                 $passwordEncoder->encodePassword(
                     $user,
@@ -100,7 +99,6 @@ class RegistrationController extends AbstractController
 
     #[Route('/compte', name: 'mon_compte')]
     public function monCompte(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response {
-
         if($this->getUser()) {
             $user = $this->getUser();
             $form_profil = $this->createForm(EditeCompteType::class, $user);

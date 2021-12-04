@@ -169,7 +169,6 @@ class PaniersService {
             else if($panier->getMontantTtc() < $code_promo->getMinimumAchat()) {
                 $erreur = "Vous ne remplissez pas les conditions : " . $description;
             } else if($this->security->getUser() !== null) {  //si user connecte
-
                 $user = $this->getUtilisateur();
                 $promos_users = $user->getCodesPromos(); //recuperation des entites pivots codePromo_users lies au user
 

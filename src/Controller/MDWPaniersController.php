@@ -411,10 +411,6 @@ class MDWPaniersController extends AbstractController
 
     #[Route('/paiement_post', name: 'panier_paiement_post', methods: 'POST')]
     public function postPaiement(Request $request) {
-        $stripe = new \Stripe\StripeClient(
-            $this->getParameter("app.stripe_sk")  
-        );
-
         \Stripe\Stripe::setApiKey(
             $this->getParameter("app.stripe_sk")
         );
@@ -472,7 +468,6 @@ class MDWPaniersController extends AbstractController
         $code_promo = $panier->getCodePromo();
 
         if($code_promo !== null) {
-
             $code_promo_user = new MDWCodesPromosUsers();
             $code_promo_user->setCodePromo($code_promo);
             $code_promo_user->setUser($user);
@@ -543,15 +538,6 @@ class MDWPaniersController extends AbstractController
         $user->setIdStripe($customer->id);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
-
-        \Stripe\Stripe::setApiKey(
-            $this->getParameter("app.stripe_sk")
-        );
-
-        $stripe = new \Stripe\StripeClient(
-            $this->getParameter("app.stripe_sk")
-        );
-
         return new JsonResponse([]);
     }
 }

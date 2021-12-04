@@ -4,7 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    admin_mail: 'symfo.testmail@gmail.com'
+    admin_mail: ''
     app.nb_max_articles_affiches: '%env(NOMBRE_MAX_ARTICLES_AFFICHES)%'
     app.nb_articles_mis_en_avant: '%env(NOMBRE_ARTICLES_MIS_EN_AVANT)%'
     app.nb_articles_recents: '%env(NOMBRE_ARTICLES_RECENTS)%'

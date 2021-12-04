@@ -223,7 +223,6 @@
     <script>
         let stripe_pk = {{ stripe_pk|json_encode|raw }};
         let user_mail = {{ user.getEmail()|json_encode|raw }};
-        
     </script>
     <script src="{{ asset('js/panier/paiement.script.js') }}"></script>
 {% endblock %}

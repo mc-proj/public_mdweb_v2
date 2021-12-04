@@ -61,18 +61,17 @@ class MDWProduitsController extends AbstractController
         $categorie_principale = "";
         $categorie_secondaire = "";
 
-        if($produit !== null) {
-            foreach($produit->getCategories() as $categorie) {
-                if(count($categorie->getCategoriesParentes()) > 0) {
-                    $categorie_secondaire = $categorie->getNom();
-    
-                } else {
-                    $categorie_principale = $categorie->getNom();
-                }
-    
-                if($categorie_principale !== '' && $categorie_secondaire !== '') {
-                    break;
-                }
+        foreach($produit->getCategories() as $categorie) {
+            if(count($categorie->getCategoriesParentes()) > 0) {
+                $categorie_secondaire = $categorie->getNom();
+                $categorie_principale = $categorie->getCategoriesParentes()[0]->getNom();
+            } else {
+                $categorie_principale = $categorie->getNom();
+                $categorie_secondaire = "";
+            }
+
+            if($categorie_secondaire !== "") {
+                break;
             }
         }
 

@@ -1,5 +1,5 @@
 $(document).ready(function() {
-
+    
     var stripe = Stripe(stripe_pk);
     var elements = stripe.elements();
     var numero_carte = elements.create('cardNumber');
@@ -172,7 +172,6 @@ $(document).ready(function() {
         };
         //utiliser carte enregistree
         if($("#utiliser-carte-enregistree").length && $("#utiliser-carte-enregistree").is(':checked')) {
-
             data.payment_method_id = $("#carte_enregistree").val();
         }
 
@@ -217,7 +216,6 @@ $(document).ready(function() {
                                 }
                             });
                         } else { //on paie avec une carte non enregistree
-                            
                             let secret = response.client_secret;
                             let num_carte = elements._elements[0];
                 

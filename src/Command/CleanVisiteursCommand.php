@@ -41,7 +41,7 @@ class CleanVisiteursCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         //recuperation de tout les users dont la derniere modification remonte a plus de 2 jours
-        $users = $this->usersRepository->getOldGuest("P2D");//P2D == Period of 2 Days
+        $users = $this->usersRepository->getOldUsers("P2D");//P2D == Period of 2 Days
         $old_guests = [];
 
         foreach($users as $user) {

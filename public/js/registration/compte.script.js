@@ -59,7 +59,7 @@ $(document).ready(function() {
                 $("#modale-adresse-facturation").html(texte_adresse_user);
 
                 if(resultats.adresseLivraison === null) {
-                    $("#modale-adresse-livraison").text(texte_adresse_user);
+                    $("#modale-adresse-livraison").html(texte_adresse_user);
                 }
 
                 else {

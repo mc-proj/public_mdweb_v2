@@ -38,7 +38,7 @@ class MDWUsersRepository extends ServiceEntityRepository implements PasswordUpgr
         $this->_em->flush();
     }
 
-    public function getOldGuest($delai_max) {
+    public function getOldUsers($delai_max) {
         $limite = new DateTime();
         $limite->sub(new DateInterval($delai_max));
 
